@@ -1,0 +1,354 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id               String      @id @default(uuid())
+  email            String      @unique
+  name             String?
+  phone            String?
+  avatar           String?
+  role             Role        @default(CUSTOMER)
+  emailVerified    Boolean     @default(false)
+  lastLogin        DateTime?
+  isBlocked        Boolean     @default(false)
+  marketingConsent Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  
+  orders           Order[]
+  reviews          Review[]
+  wishlists        Wishlist[]
+  addresses        Address[]
+
+  @@map("users")
+}
+
+model Address {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           String   @default("Home") // Home, Office, Gift, etc.
+  name           String
+  street         String
+  city           String
+  state          String?
+  zip            String
+  country        String   @default("India")
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("addresses")
+}
+
+model Product {
+  id                  String         @id @default(uuid())
+  slug                String         @unique
+  title               String
+  film                String
+  year                Int
+  director            String
+  cast                String[]
+  collectionName      String
+  collection          Collection     @relation(fields: [collectionName], references: [name])
+  genre               String
+  price               Float
+  inventory           Int            @default(0)
+  lowStockThreshold   Int            @default(5)
+  isPreorder          Boolean        @default(false)
+  isSoldOut           Boolean        @default(false)
+  limitedEditionCount Int?
+  
+  // Custom flags
+  featured            Boolean        @default(false)
+  newArrival          Boolean        @default(false)
+  bestSeller          Boolean        @default(false)
+  featuredOrder       Int            @default(0)
+  averageRating       Float          @default(0.0)
+  reviewCount         Int            @default(0)
+
+  // Palette settings
+  primaryColor        String
+  accentColor         String
+  bgColor             String
+  textColor           String
+
+  gsm                 Int            @default(250)
+  finish              String         @default("Ultra-Matte Giclée")
+  paperType           String         @default("Fine Art Cotton Archival")
+  
+  tagline             String
+  story               String         @db.Text
+  designNotes         String         @db.Text
+
+  images              ProductImage[]
+  reviews             Review[]
+  orderItems          OrderItem[]
+  wishlistedBy        Wishlist[]
+  
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  publishedAt         DateTime?
+
+  @@map("products")
+}
+
+model ProductImage {
+  id        String    @id @default(uuid())
+  productId String
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String
+  sortOrder Int       @default(0)
+  type      ImageType @default(GALLERY) // HERO, GALLERY, WALL_MOCKUP, PACKAGING, DETAIL, MOBILE
+
+  @@map("product_images")
+}
+
+enum ImageType {
+  HERO
+  GALLERY
+  WALL_MOCKUP
+  PACKAGING
+  DETAIL
+  MOBILE
+}
+
+model Collection {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+
+  @@map("collections")
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@map("wishlists")
+}
+
+model Review {
+  id               String   @id @default(uuid())
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id])
+  userName         String
+  rating           Int
+  title            String?
+  comment          String   @db.Text
+  images           String[]
+  adminReply       String?  @db.Text
+  helpfulCount     Int      @default(0)
+  verifiedPurchase Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  @@map("reviews")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  size      String
+  frame     String
+  price     Float
+  quantity  Int
+
+  @@map("order_items")
+}
+
+model Order {
+  id                 String                @id @default(uuid())
+  orderNumber        String                @unique
+  userId             String?
+  user               User?                 @relation(fields: [userId], references: [id])
+  email              String
+  
+  // Shipping details
+  shippingName       String
+  shippingStreet     String
+  shippingCity       String
+  shippingState      String?
+  shippingZip        String
+  shippingCountry    String
+
+  items              OrderItem[]
+  subtotal           Float
+  shippingCost       Float
+  taxAmount          Float                 @default(0.0)
+  discount           Float
+  total              Float
+  
+  paymentMethod      String
+  paymentReference   String?
+  paymentStatus      PaymentStatus         @default(PENDING)
+  shippingStatus     ShippingStatus        @default(PENDING)
+  trackingNumber     String?
+  estimatedDelivery  DateTime?
+  notes              String?               @db.Text
+  
+  statusHistory      OrderStatusHistory[]
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  @@map("orders")
+}
+
+model OrderStatusHistory {
+  id        String         @id @default(uuid())
+  orderId   String
+  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    ShippingStatus
+  comment   String?
+  createdAt DateTime       @default(now())
+
+  @@map("order_status_histories")
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum ShippingStatus {
+  PENDING
+  CONFIRMED
+  PACKED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  RETURNED
+}
+
+model Coupon {
+  id           String      @id @default(uuid())
+  code         String      @unique
+  discountType DiscountType @default(percentage)
+  value        Float
+  active       Boolean     @default(true)
+  expiryDate   DateTime?
+  createdAt    DateTime    @default(now())
+
+  @@map("coupons")
+}
+
+enum DiscountType {
+  percentage
+  fixed
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  subscribedAt DateTime @default(now())
+  isActive     Boolean  @default(true)
+
+  @@map("newsletter_subscribers")
+}
+
+model Testimonial {
+  id        String   @id @default(uuid())
+  quote     String   @db.Text
+  author    String
+  rating    String   @default("★★★★★")
+  createdAt DateTime @default(now())
+
+  @@map("testimonials")
+}
+
+model SiteSettings {
+  id                    String   @id @default(uuid())
+  shippingFee           Float    @default(150.0)
+  freeShippingThreshold Float    @default(3000.0)
+  instagramUrl          String?
+  logo                  String?
+  supportEmail          String   @default("support@polacraft.com")
+  gstNumber             String?
+  maintenanceMode       Boolean  @default(false)
+  updatedAt             DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+model AnalyticsEvent {
+  id         String   @id @default(uuid())
+  type       String   // "Product Viewed", "Search", "Wishlist", "Checkout", "Purchase"
+  userId     String?
+  sessionId  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@map("analytics_events")
+}
+
+model JournalPost {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  title       String
+  excerpt     String
+  content     String        @db.Text
+  img         String
+  readTime    String
+  publishedAt DateTime?
+  authorId    String
+  author      Author        @relation(fields: [authorId], references: [id])
+  categoryId  String
+  category    BlogCategory  @relation(fields: [categoryId], references: [id])
+  tags        Tag[]
+
+  @@map("journal_posts")
+}
+
+model Author {
+  id        String        @id @default(uuid())
+  name      String
+  avatar    String?
+  posts     JournalPost[]
+
+  @@map("authors")
+}
+
+model BlogCategory {
+  id        String        @id @default(uuid())
+  name      String        @unique
+  posts     JournalPost[]
+
+  @@map("blog_categories")
+}
+
+model Tag {
+  id        String        @id @default(uuid())
+  name      String        @unique
+  posts     JournalPost[]
+
+  @@map("tags")
+}
