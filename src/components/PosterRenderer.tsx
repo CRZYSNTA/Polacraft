@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }) => {
+export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }: any) => {
   if (!poster) return null;
 
   // Frame classes mapped from posters data
@@ -11,7 +11,10 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }) => {
   else if (frame === "wood") frameClass = "poster-framed-wood";
 
   // Use primary graphic asset from database
-  const posterSrc = poster.galleryImages?.[0] || "/assets/posters/manichitrathazhu-original-polacraft.png";
+  const rawSrc = poster.galleryImages?.[0] || poster.heroImage;
+  const posterSrc = (rawSrc && typeof rawSrc === "string" && rawSrc.trim() !== "") 
+    ? rawSrc 
+    : "/assets/posters/manichitrathazhu-original-polacraft.png";
 
   return (
     <div 
@@ -21,16 +24,17 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }) => {
         position: "relative",
         aspectRatio: "1 / 1.414", // Standard A-size ratio
         overflow: "hidden",
-        backgroundColor: "#EFECE6",
+        backgroundColor: poster.palette?.bg || "#EFECE6",
         transition: "var(--transition-smooth)"
       }}
     >
       <Image
         src={posterSrc}
-        alt={poster.title}
+        alt={poster.title || "Poster"}
         fill
+        unoptimized={posterSrc.startsWith("http")}
         sizes="(max-width: 768px) 100vw, 380px"
-        priority={poster.featured}
+        priority={Boolean(poster.featured)}
         style={{
           objectFit: "cover"
         }}
