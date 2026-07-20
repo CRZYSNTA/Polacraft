@@ -12,10 +12,12 @@ export interface AdminSessionPayload {
 export const SESSION_COOKIE_NAME = "polacraft_admin_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days in seconds
 
-const DEFAULT_SECRET = "polacraft-super-secure-admin-session-secret-2026-key-prod";
-
 function getSecretKey(): string {
-  return process.env.SESSION_SECRET || process.env.JWT_SECRET || DEFAULT_SECRET;
+  const secret = process.env.SESSION_SECRET || process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error("SESSION_SECRET must be set to a random value of at least 32 characters.");
+  }
+  return secret;
 }
 
 /**
