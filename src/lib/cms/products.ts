@@ -24,7 +24,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 35, // Base price for A5
+    price: 45, // Base price for A5
     inventory: 24,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -54,7 +54,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 35,
+    price: 45,
     inventory: 18,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -84,7 +84,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 35,
+    price: 45,
     inventory: 15,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -114,7 +114,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 35,
+    price: 45,
     inventory: 12,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -144,7 +144,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 35,
+    price: 45,
     inventory: 30,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -174,7 +174,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 35,
+    price: 45,
     inventory: 40,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -204,7 +204,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 35,
+    price: 45,
     inventory: 20,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -234,7 +234,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 35,
+    price: 45,
     inventory: 10,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -264,7 +264,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 35,
+    price: 45,
     inventory: 8,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -294,13 +294,13 @@ export interface SizeOption {
 }
 
 // Pricing structure:
-// A5: Base Price (₹35)
-// A4: Base Price + ₹35 (Total ₹70)
-// A3: Base Price + ₹65 (Total ₹100)
+// A5: Base Price (₹45)
+// A4: Base Price + ₹25 (Total ₹70)
+// A3: Base Price + ₹55 (Total ₹100)
 export const sizes: SizeOption[] = [
   { id: "A5", label: "A5 (14.8 x 21.0 cm)", priceModifier: 0 },
-  { id: "A4", label: "A4 (21.0 x 29.7 cm)", priceModifier: 35 },
-  { id: "A3", label: "A3 (29.7 x 42.0 cm)", priceModifier: 45 }
+  { id: "A4", label: "A4 (21.0 x 29.7 cm)", priceModifier: 25 },
+  { id: "A3", label: "A3 (29.7 x 42.0 cm)", priceModifier: 55 }
 ];
 
 export interface FrameOption {
