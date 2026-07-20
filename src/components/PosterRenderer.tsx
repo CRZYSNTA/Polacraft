@@ -38,10 +38,7 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }: any)
           height: "100%",
           position: "relative",
           overflow: "hidden",
-          backgroundColor: poster.palette?.bg || "#EFECE6",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
+          backgroundColor: poster.palette?.bg || "#EFECE6"
         }}
       >
         {!showFallbackTextCard ? (
