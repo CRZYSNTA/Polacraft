@@ -114,7 +114,7 @@ export async function POST(req: Request) {
     const randomSuffix = Math.floor(100 + Math.random() * 900);
     const orderNumber = `POLA-${todayStr}-${randomSuffix}`;
 
-    const whatsappPhone = "919845678910";
+    const whatsappPhone = process.env.NEXT_PUBLIC_WHATSAPP_PHONE || "919496682919";
 
     // Format human-readable date (e.g. 20 Jul 2026 3:45 PM)
     const formattedDate = new Date().toLocaleString("en-IN", {
