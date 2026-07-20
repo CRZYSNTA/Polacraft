@@ -265,15 +265,7 @@ export default function Home() {
               position: "relative"
             }}
           >
-            {/* Announcement Badges */}
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", backgroundColor: "rgba(63, 94, 251, 0.08)", color: "#3F5EFB", padding: "0.4rem 1rem", borderRadius: "100px", fontSize: "0.78rem", fontWeight: "600" }}>
-                <Sparkles size={12} /> Curated Exhibition 2026
-              </div>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", backgroundColor: "rgba(56, 239, 125, 0.08)", color: "#2E7D32", padding: "0.4rem 0.8rem", borderRadius: "100px", fontSize: "0.75rem", fontWeight: "600" }}>
-                <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#38ef7d", display: "inline-block" }} /> Active Press
-              </div>
-            </div>
+
 
             {/* Bold Editorial Headline */}
             <h1 
