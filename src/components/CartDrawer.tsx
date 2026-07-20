@@ -5,6 +5,7 @@ import { AppContext } from "../features/cart/AppContext";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Trash2, Plus, Minus, Tag, Truck } from "lucide-react";
+import { calculateShippingFee, FREE_SHIPPING_THRESHOLD } from "../lib/commerce";
 
 export const CartDrawer = () => {
   const {
@@ -23,7 +24,7 @@ export const CartDrawer = () => {
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponError, setCouponError] = useState("");
 
-  const shippingCost = cartSubtotal > 3000 || cartSubtotal === 0 ? 0 : 150;
+  const shippingCost = cartSubtotal === 0 ? 0 : calculateShippingFee(cartSubtotal);
   const finalTotal = Math.max(0, cartSubtotal * (1 - discount / 100)) + shippingCost;
 
   const handleApplyCoupon = (e) => {
@@ -327,10 +328,10 @@ export const CartDrawer = () => {
                 {/* Shipping Free Notice */}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", color: "var(--text-muted)", backgroundColor: "var(--accent-beige)", padding: "0.6rem 1rem", borderRadius: "10px" }}>
                   <Truck size={14} />
-                  {cartSubtotal > 3000 ? (
+                  {cartSubtotal >= FREE_SHIPPING_THRESHOLD ? (
                     <span>Your order ships <strong>FREE</strong> across India!</span>
                   ) : (
-                    <span>Add <strong>₹{(3000 - cartSubtotal).toLocaleString("en-IN")}</strong> more for free shipping.</span>
+                    <span>Add <strong>₹{(FREE_SHIPPING_THRESHOLD - cartSubtotal).toLocaleString("en-IN")}</strong> more for free shipping.</span>
                   )}
                 </div>
 

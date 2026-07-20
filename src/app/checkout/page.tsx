@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useApp } from "@/features/cart/AppContext";
+import { calculateShippingFee } from "@/lib/commerce";
 import { ShoppingBag, ShieldCheck, Tag, Lock, CheckCircle2, Loader2, ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
@@ -29,7 +30,7 @@ export default function CheckoutPage() {
   // Financial Calculations
   const discount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const subtotalAfterDiscount = Math.max(0, cartSubtotal - discount);
-  const shippingCost = cartSubtotal >= 3000 ? 0 : 150;
+  const shippingCost = calculateShippingFee(cartSubtotal);
   const total = subtotalAfterDiscount + shippingCost;
 
   // Apply Coupon Action
