@@ -26,13 +26,22 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }: any)
       style={{
         width: "100%",
         position: "relative",
-        aspectRatio: "1 / 1.414" // Standard A-size ratio
+        aspectRatio: "1 / 1.414", // Standard A-size ratio
+        overflow: "hidden"
       }}
     >
       {/* If Framed, render Pass-partout Matboard Margin & Artwork Window */}
       {isFramed ? (
-        <div className="frame-matboard">
-          <div className="matboard-window">
+        <div 
+          className="frame-matboard"
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column"
+          }}
+        >
+          <div className="matboard-window" style={{ flexGrow: 1, position: "relative", width: "100%", height: "100%" }}>
             {!showFallbackTextCard ? (
               <Image
                 src={posterSrc}
@@ -50,33 +59,32 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }: any)
               /* Museum-quality Typographic Poster Fallback Card */
               <div
                 style={{
-                  width: "100%",
-                  height: "100%",
+                  position: "absolute",
+                  inset: 0,
                   backgroundColor: poster.palette?.primary || "#1E1E1E",
                   color: "#FAFAF8",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  padding: "2rem 1.5rem",
+                  padding: "1.5rem 1rem",
                   boxSizing: "border-box",
-                  position: "relative",
                   textAlign: "center"
                 }}
               >
-                <div style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.2em", opacity: 0.85 }}>
+                <div style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.2em", opacity: 0.85 }}>
                   POLACRAFT STUDIO • {poster.year || 1993}
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  <h3 style={{ fontSize: "1.6rem", fontWeight: "900", fontFamily: "var(--font-serif)", margin: 0, lineHeight: "1.1" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                  <h3 style={{ fontSize: "1.3rem", fontWeight: "900", fontFamily: "var(--font-serif)", margin: 0, lineHeight: "1.1" }}>
                     {poster.title}
                   </h3>
-                  <p style={{ fontSize: "0.8rem", fontStyle: "italic", opacity: 0.9, margin: 0 }}>
+                  <p style={{ fontSize: "0.75rem", fontStyle: "italic", opacity: 0.9, margin: 0 }}>
                     Dir. {poster.director}
                   </p>
                 </div>
 
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.25)", paddingTop: "0.75rem", fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.15em", opacity: 0.8 }}>
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.25)", paddingTop: "0.5rem", fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.15em", opacity: 0.8 }}>
                   {poster.collection || "Classic Malayalam"}
                 </div>
               </div>
@@ -117,9 +125,8 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }: any)
         /* Unframed Print Direct Layout */
         <div
           style={{
-            width: "100%",
-            height: "100%",
-            position: "relative",
+            position: "absolute",
+            inset: 0,
             overflow: "hidden",
             backgroundColor: poster.palette?.bg || "#EFECE6"
           }}
@@ -140,8 +147,8 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }: any)
           ) : (
             <div
               style={{
-                width: "100%",
-                height: "100%",
+                position: "absolute",
+                inset: 0,
                 backgroundColor: poster.palette?.primary || "#1E1E1E",
                 color: "#FAFAF8",
                 display: "flex",
@@ -149,7 +156,6 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }: any)
                 justifyContent: "space-between",
                 padding: "2rem 1.5rem",
                 boxSizing: "border-box",
-                position: "relative",
                 textAlign: "center"
               }}
             >

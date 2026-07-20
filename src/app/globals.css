@@ -129,8 +129,11 @@ body {
 /* Real 3D Museum Fine-Art Framing System */
 
 .real-gallery-frame-container {
-  position: relative;
-  box-sizing: border-box;
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  aspect-ratio: 1 / 1.4142 !important; /* Forces rigid 1:1.4142 A-size ratio */
+  overflow: hidden !important;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -152,7 +155,7 @@ body {
 /* 1. Sleek Matte Black Solid Wood Frame */
 .frame-real-black {
   background: #181818;
-  padding: 16px; /* 3D outer frame molding thickness */
+  padding: 16px !important; /* 3D outer frame molding thickness */
   border-radius: 2px;
   box-shadow: 
     /* Multi-layered wall drop shadow */
@@ -176,7 +179,7 @@ body {
 /* 2. Minimal Studio White Gallery Frame (High Contrast & Distinct 3D Borders) */
 .frame-real-white {
   background: #FFFFFF;
-  padding: 16px; /* 3D outer frame molding thickness */
+  padding: 16px !important; /* 3D outer frame molding thickness */
   border-radius: 2px;
   box-shadow: 
     /* Wall drop shadow separating white frame from light walls */
@@ -201,7 +204,7 @@ body {
 /* 3. Natural Teak Wood Frame */
 .frame-real-wood {
   background: linear-gradient(145deg, #422616 0%, #2b170c 50%, #3a2012 100%);
-  padding: 18px;
+  padding: 18px !important;
   border-radius: 2px;
   box-shadow: 
     0 30px 70px -15px rgba(0, 0, 0, 0.48),
@@ -225,7 +228,7 @@ body {
   width: 100%;
   height: 100%;
   background-color: #FAF9F5; /* Off-white museum cotton matboard */
-  padding: 14px; /* Matboard margin around artwork */
+  padding: 14px !important; /* Matboard margin around artwork */
   box-shadow: 
     /* Inner shadow cast by outer frame molding onto matboard */
     inset 3px 3px 8px rgba(0, 0, 0, 0.22),
