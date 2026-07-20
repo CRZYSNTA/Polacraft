@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { sizes, frames } from "../../lib/cms/products";
 import { Product } from "../../types";
 
@@ -197,3 +197,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     </AppContext.Provider>
   );
 };
+
+export const useApp = () => {
+  const context = useContext(AppContext);
+  if (!context) throw new Error("useApp must be used within an AppProvider");
+  return context;
+};
+
+export const useCart = useApp;

@@ -1,107 +1,55 @@
-'use client';
-
 import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShoppingCart, PackageOpen, Ticket, ShieldCheck, ArrowLeft } from "lucide-react";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
+import Sidebar from "@/components/admin/Sidebar";
+import Topbar from "@/components/admin/Topbar";
 
-export default function AdminLayout({ children }) {
-  const pathname = usePathname();
+export const metadata = {
+  title: "Polacraft Admin Console",
+  description: "Secure Administrator Dashboard for Polacraft",
+};
 
-  const menuItems = [
-    { path: "/admin", label: "Analytics Overview", icon: <LayoutDashboard size={18} /> },
-    { path: "/admin/orders", label: "Orders & Shipping", icon: <ShoppingCart size={18} /> },
-    { path: "/admin/products", label: "Inventory Products", icon: <PackageOpen size={18} /> },
-    { path: "/admin/coupons", label: "Voucher Coupons", icon: <Ticket size={18} /> },
-    { path: "/admin/design-system", label: "Design System", icon: <PackageOpen size={18} /> }
-  ];
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Server-side verification of admin session
+  const session = await getSession();
+
+  // If user is accessing login page, render children directly without dashboard chrome
+  // Note: Middleware already redirects authenticated ADMINs away from /admin/login to /admin
+  // But layout check ensures isolated layout rendering for /admin/login
+  if (!session) {
+    return <>{children}</>;
+  }
+
+  // If session exists but role is not ADMIN or SUPER_ADMIN, deny access and redirect to storefront
+  if (session.role !== "ADMIN" && session.role !== "SUPER_ADMIN") {
+    redirect("/");
+  }
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#FAFAF8" }}>
-      {/* Sidebar Panel */}
-      <aside
-        style={{
-          width: "280px",
-          backgroundColor: "var(--color-charcoal-accent)",
-          color: "#FAFAF8",
-          padding: "3rem 1.5rem 1.5rem 1.5rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "3rem",
-          borderRight: "1px solid rgba(255,255,255,0.06)",
-          flexShrink: 0
-        }}
-      >
-        {/* Header */}
-        <div>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: "800", letterSpacing: "-0.02em", color: "#FFFFFF" }}>
-            POLACRAFT ADMIN
-          </h2>
-          <span style={{ fontSize: "0.7rem", color: "rgba(250,250,248,0.5)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-            Management console v1.0
-          </span>
-        </div>
+      {/* Shared Persistent Sidebar */}
+      <Sidebar />
 
-        {/* Navigation list */}
-        <nav style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          {menuItems.map((item) => {
-            const isActive = pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                href={item.path}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.75rem",
-                  padding: "0.8rem 1rem",
-                  borderRadius: "12px",
-                  fontSize: "0.9rem",
-                  fontWeight: "600",
-                  backgroundColor: isActive ? "rgba(255, 255, 255, 0.1)" : "transparent",
-                  color: isActive ? "#FFFFFF" : "rgba(250,250,248,0.65)",
-                  transition: "var(--transition-fast)"
-                }}
-                className="admin-sidebar-link"
-              >
-                {item.icon} {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+      {/* Main Content Area with Topbar */}
+      <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        {/* Topbar Navigation */}
+        <Topbar
+          user={{
+            email: session.email,
+            name: session.name,
+            role: session.role,
+          }}
+        />
 
-        {/* Footer */}
-        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", color: "rgba(250,250,248,0.4)" }}>
-            <ShieldCheck size={14} /> Authorized Access Only
-          </div>
-          <Link
-            href="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              fontSize: "0.85rem",
-              color: "#FAFAF8",
-              textDecoration: "underline"
-            }}
-          >
-            <ArrowLeft size={14} /> Exit to Storefront
-          </Link>
-        </div>
-      </aside>
-
-      {/* Admin Content Area */}
-      <main style={{ flexGrow: 1, padding: "4rem 3.5rem", overflowY: "auto" }}>
-        {children}
-      </main>
-
-      <style>{`
-        .admin-sidebar-link:hover {
-          color: #FFFFFF !important;
-          background-color: rgba(255, 255, 255, 0.05);
-        }
-      `}</style>
+        {/* Dynamic Admin View */}
+        <main style={{ flexGrow: 1, padding: "2.5rem 3rem", overflowY: "auto" }}>
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

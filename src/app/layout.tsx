@@ -8,7 +8,7 @@ import CartDrawer from "../components/CartDrawer";
 import QuickViewModal from "../components/QuickViewModal";
 import CustomCursor from "../components/CustomCursor";
 import AnalyticsTracker from "../components/AnalyticsTracker";
-import JsonLd from "../components/JsonLd";
+import { OrganizationSchema, WebSiteSearchSchema } from "../components/JsonLd";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,28 +34,14 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  // Global organization schema details for SEO (Point 8)
-  const orgSchema = {
-    name: "Polacraft Studio",
-    url: "https://polacraft.com",
-    logo: "https://polacraft.com/assets/logo.png",
-    sameAs: [
-      "https://instagram.com/polacraft",
-      "https://pinterest.com/polacraft"
-    ],
-    contactPoint: {
-      telephone: "+91-98456-78910",
-      contactType: "customer support"
-    }
-  };
-
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSerif.variable}`} suppressHydrationWarning>
       <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh", position: "relative" }} suppressHydrationWarning>
         <AuthProvider>
           <AppProvider>
-            {/* Dynamic Organization Schema */}
-            <JsonLd type="Organization" data={orgSchema} />
+            {/* Dynamic Organization & SearchAction Schemas */}
+            <OrganizationSchema />
+            <WebSiteSearchSchema />
 
             {/* Analytics Script Loaders & Page trackers */}
             <AnalyticsTracker />
@@ -70,7 +56,7 @@ export default function RootLayout({ children }) {
             <Navbar />
 
             {/* Main page content wrapper */}
-            <main style={{ flexGrow: 1 }}>
+            <main style={{ flexGrow: 1 }} id="main-content">
               {children}
             </main>
 

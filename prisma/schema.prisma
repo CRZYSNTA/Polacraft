@@ -20,6 +20,7 @@ enum Role {
 model User {
   id               String      @id @default(uuid())
   email            String      @unique
+  password         String?
   name             String?
   phone            String?
   avatar           String?
@@ -114,6 +115,7 @@ model ProductImage {
   productId String
   product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   url       String
+  publicId  String?
   alt       String
   sortOrder Int       @default(0)
   type      ImageType @default(GALLERY) // HERO, GALLERY, WALL_MOCKUP, PACKAGING, DETAIL, MOBILE
@@ -191,6 +193,7 @@ model Order {
   userId             String?
   user               User?                 @relation(fields: [userId], references: [id])
   email              String
+  phone              String?
   
   // Shipping details
   shippingName       String
@@ -209,8 +212,13 @@ model Order {
   
   paymentMethod      String
   paymentReference   String?
+  upiTransactionId   String?
+  paymentProofImage  String?
   paymentStatus      PaymentStatus         @default(PENDING)
   shippingStatus     ShippingStatus        @default(PENDING)
+  paymentVerifiedAt  DateTime?
+  inventoryDeductedAt DateTime?
+  confirmedByAdminId String?
   trackingNumber     String?
   estimatedDelivery  DateTime?
   notes              String?               @db.Text
@@ -235,18 +243,23 @@ model OrderStatusHistory {
 
 enum PaymentStatus {
   PENDING
+  VERIFIED
   PAID
   FAILED
 }
 
 enum ShippingStatus {
+  WHATSAPP_PENDING
   PENDING
   CONFIRMED
+  PAID
   PACKED
   SHIPPED
   OUT_FOR_DELIVERY
   DELIVERED
   RETURNED
+  CANCELLED
+  EXPIRED
 }
 
 model Coupon {
