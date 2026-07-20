@@ -26,8 +26,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // Resolve every item to a valid Prisma Product ID safely
+    // Resolve every item to a valid Prisma Product ID and include product details
     const resolvedItems = [];
+    const formattedItemDetails = [];
+
     for (const item of items) {
       const rawId = String(item.productId || "");
       const title = String(item.productTitle || item.title || "Malayalam Art Poster");
@@ -75,9 +77,9 @@ export async function POST(req: Request) {
             accentColor: "#10B981",
             bgColor: "#FAFAF8",
             textColor: "#1E1E1E",
-            tagline: "Iconic Malayalam Cinema Poster",
-            story: "Fine art poster print.",
-            designNotes: "Archival cotton paper.",
+            tagline: "Fine Art Malayalam Cinema Poster",
+            story: "Handcrafted museum-quality archival print.",
+            designNotes: "Archival 250 GSM cotton paper.",
             collection: {
               connectOrCreate: {
                 where: { name: "Classics" },
@@ -94,6 +96,16 @@ export async function POST(req: Request) {
         price: Number(item.price),
         size: item.size,
         frame: item.frame,
+      });
+
+      const desc = product.tagline || product.story || `${product.film} (${product.year})`;
+      formattedItemDetails.push({
+        title: product.title,
+        desc,
+        size: item.size,
+        frame: item.frame,
+        qty: item.quantity,
+        price: item.price,
       });
     }
 
@@ -150,11 +162,10 @@ export async function POST(req: Request) {
       },
     });
 
-    // Improved WhatsApp Message Format
-    let itemsFormattedText = items
-      .map((item: any, idx: number) => {
-        const itemTitle = item.productTitle || item.title || "Poster Print";
-        return `${idx + 1}. ${itemTitle}\n• Size: ${item.size}\n• Frame: ${item.frame}\n• Qty: ${item.quantity}\n• Price: ₹${item.price}`;
+    // Format WhatsApp Message with Product Details & Descriptions
+    let itemsFormattedText = formattedItemDetails
+      .map((item, idx) => {
+        return `${idx + 1}. *${item.title}*\n   _"${item.desc}"_\n   • Size: ${item.size}\n   • Frame: ${item.frame}\n   • Quantity: ${item.qty}\n   • Price: ₹${item.price}`;
       })
       .join("\n\n");
 
@@ -178,7 +189,7 @@ ${shippingCity}, ${shippingState} - ${shippingZip}
 
 --------------------------------
 
-Items:
+Items Ordered:
 
 ${itemsFormattedText}
 
@@ -190,7 +201,7 @@ ${couponCode ? `Coupon: ${couponCode}\nDiscount: -₹${discount}\n` : ""}Shippin
 Total:
 ₹${total}
 
-Please confirm my order.`;
+Please confirm my order & send payment details.`;
 
     const encodedMessage = encodeURIComponent(messageText);
     const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodedMessage}`;

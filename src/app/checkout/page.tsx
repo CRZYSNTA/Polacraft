@@ -109,8 +109,8 @@ export default function CheckoutPage() {
         setCompletedOrder(data.order);
         clearCart();
 
-        // Redirect to WhatsApp with pre-filled order message
-        window.open(data.whatsappUrl, "_blank");
+        // Redirect immediately to WhatsApp with pre-filled order message
+        window.location.href = data.whatsappUrl;
       } else {
         alert("Checkout Error: " + (data.error || "Failed to place order"));
       }
