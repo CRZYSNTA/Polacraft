@@ -26,12 +26,71 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
+    // Resolve every item to a valid Prisma Product ID
+    const resolvedItems = [];
+    for (const item of items) {
+      const rawId = item.productId || "";
+      const title = item.productTitle || item.title || "Malayalam Art Poster";
+
+      let product = await prisma.product.findFirst({
+        where: {
+          OR: [
+            { id: rawId },
+            { slug: rawId },
+            { title: { contains: title, mode: "insensitive" } },
+            { film: { contains: title, mode: "insensitive" } },
+          ],
+        },
+      });
+
+      if (!product) {
+        // Create product dynamically in Prisma DB connecting to collection
+        const slug = (rawId || title)
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+
+        product = await prisma.product.create({
+          data: {
+            title,
+            slug,
+            film: title,
+            year: 1993,
+            director: "Polacraft Master Series",
+            genre: "Drama",
+            price: Number(item.price),
+            inventory: 50,
+            primaryColor: "#1E1E1E",
+            accentColor: "#10B981",
+            bgColor: "#FAFAF8",
+            textColor: "#1E1E1E",
+            tagline: "handcrafted archival print",
+            story: "Fine art poster print.",
+            designNotes: "Archival cotton paper.",
+            collection: {
+              connectOrCreate: {
+                where: { name: "Classics" },
+                create: { name: "Classics", description: "Iconic Malayalam Cinema Posters" },
+              },
+            },
+          },
+        });
+      }
+
+      resolvedItems.push({
+        productId: product.id,
+        quantity: Number(item.quantity),
+        price: Number(item.price),
+        size: item.size,
+        frame: item.frame,
+      });
+    }
+
     // Generate unique order number format: POLA-YYYYMMDD-XXX
     const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const randomSuffix = Math.floor(100 + Math.random() * 900);
     const orderNumber = `POLA-${todayStr}-${randomSuffix}`;
 
-    const settings = await prisma.siteSettings.findFirst();
     const whatsappPhone = "919845678910";
 
     // Format human-readable date (e.g. 20 Jul 2026 3:45 PM)
@@ -45,7 +104,6 @@ export async function POST(req: Request) {
     });
 
     // Create Order in Prisma with WHATSAPP_PENDING status
-    // Note: Stock inventory is NOT reduced yet until admin approves payment!
     const order = await prisma.order.create({
       data: {
         orderNumber,
@@ -67,13 +125,7 @@ export async function POST(req: Request) {
         total: Number(total),
         notes: couponCode ? `Coupon applied: ${couponCode}` : undefined,
         items: {
-          create: items.map((item: any) => ({
-            productId: item.productId,
-            quantity: Number(item.quantity),
-            price: Number(item.price),
-            size: item.size,
-            frame: item.frame,
-          })),
+          create: resolvedItems,
         },
         statusHistory: {
           create: {
@@ -90,8 +142,8 @@ export async function POST(req: Request) {
     // Improved WhatsApp Message Format
     let itemsFormattedText = items
       .map((item: any, idx: number) => {
-        const title = item.productTitle || item.product?.title || "Poster Print";
-        return `${idx + 1}. ${title}\n• Size: ${item.size}\n• Frame: ${item.frame}\n• Qty: ${item.quantity}\n• Price: ₹${item.price}`;
+        const itemTitle = item.productTitle || item.title || "Poster Print";
+        return `${idx + 1}. ${itemTitle}\n• Size: ${item.size}\n• Frame: ${item.frame}\n• Qty: ${item.quantity}\n• Price: ₹${item.price}`;
       })
       .join("\n\n");
 
