@@ -300,7 +300,7 @@ export interface SizeOption {
 export const sizes: SizeOption[] = [
   { id: "A5", label: "A5 (14.8 x 21.0 cm)", priceModifier: 0 },
   { id: "A4", label: "A4 (21.0 x 29.7 cm)", priceModifier: 35 },
-  { id: "A3", label: "A3 (29.7 x 42.0 cm)", priceModifier: 65 }
+  { id: "A3", label: "A3 (29.7 x 42.0 cm)", priceModifier: 45 }
 ];
 
 export interface FrameOption {
