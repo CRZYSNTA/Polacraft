@@ -6,13 +6,105 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppContext } from "../features/cart/AppContext";
 import PosterRenderer from "../components/PosterRenderer";
-import { posters } from "../lib/cms/products";
+import { posters as staticPosters } from "../lib/cms/products";
+import { Product } from "../types";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ArrowRight, Eye, Heart, ShoppingBag, Award, Sparkles, Box, ShieldCheck } from "lucide-react";
+
+const STATIC_POSTER_MAP: Record<string, string> = {
+  manichitrathazhu: "/assets/posters/manichitrathazhu-original-polacraft.png",
+  "kumbalangi-nights": "/assets/posters/kumbalangi-original-polacraft.png",
+  aavesham: "/assets/posters/aavesham-original-polacraft.png",
+  thoovanathumbikal: "/assets/posters/thoovanathumbikal-original-polacraft.png",
+  spadikam: "/assets/posters/spadikam-original-polacraft.png",
+  premam: "/assets/posters/premam-original-polacraft.png",
+  sandesham: "/assets/posters/sandesham-original-polacraft.png",
+  mathilukal: "/assets/posters/mathilukal-original-polacraft.png",
+  kireedam: "/assets/posters/kireedam-original-polacraft.png",
+};
+
+function mapDbProductToPoster(p: any): Product {
+  const staticFallback = STATIC_POSTER_MAP[p.slug] || STATIC_POSTER_MAP[p.slug?.toLowerCase()];
+
+  const heroImage =
+    p.images?.find((img: any) => img.type === "HERO")?.url ||
+    p.images?.[0]?.url ||
+    staticFallback ||
+    null;
+
+  const galleryImages = p.images?.length
+    ? p.images.map((img: any) => img.url)
+    : heroImage
+    ? [heroImage]
+    : [];
+
+  return {
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    film: p.film || p.title,
+    tagline: p.tagline || "Handcrafted Archival Cinema Print",
+    year: p.year || 1993,
+    director: p.director || "Polacraft Studio",
+    cast: Array.isArray(p.cast) && p.cast.length > 0 ? p.cast : ["Mohanlal"],
+    collection: p.collectionName || p.collection?.name || "Classic Malayalam",
+    genre: p.genre || "Drama",
+    palette: {
+      primary: p.primaryColor || "#E6C15C",
+      accent: p.accentColor || "#802720",
+      bg: p.bgColor || "#FAFAF8",
+      text: p.textColor || "#1A1A1A",
+    },
+    story: p.story || "Museum-quality archival fine art poster print.",
+    designNotes: p.designNotes || "High contrast archival cotton paper print.",
+    availableSizes: ["A5", "A4", "A3"],
+    frameOptions: ["unframed", "black", "white"],
+    paperType: p.paperType || "Fine Art Cotton Archival",
+    gsm: p.gsm || 250,
+    finish: p.finish || "Ultra-Matte Giclée",
+    price: p.price || 45,
+    inventory: p.inventory ?? 25,
+    lowStockThreshold: p.lowStockThreshold || 5,
+    isPreorder: Boolean(p.isPreorder),
+    limitedEditionCount: p.limitedEditionCount || 150,
+    isSoldOut: p.inventory === 0 && !p.isPreorder,
+    seoTitle: `${p.title} Poster | Polacraft Studio`,
+    seoDescription: p.story || `Fine art poster of ${p.title}`,
+    galleryImages: galleryImages,
+    wallMockups: ["/assets/living_room_mockup.png"],
+  };
+}
 
 export default function Home() {
   const { addToCart, wishlist, toggleWishlist, openQuickView } = useContext(AppContext);
   const router = useRouter();
+
+  // Live Posters State initialized with static fallback
+  const [livePosters, setLivePosters] = useState<Product[]>(staticPosters);
+
+  // Fetch actual DB products on load
+  useEffect(() => {
+    async function fetchLiveCatalog() {
+      try {
+        const res = await fetch(`/api/search?t=${Date.now()}`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.products && data.products.length > 0) {
+            const mapped = data.products.map(mapDbProductToPoster);
+            const dbSlugs = new Set(mapped.map((p: Product) => p.slug));
+            const merged = [
+              ...mapped,
+              ...staticPosters.filter((sp) => !dbSlugs.has(sp.slug))
+            ];
+            setLivePosters(merged);
+          }
+        }
+      } catch (e) {
+        console.warn("[Home Live Catalog Load Error]:", e);
+      }
+    }
+    fetchLiveCatalog();
+  }, []);
 
   // Loading sequence state
   const [isLoading, setIsLoading] = useState(true);
@@ -39,17 +131,17 @@ export default function Home() {
 
   // Hero Mouse movement tracking
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: any) => {
     const { clientX, clientY } = e;
     const x = (clientX - window.innerWidth / 2) / 30;
     const y = (clientY - window.innerHeight / 2) / 30;
     setMousePos({ x, y });
   };
 
-  const carouselRef = useRef(null);
-  const bestSellers = posters.slice(0, 4);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const bestSellers = livePosters.slice(0, 6);
 
-  const scrollCarousel = (direction) => {
+  const scrollCarousel = (direction: string) => {
     if (carouselRef.current) {
       const scrollAmount = 360;
       carouselRef.current.scrollBy({
@@ -58,6 +150,13 @@ export default function Home() {
       });
     }
   };
+
+  // Hero Fan Card Placement Calculations
+  const heroFanCards = livePosters.slice(0, 6);
+  const fanRotations = [-15, -8, -2, 6, 12, 18];
+  const fanYPositions = [40, 15, 0, 10, 30, 50];
+  const fanXPositions = [-160, -80, 0, 80, 160, 240];
+  const fanFrames = ["wood", "black", "unframed", "wood", "white", "black"];
 
   return (
     <div onMouseMove={handleMouseMove} style={{ position: "relative", overflow: "hidden" }}>
@@ -246,7 +345,7 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Fan-Shaped Carousel of Poster Cards */}
+            {/* Fan-Shaped Carousel of Live Database Poster Cards */}
             <div 
               style={{
                 position: "relative",
@@ -258,30 +357,25 @@ export default function Home() {
               }}
               className="carousel-container"
             >
-              {[
-                { id: "manichitrathazhu", rotate: -15, y: 40, x: -160, frame: "wood" },
-                { id: "kumbalangi-nights", rotate: -8, y: 15, x: -80, frame: "black" },
-                { id: "aavesham", rotate: -2, y: 0, x: 0, frame: "unframed" },
-                { id: "thoovanathumbikal", rotate: 6, y: 10, x: 80, frame: "wood" },
-                { id: "premam", rotate: 12, y: 30, x: 160, frame: "unframed" },
-                { id: "spadikam", rotate: 18, y: 50, x: 240, frame: "gold" }
-              ].map((card, idx) => {
-                const posterObj = posters.find(p => p.id === card.id);
-                if (!posterObj) return null;
+              {heroFanCards.map((posterObj, idx) => {
+                const baseRotate = fanRotations[idx % fanRotations.length];
+                const baseY = fanYPositions[idx % fanYPositions.length];
+                const baseX = fanXPositions[idx % fanXPositions.length];
+                const frameStyle = fanFrames[idx % fanFrames.length];
 
-                const isHovered = hoveredHeroCard === card.id;
+                const isHovered = hoveredHeroCard === posterObj.id;
                 const isAnyHovered = hoveredHeroCard !== null;
                 
-                const rotation = isHovered ? card.rotate * 0.4 : isAnyHovered ? card.rotate * 1.15 : card.rotate;
+                const rotation = isHovered ? baseRotate * 0.4 : isAnyHovered ? baseRotate * 1.15 : baseRotate;
                 const scale = isHovered ? 1.12 : isAnyHovered ? 0.92 : 1.0;
                 const zIndex = isHovered ? 50 : 10 + idx;
-                const xPos = isHovered ? card.x * 0.8 : isAnyHovered ? card.x * 1.1 : card.x;
-                const yPos = isHovered ? card.y - 30 : isAnyHovered ? card.y + 10 : card.y;
+                const xPos = isHovered ? baseX * 0.8 : isAnyHovered ? baseX * 1.1 : baseX;
+                const yPos = isHovered ? baseY - 30 : isAnyHovered ? baseY + 10 : baseY;
 
                 return (
                   <motion.div
-                    key={card.id}
-                    onMouseEnter={() => setHoveredHeroCard(card.id)}
+                    key={posterObj.id}
+                    onMouseEnter={() => setHoveredHeroCard(posterObj.id)}
                     onMouseLeave={() => setHoveredHeroCard(null)}
                     animate={{
                       rotate: rotation,
@@ -305,7 +399,7 @@ export default function Home() {
                         : "0 12px 30px rgba(0,0,0,0.06)"
                     }}
                   >
-                    <PosterRenderer poster={posterObj} frame={card.frame as any} />
+                    <PosterRenderer poster={posterObj} frame={frameStyle as any} />
                   </motion.div>
                 );
               })}
@@ -575,7 +669,7 @@ export default function Home() {
         `}</style>
       </section>
 
-      {/* 5. BRAND PACKAGING & UNBOXING (Point 12) */}
+      {/* 5. BRAND PACKAGING & UNBOXING */}
       <section style={{ padding: "8rem 0", backgroundColor: "var(--accent-beige)" }}>
         <div className="container">
           <div className="grid-12" style={{ alignItems: "center", gap: "4rem" }}>
@@ -647,17 +741,23 @@ export default function Home() {
             }}
             className="gallery-wall-grid"
           >
-            <motion.div style={{ y: scrollY1, rotate: -4 }} className="hover-lift">
-              <PosterRenderer poster={posters.find(p => p.id === "manichitrathazhu")} frame="wood" />
-            </motion.div>
+            {livePosters[0] && (
+              <motion.div style={{ y: scrollY1, rotate: -4 }} className="hover-lift">
+                <PosterRenderer poster={livePosters[0]} frame="wood" />
+              </motion.div>
+            )}
 
-            <motion.div style={{ y: scrollY2, rotate: 2 }} className="hover-lift">
-              <PosterRenderer poster={posters.find(p => p.id === "kireedam")} frame="black" />
-            </motion.div>
+            {livePosters[1] && (
+              <motion.div style={{ y: scrollY2, rotate: 2 }} className="hover-lift">
+                <PosterRenderer poster={livePosters[1]} frame="black" />
+              </motion.div>
+            )}
 
-            <motion.div style={{ y: scrollY3, rotate: -3 }} className="hover-lift">
-              <PosterRenderer poster={posters.find(p => p.id === "aavesham")} frame="unframed" />
-            </motion.div>
+            {livePosters[2] && (
+              <motion.div style={{ y: scrollY3, rotate: -3 }} className="hover-lift">
+                <PosterRenderer poster={livePosters[2]} frame="white" />
+              </motion.div>
+            )}
           </div>
         </div>
         <style>{`
@@ -670,7 +770,7 @@ export default function Home() {
         `}</style>
       </section>
 
-      {/* 7. CUSTOMER GALLERY: "ON YOUR WALLS" (Point 13) */}
+      {/* 7. CUSTOMER GALLERY: "ON YOUR WALLS" */}
       <section style={{ padding: "8rem 0", backgroundColor: "#F7F7F4" }}>
         <div className="container">
           <div style={{ textAlign: "center", marginBottom: "5rem" }}>
@@ -915,7 +1015,7 @@ export default function Home() {
               onSubmit={(e) => {
                 e.preventDefault();
                 alert("Thank you for joining the Polacraft Society!");
-                e.target.reset();
+                (e.target as HTMLFormElement).reset();
               }}
               style={{
                 display: "flex",
