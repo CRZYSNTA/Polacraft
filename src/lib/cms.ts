@@ -2,15 +2,32 @@ import { prisma } from "./prisma";
 import { posters as staticPosters } from "./cms/products";
 import { Product } from "../types";
 
+const STATIC_POSTER_MAP: Record<string, string> = {
+  manichitrathazhu: "/assets/posters/manichitrathazhu-original-polacraft.png",
+  "kumbalangi-nights": "/assets/posters/kumbalangi-original-polacraft.png",
+  aavesham: "/assets/posters/aavesham-original-polacraft.png",
+  thoovanathumbikal: "/assets/posters/thoovanathumbikal-original-polacraft.png",
+  spadikam: "/assets/posters/spadikam-original-polacraft.png",
+  premam: "/assets/posters/premam-original-polacraft.png",
+  sandesham: "/assets/posters/sandesham-original-polacraft.png",
+  mathilukal: "/assets/posters/mathilukal-original-polacraft.png",
+  kireedam: "/assets/posters/kireedam-original-polacraft.png",
+};
+
 export function mapDbProductToPoster(p: any): Product {
+  const staticFallback = STATIC_POSTER_MAP[p.slug] || STATIC_POSTER_MAP[p.slug?.toLowerCase()];
+  
   const heroImage =
     p.images?.find((img: any) => img.type === "HERO")?.url ||
     p.images?.[0]?.url ||
-    "/assets/posters/manichitrathazhu-original-polacraft.png";
+    staticFallback ||
+    null;
 
   const galleryImages = p.images?.length
     ? p.images.map((img: any) => img.url)
-    : [heroImage];
+    : heroImage
+    ? [heroImage]
+    : [];
 
   return {
     id: p.id,

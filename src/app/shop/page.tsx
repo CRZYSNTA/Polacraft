@@ -8,8 +8,32 @@ import { Product } from "../../types";
 import { Filter, Search, Heart, ShoppingBag, Eye, X, LayoutGrid, Compass, BookOpen } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+const STATIC_POSTER_MAP: Record<string, string> = {
+  manichitrathazhu: "/assets/posters/manichitrathazhu-original-polacraft.png",
+  "kumbalangi-nights": "/assets/posters/kumbalangi-original-polacraft.png",
+  aavesham: "/assets/posters/aavesham-original-polacraft.png",
+  thoovanathumbikal: "/assets/posters/thoovanathumbikal-original-polacraft.png",
+  spadikam: "/assets/posters/spadikam-original-polacraft.png",
+  premam: "/assets/posters/premam-original-polacraft.png",
+  sandesham: "/assets/posters/sandesham-original-polacraft.png",
+  mathilukal: "/assets/posters/mathilukal-original-polacraft.png",
+  kireedam: "/assets/posters/kireedam-original-polacraft.png",
+};
+
 function mapDbProductToPoster(p: any): Product {
-  const heroImage = p.images?.find((img: any) => img.type === "HERO")?.url || p.images?.[0]?.url || "/assets/posters/manichitrathazhu-original-polacraft.png";
+  const staticFallback = STATIC_POSTER_MAP[p.slug] || STATIC_POSTER_MAP[p.slug?.toLowerCase()];
+
+  const heroImage =
+    p.images?.find((img: any) => img.type === "HERO")?.url ||
+    p.images?.[0]?.url ||
+    staticFallback ||
+    null;
+
+  const galleryImages = p.images?.length
+    ? p.images.map((img: any) => img.url)
+    : heroImage
+    ? [heroImage]
+    : [];
 
   return {
     id: p.id,
@@ -38,12 +62,12 @@ function mapDbProductToPoster(p: any): Product {
     price: p.price || 45,
     inventory: p.inventory ?? 25,
     lowStockThreshold: p.lowStockThreshold || 5,
-    isPreorder: false,
-    limitedEditionCount: 150,
-    isSoldOut: p.inventory === 0,
+    isPreorder: Boolean(p.isPreorder),
+    limitedEditionCount: p.limitedEditionCount || 150,
+    isSoldOut: p.inventory === 0 && !p.isPreorder,
     seoTitle: `${p.title} Poster | Polacraft Studio`,
     seoDescription: p.story || `Fine art poster of ${p.title}`,
-    galleryImages: [heroImage],
+    galleryImages: galleryImages,
     wallMockups: ["/assets/living_room_mockup.png"],
   };
 }
@@ -673,7 +697,7 @@ function ShopContent() {
                               style={{
                                 backgroundColor: isWish ? "#FFF5F5" : "#FAFAF8",
                                 color: isWish ? "red" : "var(--text-dark)",
-                                padding: "0.75rem",
+                                padding: "0.6rem",
                                 borderRadius: "50%",
                                 boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
                                 cursor: "pointer"
