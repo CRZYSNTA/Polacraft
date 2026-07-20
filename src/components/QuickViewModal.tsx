@@ -3,7 +3,7 @@
 import React, { useContext, useState } from "react";
 import { AppContext } from "../features/cart/AppContext";
 import { PosterRenderer } from "./PosterRenderer";
-import { sizes, frames } from "../lib/cms/products";
+import { sizes, frames, calculateProductPrice, FRAME_COST_BY_SIZE } from "../lib/cms/products";
 import { X, Heart, ShoppingBag, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -29,9 +29,7 @@ export const QuickViewModal = () => {
   const isWishlisted = wishlist.includes(quickViewProduct.id);
 
   // Price Calculation
-  const sizeObj = sizes.find((s) => s.id === selectedSize);
-  const frameObj = frames.find((f) => f.id === selectedFrame);
-  const currentPrice = quickViewProduct.price + sizeObj.priceModifier + frameObj.priceModifier;
+  const currentPrice = calculateProductPrice(quickViewProduct.price, selectedSize, selectedFrame);
 
   const handleAddToCart = () => {
     addToCart(quickViewProduct, selectedSize, selectedFrame, quantity);
@@ -224,26 +222,33 @@ export const QuickViewModal = () => {
                 Select Gallery Frame
               </span>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "0.5rem" }}>
-                {frames.map((f) => (
-                  <button
-                    key={f.id}
-                    onClick={() => setSelectedFrame(f.id)}
-                    style={{
-                      padding: "0.5rem 0.8rem",
-                      fontSize: "0.75rem",
-                      borderRadius: "12px",
-                      border: selectedFrame === f.id ? "1.5px solid var(--text-dark)" : "1.5px solid var(--border-color)",
-                      backgroundColor: selectedFrame === f.id ? "var(--accent-charcoal)" : "transparent",
-                      color: selectedFrame === f.id ? "#FFFFFF" : "var(--text-dark)",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      fontWeight: "500",
-                      transition: "var(--transition-fast)"
-                    }}
-                  >
-                    {f.label.split(" (")[0]} (+₹{f.priceModifier})
-                  </button>
-                ))}
+                {frames.map((f) => {
+                  const frameAddon = f.id === "unframed" ? 0 : (FRAME_COST_BY_SIZE[selectedSize] ?? 155);
+                  const labelText = f.id === "unframed" 
+                    ? "Unframed (Print Only)" 
+                    : `${f.label.split(" (")[0]} (+₹${frameAddon})`;
+
+                  return (
+                    <button
+                      key={f.id}
+                      onClick={() => setSelectedFrame(f.id)}
+                      style={{
+                        padding: "0.5rem 0.8rem",
+                        fontSize: "0.75rem",
+                        borderRadius: "12px",
+                        border: selectedFrame === f.id ? "1.5px solid var(--text-dark)" : "1.5px solid var(--border-color)",
+                        backgroundColor: selectedFrame === f.id ? "var(--accent-charcoal)" : "transparent",
+                        color: selectedFrame === f.id ? "#FFFFFF" : "var(--text-dark)",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        fontWeight: "500",
+                        transition: "var(--transition-fast)"
+                      }}
+                    >
+                      {labelText}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

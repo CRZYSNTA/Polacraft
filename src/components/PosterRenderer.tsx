@@ -6,9 +6,9 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }) => {
 
   // Frame classes mapped from posters data
   let frameClass = "";
-  if (frame === "wood") frameClass = "poster-framed-wood";
-  else if (frame === "black") frameClass = "poster-framed-black";
-  else if (frame === "gold") frameClass = "poster-framed-gold";
+  if (frame === "black") frameClass = "poster-framed-black";
+  else if (frame === "white") frameClass = "poster-framed-white";
+  else if (frame === "wood") frameClass = "poster-framed-wood";
 
   // Use primary graphic asset from database
   const posterSrc = poster.galleryImages?.[0] || "/assets/posters/manichitrathazhu-original-polacraft.png";
