@@ -181,25 +181,40 @@ export const QuickViewModal = () => {
                 Choose Dimensions
               </span>
               <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-                {sizes.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => setSelectedSize(s.id)}
-                    style={{
-                      padding: "0.5rem 1rem",
-                      fontSize: "0.8rem",
-                      borderRadius: "12px",
-                      border: selectedSize === s.id ? "1.5px solid var(--text-dark)" : "1.5px solid var(--border-color)",
-                      backgroundColor: selectedSize === s.id ? "var(--text-dark)" : "transparent",
-                      color: selectedSize === s.id ? "#FFFFFF" : "var(--text-dark)",
-                      cursor: "pointer",
-                      fontWeight: "500",
-                      transition: "var(--transition-fast)"
-                    }}
-                  >
-                    {s.id} (+₹{s.priceModifier})
-                  </button>
-                ))}
+                {sizes.map((s) => {
+                  const selectedSizeObj = sizes.find((sz) => sz.id === selectedSize);
+                  const selectedMod = selectedSizeObj ? selectedSizeObj.priceModifier : 0;
+                  const diff = s.priceModifier - selectedMod;
+
+                  let displayLabel = "";
+                  if (s.id === selectedSize) {
+                    displayLabel = `${s.id} (₹${quickViewProduct.price + s.priceModifier})`;
+                  } else if (diff > 0) {
+                    displayLabel = `${s.id} (+₹${diff})`;
+                  } else {
+                    displayLabel = `${s.id} (-₹${Math.abs(diff)})`;
+                  }
+
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => setSelectedSize(s.id)}
+                      style={{
+                        padding: "0.5rem 0.9rem",
+                        fontSize: "0.8rem",
+                        borderRadius: "12px",
+                        border: selectedSize === s.id ? "1.5px solid var(--text-dark)" : "1.5px solid var(--border-color)",
+                        backgroundColor: selectedSize === s.id ? "var(--text-dark)" : "transparent",
+                        color: selectedSize === s.id ? "#FFFFFF" : "var(--text-dark)",
+                        cursor: "pointer",
+                        fontWeight: "500",
+                        transition: "var(--transition-fast)"
+                      }}
+                    >
+                      {displayLabel}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
