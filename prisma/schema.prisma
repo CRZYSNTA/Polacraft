@@ -107,6 +107,9 @@ model Product {
   updatedAt           DateTime       @updatedAt
   publishedAt         DateTime?
 
+  @@index([collectionName])
+  @@index([createdAt])
+  @@index([featured])
   @@map("products")
 }
 
@@ -227,6 +230,10 @@ model Order {
   createdAt          DateTime              @default(now())
   updatedAt          DateTime              @updatedAt
 
+  @@index([paymentStatus])
+  @@index([shippingStatus])
+  @@index([createdAt])
+  @@index([userId])
   @@map("orders")
 }
 
@@ -300,8 +307,8 @@ model Testimonial {
 
 model SiteSettings {
   id                    String   @id @default(uuid())
-  shippingFee           Float    @default(150.0)
-  freeShippingThreshold Float    @default(3000.0)
+  shippingFee           Float    @default(60.0)
+  freeShippingThreshold Float    @default(800.0)
   instagramUrl          String?
   logo                  String?
   supportEmail          String   @default("support@polacraft.com")
@@ -320,6 +327,8 @@ model AnalyticsEvent {
   metadata   Json?
   createdAt  DateTime @default(now())
 
+  @@index([type])
+  @@index([createdAt])
   @@map("analytics_events")
 }
 

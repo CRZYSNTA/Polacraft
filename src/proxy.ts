@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { verifySessionToken, SESSION_COOKIE_NAME } from "./lib/session";
 
 /**
- * Next.js 16 Proxy / Middleware to enforce authentication and authorization for admin routes.
+ * Next.js 16 Edge Proxy to enforce authentication and authorization for admin routes.
  * Executed before rendering any /admin/* route.
  */
 export async function proxy(request: NextRequest) {
@@ -44,9 +44,7 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export async function middleware(request: NextRequest) {
-  return proxy(request);
-}
+export default proxy;
 
 export const config = {
   matcher: ["/admin/:path*"],
