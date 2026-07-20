@@ -14,6 +14,7 @@ const STATIC_POSTER_MAP: Record<string, string> = {
   aavesham: "/assets/posters/aavesham-original-polacraft.png",
   thoovanathumbikal: "/assets/posters/thoovanathumbikal-original-polacraft.png",
   spadikam: "/assets/posters/spadikam-original-polacraft.png",
+  prenam: "/assets/posters/premam-original-polacraft.png",
   premam: "/assets/posters/premam-original-polacraft.png",
   sandesham: "/assets/posters/sandesham-original-polacraft.png",
   mathilukal: "/assets/posters/mathilukal-original-polacraft.png",
@@ -101,11 +102,11 @@ function ShopContent() {
     sort: "default"
   });
 
-  // Fetch live products from database API on load
+  // Fetch live products from database API on load with cache breaker
   useEffect(() => {
     async function loadLiveProducts() {
       try {
-        const res = await fetch("/api/search");
+        const res = await fetch(`/api/search?t=${Date.now()}`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (data.products && data.products.length > 0) {
@@ -697,7 +698,7 @@ function ShopContent() {
                               style={{
                                 backgroundColor: isWish ? "#FFF5F5" : "#FAFAF8",
                                 color: isWish ? "red" : "var(--text-dark)",
-                                padding: "0.6rem",
+                                padding: "0.75rem",
                                 borderRadius: "50%",
                                 boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
                                 cursor: "pointer"

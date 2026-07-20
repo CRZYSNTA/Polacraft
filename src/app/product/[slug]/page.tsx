@@ -2,8 +2,11 @@ import { getPosterBySlug } from "../../../lib/cms";
 import ProductDetailClient from "./ProductDetailClient";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Dynamic SEO metadata generator for film posters (Point 1 & 8)
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params }: any) {
   const { slug } = await params;
   const poster = await getPosterBySlug(slug);
 
@@ -49,7 +52,7 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function ProductPage({ params }) {
+export default async function ProductPage({ params }: any) {
   const { slug } = await params;
   const poster = await getPosterBySlug(slug);
 
