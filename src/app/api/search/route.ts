@@ -5,12 +5,25 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") || "";
 
-  if (!q.trim()) {
-    return NextResponse.json({ products: [], collections: [] });
-  }
-
   try {
     const query = q.trim();
+
+    if (!query) {
+      // Return all products and collections when query is empty
+      const products = await prisma.product.findMany({
+        include: {
+          images: { orderBy: { sortOrder: "asc" } },
+          collection: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      const collections = await prisma.collection.findMany({
+        orderBy: { name: "asc" },
+      });
+
+      return NextResponse.json({ products, collections });
+    }
 
     // Query products across title, film, director, genre, and collection
     const products = await prisma.product.findMany({
@@ -25,8 +38,9 @@ export async function GET(req: Request) {
       },
       include: {
         images: { orderBy: { sortOrder: "asc" } },
+        collection: true,
       },
-      take: 10,
+      take: 20,
     });
 
     const collections = await prisma.collection.findMany({
@@ -36,11 +50,12 @@ export async function GET(req: Request) {
           { description: { contains: query, mode: "insensitive" } },
         ],
       },
-      take: 5,
+      take: 10,
     });
 
     return NextResponse.json({ products, collections });
   } catch (error: any) {
+    console.error("[Search API Error]:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

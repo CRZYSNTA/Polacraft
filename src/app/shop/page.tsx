@@ -1,11 +1,52 @@
 'use client';
 
-import React, { useContext, useState, useMemo, Suspense } from "react";
+import React, { useContext, useState, useMemo, useEffect, Suspense } from "react";
 import { AppContext } from "../../features/cart/AppContext";
 import PosterRenderer from "../../components/PosterRenderer";
-import { posters, collections, sizes } from "../../lib/cms/products";
+import { posters as staticPosters, collections as staticCollections, sizes } from "../../lib/cms/products";
+import { Product } from "../../types";
 import { Filter, Search, Heart, ShoppingBag, Eye, X, LayoutGrid, Compass, BookOpen } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+
+function mapDbProductToPoster(p: any): Product {
+  const heroImage = p.images?.find((img: any) => img.type === "HERO")?.url || p.images?.[0]?.url || "/assets/posters/manichitrathazhu-original-polacraft.png";
+
+  return {
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    film: p.film || p.title,
+    tagline: p.tagline || "Handcrafted Archival Cinema Print",
+    year: p.year || 1993,
+    director: p.director || "Polacraft Studio",
+    cast: Array.isArray(p.cast) && p.cast.length > 0 ? p.cast : ["Mohanlal"],
+    collection: p.collectionName || p.collection?.name || "Classic Malayalam",
+    genre: p.genre || "Drama",
+    palette: {
+      primary: p.primaryColor || "#E6C15C",
+      accent: p.accentColor || "#802720",
+      bg: p.bgColor || "#FAFAF8",
+      text: p.textColor || "#1A1A1A",
+    },
+    story: p.story || "Museum-quality archival fine art poster print.",
+    designNotes: p.designNotes || "High contrast archival cotton paper print.",
+    availableSizes: ["A5", "A4", "A3"],
+    frameOptions: ["unframed", "black", "white"],
+    paperType: p.paperType || "Fine Art Cotton Archival",
+    gsm: p.gsm || 250,
+    finish: p.finish || "Ultra-Matte Giclée",
+    price: p.price || 45,
+    inventory: p.inventory ?? 25,
+    lowStockThreshold: p.lowStockThreshold || 5,
+    isPreorder: false,
+    limitedEditionCount: 150,
+    isSoldOut: p.inventory === 0,
+    seoTitle: `${p.title} Poster | Polacraft Studio`,
+    seoDescription: p.story || `Fine art poster of ${p.title}`,
+    galleryImages: [heroImage],
+    wallMockups: ["/assets/living_room_mockup.png"],
+  };
+}
 
 // Sub-component that reads search parameters
 function ShopContent() {
@@ -18,36 +59,63 @@ function ShopContent() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   // Read initial filter from URL if present (e.g. ?filter=Classic)
   const initialFilter = searchParams.get("filter");
 
-  // Shop configuration states
-  const [viewMode, setViewMode] = useState("shop"); // "shop" or "gallery"
+  const [posters, setPosters] = useState<Product[]>(staticPosters);
+  const [viewMode, setViewMode] = useState("shop"); // "shop", "gallery", or "story"
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
   const [activeFilters, setActiveFilters] = useState({
     collection: initialFilter ? `${initialFilter} Malayalam` : "All Collections",
-    priceRange: 2000,
+    priceRange: 500,
     actor: "All",
     director: "All",
     sort: "default"
   });
+
+  // Fetch live products from database API on load
+  useEffect(() => {
+    async function loadLiveProducts() {
+      try {
+        const res = await fetch("/api/search");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.products && data.products.length > 0) {
+            const livePosters = data.products.map(mapDbProductToPoster);
+            
+            // Merge live posters with static ones, prioritizing live database items
+            const liveSlugs = new Set(livePosters.map((p: Product) => p.slug));
+            const merged = [
+              ...livePosters,
+              ...staticPosters.filter((sp) => !liveSlugs.has(sp.slug))
+            ];
+            setPosters(merged);
+          }
+        }
+      } catch (e) {
+        console.warn("[Shop Live Products Fetch Warning]:", e);
+      }
+    }
+
+    loadLiveProducts();
+  }, []);
 
   // Unique values for filter picks
   const uniqueActors = useMemo(() => {
     const actors = new Set<string>();
     posters.forEach((p) => p.cast.forEach((act) => actors.add(act)));
     return ["All", ...Array.from(actors)];
-  }, []);
+  }, [posters]);
 
   const uniqueDirectors = useMemo(() => {
     const directors = new Set<string>();
     posters.forEach((p) => directors.add(p.director));
     return ["All", ...Array.from(directors)];
-  }, []);
+  }, [posters]);
 
   // Filter & Search Logic
   const filteredPosters = useMemo(() => {
@@ -63,7 +131,7 @@ function ShopContent() {
 
       const matchCollection =
         activeFilters.collection === "All Collections" ||
-        poster.collection.includes(activeFilters.collection.split(" ")[0]);
+        poster.collection.toLowerCase().includes(activeFilters.collection.split(" ")[0].toLowerCase());
 
       const matchActor =
         activeFilters.actor === "All" ||
@@ -77,7 +145,7 @@ function ShopContent() {
 
       return matchSearch && matchCollection && matchActor && matchDirector && matchPrice;
     });
-  }, [searchQuery, activeFilters]);
+  }, [posters, searchQuery, activeFilters]);
 
   // Sorting
   const sortedPosters = useMemo(() => {
@@ -103,7 +171,7 @@ function ShopContent() {
     return sortedPosters.slice(startIndex, startIndex + itemsPerPage);
   }, [sortedPosters, currentPage]);
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = (key: string, value: any) => {
     setActiveFilters((prev) => ({ ...prev, [key]: value }));
     setCurrentPage(1);
   };
@@ -111,7 +179,7 @@ function ShopContent() {
   const handleClearFilters = () => {
     setActiveFilters({
       collection: "All Collections",
-      priceRange: 2000,
+      priceRange: 500,
       actor: "All",
       director: "All",
       sort: "default"
@@ -128,14 +196,14 @@ function ShopContent() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "4rem" }} className="shop-header">
           <div>
             <span style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--text-muted)", fontWeight: "600" }}>
-              The Catalog
+              The Catalog ({posters.length} Posters Available)
             </span>
             <h1 style={{ fontSize: "3.5rem", fontWeight: "800", letterSpacing: "-0.04em", marginTop: "0.5rem" }}>
               Fine Art Exhibition
             </h1>
           </div>
 
-          {/* GALLERY MODE SWITCHER (Point 7) */}
+          {/* GALLERY MODE SWITCHER */}
           <div 
             style={{
               display: "flex",
@@ -202,7 +270,7 @@ function ShopContent() {
           </div>
         </div>
 
-        {/* 1. EDITORIAL STORY VIEW (Point 7) */}
+        {/* 1. EDITORIAL STORY VIEW */}
         {viewMode === "story" ? (
           <section style={{ display: "flex", flexDirection: "column", gap: "6rem" }}>
             {sortedPosters.map((poster) => {
@@ -220,14 +288,12 @@ function ShopContent() {
                   }}
                   className="editorial-story-row"
                 >
-                  {/* Poster Graphic frame */}
                   <div style={{ backgroundColor: "var(--accent-beige)", padding: "4rem 3rem", borderRadius: "20px", display: "flex", justifyContent: "center" }} className="hover-lift">
                     <div style={{ width: "100%", maxWidth: "320px", cursor: "pointer" }} onClick={() => router.push(`/product/${poster.slug}`)}>
-                      <PosterRenderer poster={poster} frame="wood" />
+                      <PosterRenderer poster={poster} frame="black" />
                     </div>
                   </div>
                   
-                  {/* Editorial Plaque */}
                   <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                     <div>
                       <span style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--text-muted)", fontWeight: "600" }}>
@@ -287,7 +353,6 @@ function ShopContent() {
                       paddingBottom: "3rem"
                     }}
                   >
-                    {/* Framed preview container */}
                     <div 
                       onClick={() => router.push(`/product/${poster.slug}`)}
                       style={{ 
@@ -297,7 +362,7 @@ function ShopContent() {
                       }} 
                       className="hover-lift"
                     >
-                      <PosterRenderer poster={poster} frame="wood" />
+                      <PosterRenderer poster={poster} frame="black" />
                       
                       <button
                         onClick={(e) => {
@@ -321,7 +386,6 @@ function ShopContent() {
                       </button>
                     </div>
 
-                    {/* Museum Plaque */}
                     <div className="gallery-museum-plaque" style={{ width: "85%", textAlign: "center", marginTop: "1.5rem" }}>
                       <h4 style={{ fontSize: "1.2rem", fontWeight: "700", fontFamily: "var(--font-serif)" }}>{poster.title}</h4>
                       <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontStyle: "italic" }}>{poster.film}</p>
@@ -401,7 +465,7 @@ function ShopContent() {
                     cursor: "pointer"
                   }}
                 >
-                  {collections.map((col) => (
+                  {staticCollections.map((col) => (
                     <option key={col} value={col}>{col}</option>
                   ))}
                 </select>
@@ -465,9 +529,9 @@ function ShopContent() {
                 </div>
                 <input
                   type="range"
-                  min="1300"
-                  max="2000"
-                  step="50"
+                  min="30"
+                  max="500"
+                  step="10"
                   value={activeFilters.priceRange}
                   onChange={(e) => handleFilterChange("priceRange", Number(e.target.value))}
                   style={{
@@ -550,7 +614,6 @@ function ShopContent() {
                             <PosterRenderer poster={poster} frame="unframed" />
                           </div>
 
-                          {/* Inventory status badges (Point 4) */}
                           {poster.inventory > 0 && poster.inventory <= poster.lowStockThreshold && (
                             <span style={{ position: "absolute", top: "1rem", left: "1rem", fontSize: "0.65rem", fontWeight: "700", color: "#E65100", backgroundColor: "#FFF3E0", padding: "0.25rem 0.6rem", borderRadius: "8px", zIndex: 5 }}>
                               LOW STOCK
