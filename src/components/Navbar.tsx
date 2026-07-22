@@ -99,8 +99,7 @@ export const Navbar = () => {
             { path: "/about", label: "About" },
             { path: "/journal", label: "Journal" },
             { path: "/contact", label: "Contact" },
-            { path: "/profile", label: "Account" },
-            { path: "/admin", label: "Admin" }
+            { path: "/profile", label: "Account" }
           ].map((item) => {
             const isActive = pathname === item.path;
             return (
@@ -224,8 +223,7 @@ export const Navbar = () => {
             { path: "/about", label: "Our Story" },
             { path: "/journal", label: "Editorial Journal" },
             { path: "/contact", label: "Contact Studio" },
-            { path: "/profile", label: "Collector Account" },
-            { path: "/admin", label: "Admin Dashboard" }
+            { path: "/profile", label: "Collector Account" }
           ].map((item) => (
             <Link
               key={item.path}
