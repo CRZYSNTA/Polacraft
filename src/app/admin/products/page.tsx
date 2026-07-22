@@ -572,11 +572,11 @@ export default function AdminProductsPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Product Title *</label>
-                  <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Manichitrathazhu" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                  <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Enter product title..." style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
                 </div>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>URL Slug (auto-generated if empty)</label>
-                  <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="manichitrathazhu-poster" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                  <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g. poster-slug" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
                 </div>
               </div>
 
@@ -584,15 +584,15 @@ export default function AdminProductsPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Film Name *</label>
-                  <input type="text" required value={film} onChange={(e) => setFilm(e.target.value)} placeholder="Manichitrathazhu" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                  <input type="text" required value={film} onChange={(e) => setFilm(e.target.value)} placeholder="Enter film title..." style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
                 </div>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Release Year *</label>
-                  <input type="number" required value={year} onChange={(e) => setYear(Number(e.target.value))} placeholder="1993" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                  <input type="number" required value={year} onChange={(e) => setYear(Number(e.target.value))} placeholder="e.g. 2024" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
                 </div>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Director *</label>
-                  <input type="text" required value={director} onChange={(e) => setDirector(e.target.value)} placeholder="Fazil" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                  <input type="text" required value={director} onChange={(e) => setDirector(e.target.value)} placeholder="Enter director name..." style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
                 </div>
               </div>
 

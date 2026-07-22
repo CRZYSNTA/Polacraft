@@ -14,9 +14,9 @@ export default function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [shippingStreet, setShippingStreet] = useState("");
-  const [shippingCity, setShippingCity] = useState("Kochi");
-  const [shippingState, setShippingState] = useState("Kerala");
-  const [shippingZip, setShippingZip] = useState("682001");
+  const [shippingCity, setShippingCity] = useState("");
+  const [shippingState, setShippingState] = useState("");
+  const [shippingZip, setShippingZip] = useState("");
 
   // Coupon State
   const [couponCode, setCouponCode] = useState("");
@@ -181,16 +181,16 @@ export default function CheckoutPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               <div>
                 <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Full Name *</label>
-                <input type="text" required value={shippingName} onChange={(e) => setShippingName(e.target.value)} placeholder="John Doe" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                <input type="text" required value={shippingName} onChange={(e) => setShippingName(e.target.value)} placeholder="Enter Full Name" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
               </div>
               <div>
                 <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>WhatsApp Phone # *</label>
-                <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="9876543210" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit Phone Number" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
               </div>
             </div>
             <div style={{ marginTop: "1rem" }}>
               <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Email Address</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@example.com" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@domain.com" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
             </div>
           </div>
 
@@ -199,7 +199,7 @@ export default function CheckoutPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div>
                 <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Street / Building Address *</label>
-                <input type="text" required value={shippingStreet} onChange={(e) => setShippingStreet(e.target.value)} placeholder="ABC House, Palakkad Road" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                <input type="text" required value={shippingStreet} onChange={(e) => setShippingStreet(e.target.value)} placeholder="House No., Street Name, Area" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
