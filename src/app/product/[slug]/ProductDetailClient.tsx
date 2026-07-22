@@ -321,40 +321,11 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
               </div>
             </div>
 
-            {/* Frame Selector */}
-            <div>
-              <span style={{ fontSize: "0.8rem", fontWeight: "700", textTransform: "uppercase", color: "var(--text-muted)", display: "block", marginBottom: "0.5rem" }}>
-                Select Gallery Frame
+            {/* Format: Unframed Poster Print Only */}
+            <div style={{ backgroundColor: "#F7F7F4", padding: "0.85rem 1.25rem", borderRadius: "15px", border: "1px solid var(--border-color)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111" }}>
+                🖼️ Format: <strong>Unframed Fine Art Poster Print</strong>
               </span>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-                {frames.map((f) => {
-                  const frameAddon = f.id === "unframed" ? 0 : (FRAME_COST_BY_SIZE[selectedSize] ?? 155);
-                  const labelText = f.id === "unframed" 
-                    ? "Unframed (Print Only)" 
-                    : `${f.label.split(" (")[0]} (+₹${frameAddon})`;
-
-                  return (
-                    <button
-                      key={f.id}
-                      onClick={() => setSelectedFrame(f.id)}
-                      style={{
-                        padding: "0.8rem 1rem",
-                        fontSize: "0.8rem",
-                        borderRadius: "15px",
-                        border: selectedFrame === f.id ? "2px solid #111111" : "1.5px solid var(--border-color)",
-                        backgroundColor: selectedFrame === f.id ? "#2C2C2A" : "transparent",
-                        color: selectedFrame === f.id ? "#FFFFFF" : "#111111",
-                        cursor: "pointer",
-                        textAlign: "left",
-                        fontWeight: "600",
-                        transition: "var(--transition-fast)"
-                      }}
-                    >
-                      {labelText}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
 
             {/* Qty & Add to Bag */}

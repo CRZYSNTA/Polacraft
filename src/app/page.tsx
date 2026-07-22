@@ -149,7 +149,7 @@ export default function Home() {
   const fanRotations = [-15, -8, -2, 6, 12, 18];
   const fanYPositions = [40, 15, 0, 10, 30, 50];
   const fanXPositions = [-160, -80, 0, 80, 160, 240];
-  const fanFrames = ["wood", "black", "unframed", "wood", "white", "black"];
+  const fanFrames = ["unframed", "unframed", "unframed", "unframed", "unframed", "unframed"];
 
   return (
     <div onMouseMove={handleMouseMove} style={{ position: "relative", overflow: "hidden" }}>
