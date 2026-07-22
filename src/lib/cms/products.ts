@@ -24,7 +24,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 45, // Base price for A5
+    price: 49, // Base price for A5 (Polacraft Business Plan v1.0)
     inventory: 24,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -54,7 +54,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 45,
+    price: 49,
     inventory: 18,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -84,7 +84,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 45,
+    price: 49,
     inventory: 15,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -114,7 +114,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 45,
+    price: 49,
     inventory: 12,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -144,7 +144,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 45,
+    price: 49,
     inventory: 30,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -174,7 +174,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 45,
+    price: 49,
     inventory: 40,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -204,7 +204,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 45,
+    price: 49,
     inventory: 20,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -234,7 +234,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 45,
+    price: 49,
     inventory: 10,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -264,7 +264,7 @@ export const posters: Product[] = [
     paperType: "Fine Art Cotton Archival",
     gsm: 250,
     finish: "Ultra-Matte Giclée",
-    price: 45,
+    price: 49,
     inventory: 8,
     lowStockThreshold: 5,
     isPreorder: false,
@@ -293,14 +293,14 @@ export interface SizeOption {
   priceModifier: number;
 }
 
-// Pricing structure:
-// A5: Base Price (₹45)
-// A4: Base Price + ₹25 (Total ₹70)
-// A3: Base Price + ₹55 (Total ₹100)
+// Pricing structure (Polacraft v1.0 Business Plan):
+// A5: Base Price (₹49)
+// A4: Base Price + ₹30 (Total ₹79)
+// A3: Base Price + ₹70 (Total ₹119)
 export const sizes: SizeOption[] = [
   { id: "A5", label: "A5 (14.8 x 21.0 cm)", priceModifier: 0 },
-  { id: "A4", label: "A4 (21.0 x 29.7 cm)", priceModifier: 25 },
-  { id: "A3", label: "A3 (29.7 x 42.0 cm)", priceModifier: 55 }
+  { id: "A4", label: "A4 (21.0 x 29.7 cm)", priceModifier: 30 },
+  { id: "A3", label: "A3 (29.7 x 42.0 cm)", priceModifier: 70 }
 ];
 
 export interface FrameOption {
