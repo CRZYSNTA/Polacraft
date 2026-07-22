@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Sparkles, Sliders, Check } from "lucide-react";
+import AIStatusCard from "./AIStatusCard";
 
 interface AISettingsPanelProps {
   settings: {
@@ -18,15 +19,19 @@ interface AISettingsPanelProps {
 
 export default function AISettingsPanel({ settings, onChange }: AISettingsPanelProps) {
   return (
-    <div
-      style={{
-        backgroundColor: "#1E293B",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
-        borderRadius: "24px",
-        padding: "2rem",
-        marginBottom: "2rem"
-      }}
-    >
+    <div>
+      {/* Infrastructure Status Card */}
+      <AIStatusCard />
+
+      <div
+        style={{
+          backgroundColor: "#1E293B",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: "24px",
+          padding: "2rem",
+          marginBottom: "2rem"
+        }}
+      >
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
         <Sliders size={22} style={{ color: "#D4AF37" }} />
         <div>
@@ -136,5 +141,6 @@ export default function AISettingsPanel({ settings, onChange }: AISettingsPanelP
         </div>
       </div>
     </div>
+  </div>
   );
 }
