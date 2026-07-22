@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { sizes, frames } from "../../lib/cms/products";
 import { Product } from "../../types";
+import { StorePromotionSettings, DEFAULT_STORE_SETTINGS } from "@/services/promotionEngine";
 
 export interface CartItem {
   cartId: string;
@@ -36,6 +37,9 @@ export interface AppContextType {
   cartSubtotal: number;
   cartItemCount: number;
   mounted: boolean;
+  siteSettings: StorePromotionSettings;
+  selectedRewards: string[];
+  setSelectedRewards: (rewards: string[]) => void;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -48,6 +52,30 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [mounted, setMounted] = useState<boolean>(false);
+  const [siteSettings, setSiteSettings] = useState<StorePromotionSettings>(DEFAULT_STORE_SETTINGS);
+  const [selectedRewards, setSelectedRewards] = useState<string[]>(["1xA3"]);
+
+  // Fetch live site settings from API
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.settings) {
+          setSiteSettings({
+            shippingFee: Number(data.settings.shippingFee ?? DEFAULT_STORE_SETTINGS.shippingFee),
+            freeShippingThreshold: Number(data.settings.freeShippingThreshold ?? DEFAULT_STORE_SETTINGS.freeShippingThreshold),
+            collectorRewardThreshold: Number(data.settings.collectorRewardThreshold ?? DEFAULT_STORE_SETTINGS.collectorRewardThreshold),
+            premiumRewardThreshold: Number(data.settings.premiumRewardThreshold ?? DEFAULT_STORE_SETTINGS.premiumRewardThreshold),
+            loyaltyPointsRatio: Number(data.settings.loyaltyPointsRatio ?? DEFAULT_STORE_SETTINGS.loyaltyPointsRatio),
+            heroTitle: data.settings.heroTitle || DEFAULT_STORE_SETTINGS.heroTitle,
+            heroSubtitle: data.settings.heroSubtitle || DEFAULT_STORE_SETTINGS.heroSubtitle,
+            rewardsEnabled: data.settings.rewardsEnabled !== undefined ? Boolean(data.settings.rewardsEnabled) : true,
+            limitedEditionsEnabled: data.settings.limitedEditionsEnabled !== undefined ? Boolean(data.settings.limitedEditionsEnabled) : true
+          });
+        }
+      })
+      .catch((e) => console.log("Using default site settings fallback", e));
+  }, []);
 
   // Load from localStorage only on client-side mount (hydration safe)
   useEffect(() => {
@@ -60,13 +88,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       
       const savedRecent = localStorage.getItem("polacraft_recently");
       if (savedRecent) setRecentlyViewed(JSON.parse(savedRecent));
+
+      const savedRew = localStorage.getItem("polacraft_rewards");
+      if (savedRew) setSelectedRewards(JSON.parse(savedRew));
     } catch (e) {
       console.error("Failed to parse storage", e);
     }
     setMounted(true);
   }, []);
 
-  // Save to localStorage only after component mounts on client
+  // Save to localStorage
   useEffect(() => {
     if (mounted) {
       localStorage.setItem("polacraft_cart", JSON.stringify(cart));
@@ -78,6 +109,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem("polacraft_wishlist", JSON.stringify(wishlist));
     }
   }, [wishlist, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("polacraft_rewards", JSON.stringify(selectedRewards));
+    }
+  }, [selectedRewards, mounted]);
 
   // Cart operations
   const addToCart = (poster: Product, sizeId: string = "A4", frameId: string = "unframed", quantity: number = 1) => {
@@ -190,7 +227,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         addRecentlyViewed,
         cartSubtotal,
         cartItemCount,
-        mounted
+        mounted,
+        siteSettings,
+        selectedRewards,
+        setSelectedRewards
       }}
     >
       {children}

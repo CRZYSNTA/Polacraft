@@ -23,17 +23,17 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata = {
-  title: "Polacraft | Malayalam Cinema. Reimagined as Wall Art.",
-  description: "Polacraft transforms iconic Malayalam film milestones, dialogues, and characters into premium archival wall posters.",
-  metadataBase: new URL("http://localhost:3000"),
+  title: "Premium Malayalam Movie Posters | Polacraft",
+  description: "Discover premium Malayalam cinema posters inspired by iconic films and legendary actors. Museum-quality prints with collector rewards and free shipping.",
+  metadataBase: new URL("https://polacraft-1.vercel.app"),
   openGraph: {
-    title: "Polacraft | Malayalam Cinema. Reimagined as Wall Art.",
-    description: "Premium handcrafted archival prints for movie lovers and interior design curations.",
+    title: "Premium Malayalam Movie Posters | Polacraft",
+    description: "Discover premium Malayalam cinema posters inspired by iconic films and legendary actors. Museum-quality prints with collector rewards and free shipping.",
     type: "website",
   }
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSerif.variable}`} suppressHydrationWarning>
       <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh", position: "relative" }} suppressHydrationWarning>

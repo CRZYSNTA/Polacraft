@@ -4,13 +4,13 @@ import React, { useContext, useState, useEffect, useMemo } from "react";
 import { AppContext } from "../../../features/cart/AppContext";
 import PosterRenderer from "../../../components/PosterRenderer";
 import { sizes, frames, posters, calculateProductPrice, FRAME_COST_BY_SIZE } from "../../../lib/cms/products";
-import { Heart, ShoppingBag, Calendar, ShieldCheck, RefreshCw, ZoomIn, AlertTriangle, Ruler } from "lucide-react";
+import { Heart, ShoppingBag, Calendar, ShieldCheck, RefreshCw, ZoomIn, AlertTriangle, Ruler, Box, Sparkles, Truck, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { trackCartEvent } from "../../../services/analytics";
 import JsonLd from "../../../components/JsonLd";
 import SizeGuideModal from "../../../components/SizeGuideModal";
 
-export default function ProductDetailClient({ poster }) {
+export default function ProductDetailClient({ poster }: { poster: any }) {
   const { addToCart, wishlist, toggleWishlist, recentlyViewed, addRecentlyViewed } = useContext(AppContext);
   const router = useRouter();
 
@@ -18,12 +18,12 @@ export default function ProductDetailClient({ poster }) {
   const [selectedFrame, setSelectedFrame] = useState("unframed");
   const [quantity, setQuantity] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"story" | "quality" | "care">("story");
 
   // Zoom magnifier states
   const [zoomStyle, setZoomStyle] = useState({ transform: "scale(1)", transformOrigin: "center" });
 
   useEffect(() => {
-    // Add to recently viewed on mount
     if (poster) {
       addRecentlyViewed(poster);
     }
@@ -34,12 +34,22 @@ export default function ProductDetailClient({ poster }) {
   // Price calculations
   const currentPrice = calculateProductPrice(poster.price, selectedSize, selectedFrame);
 
-  // Shipping estimate date (5 days ahead)
-  const shippingEstimate = useMemo(() => {
-    const date = new Date();
-    date.setDate(date.getDate() + 5);
-    return date.toLocaleDateString("en-IN", { weekday: 'long', day: 'numeric', month: 'short' });
+  // Dynamic Estimated Delivery Calculation (Ships 2-3 days, Delivers in 6-8 days)
+  const deliveryDates = useMemo(() => {
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() + 6);
+    const end = new Date(today);
+    end.setDate(today.getDate() + 8);
+
+    const startStr = start.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    const endStr = end.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    return `${startStr} – ${endStr}`;
   }, []);
+
+  // Limited edition counter numbers
+  const editionTotal = poster.editionTotal || poster.limitedEditionCount || 100;
+  const editionSold = poster.editionSold || Math.max(1, editionTotal - (poster.inventory ?? 25));
 
   // Related posters (same collection)
   const relatedPosters = useMemo(() => {
@@ -61,8 +71,7 @@ export default function ProductDetailClient({ poster }) {
     }
   };
 
-  // Hover zoom coordinate calculations (Point 2)
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
@@ -90,11 +99,11 @@ export default function ProductDetailClient({ poster }) {
             gridTemplateColumns: "1.1fr 1fr",
             gap: "4rem",
             alignItems: "start",
-            marginBottom: "6rem"
+            marginBottom: "5rem"
           }}
           className="product-split"
         >
-          {/* LEFT: IMMERSIVE PREVIEW CARD WITH HOVER ZOOM (Point 2) */}
+          {/* LEFT: IMMERSIVE PREVIEW CARD WITH HOVER ZOOM */}
           <div 
             style={{
               position: "sticky",
@@ -152,8 +161,7 @@ export default function ProductDetailClient({ poster }) {
           </div>
 
           {/* RIGHT: STICKY PANEL DETAILS */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-            {/* Dynamic Product Schema */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
             <JsonLd
               type="Product"
               data={{
@@ -166,29 +174,35 @@ export default function ProductDetailClient({ poster }) {
                   priceCurrency: "INR",
                   availability: (poster.isSoldOut || (poster.inventory === 0 && !poster.isPreorder))
                     ? "https://schema.org/OutOfStock"
-                    : (poster.inventory === 0 && poster.isPreorder)
-                    ? "https://schema.org/PreOrder"
                     : "https://schema.org/InStock"
                 }
               }}
             />
 
             <div>
-              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              {/* Badges Bar */}
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap", marginBottom: "0.5rem" }}>
                 <span 
                   style={{
-                    fontSize: "0.85rem",
+                    fontSize: "0.75rem",
                     textTransform: "uppercase",
-                    letterSpacing: "0.2em",
+                    letterSpacing: "0.15em",
                     color: "var(--text-muted)",
-                    fontWeight: "600"
+                    fontWeight: "700"
                   }}
                 >
                   {poster.collection}
                 </span>
-                {poster.limitedEditionCount && (
-                  <span style={{ fontSize: "0.7rem", fontWeight: "700", backgroundColor: "var(--color-charcoal-accent)", color: "#FFFFFF", padding: "0.2rem 0.6rem", borderRadius: "10px" }}>
-                    Limited Curation
+
+                {/* Product Badge Pill */}
+                <span style={{ fontSize: "0.7rem", fontWeight: "800", backgroundColor: "#111111", color: "#FFFFFF", padding: "0.2rem 0.65rem", borderRadius: "100px", textTransform: "uppercase" }}>
+                  {poster.badge ? poster.badge.replace("_", " ") : "COLLECTOR PICK"}
+                </span>
+
+                {/* Limited Edition Count Badge */}
+                {(poster.isLimitedEdition || poster.limitedEditionCount) && (
+                  <span style={{ fontSize: "0.7rem", fontWeight: "800", backgroundColor: "#D97706", color: "#FFFFFF", padding: "0.2rem 0.65rem", borderRadius: "100px" }}>
+                    LIMITED EDITION: {editionSold} / {editionTotal}
                   </span>
                 )}
               </div>
@@ -198,63 +212,46 @@ export default function ProductDetailClient({ poster }) {
                   fontSize: "3.25rem",
                   fontWeight: "800",
                   letterSpacing: "-0.03em",
-                  marginTop: "0.5rem",
+                  marginTop: "0.25rem",
                   lineHeight: "1.1"
                 }}
               >
                 {poster.title}
               </h1>
               
-              <p style={{ fontSize: "1.25rem", fontStyle: "italic", color: "var(--text-muted)", marginTop: "0.25rem" }}>
+              <p style={{ fontSize: "1.2rem", fontStyle: "italic", color: "var(--text-muted)", marginTop: "0.25rem" }}>
                 {poster.film}
               </p>
             </div>
 
-            {/* Limited Edition Serialization (Point 4) */}
-            {poster.limitedEditionCount && (
-              <p style={{ fontSize: "0.85rem", color: "var(--text-dark)", fontWeight: "600", marginTop: "-10px" }}>
-                ✨ Limited Series: Print No. <strong>{poster.limitedEditionCount - poster.inventory + 1}</strong> of <strong>{poster.limitedEditionCount}</strong> ever pressed.
-              </p>
-            )}
-
-            {/* Stock status alerts */}
-            {poster.inventory > 0 && poster.inventory <= poster.lowStockThreshold && (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#E65100", fontSize: "0.85rem", fontWeight: "600", backgroundColor: "#FFF3E0", padding: "0.5rem 1rem", borderRadius: "10px" }}>
-                <AlertTriangle size={16} /> Attention: Only {poster.inventory} original prints left in stock!
-              </div>
-            )}
-            {poster.inventory === 0 && poster.isPreorder && (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#1565C0", fontSize: "0.85rem", fontWeight: "600", backgroundColor: "#E3F2FD", padding: "0.5rem 1rem", borderRadius: "10px" }}>
-                <AlertTriangle size={16} /> Pre-order: Next batch in press. Expected shipment in 10 days.
-              </div>
-            )}
-            {poster.inventory === 0 && !poster.isPreorder && (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "red", fontSize: "0.85rem", fontWeight: "600", backgroundColor: "#FFEBF0", padding: "0.5rem 1rem", borderRadius: "10px" }}>
-                <AlertTriangle size={16} /> Sold Out: All signed copies of this curation have been archived.
-              </div>
-            )}
-
+            {/* Quote Tagline */}
             <blockquote 
               style={{
-                borderLeft: "2px solid var(--text-dark)",
-                paddingLeft: "1.5rem",
+                borderLeft: "2.5px solid var(--text-dark)",
+                paddingLeft: "1.25rem",
                 fontSize: "1.05rem",
                 fontStyle: "italic",
                 color: "var(--text-dark)",
-                margin: "0.5rem 0"
+                margin: "0.25rem 0"
               }}
             >
               "{poster.tagline}"
             </blockquote>
 
-            <div style={{ fontSize: "2rem", fontWeight: "700", color: (poster.inventory === 0 && !poster.isPreorder) ? "var(--text-muted)" : "var(--text-dark)" }}>
-              ₹{currentPrice.toLocaleString("en-IN")}
+            {/* Price & Shipping Estimate Badge */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: "1.5rem" }}>
+              <div style={{ fontSize: "2.25rem", fontWeight: "900", color: "#111111" }}>
+                ₹{currentPrice.toLocaleString("en-IN")}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem", color: "#16A34A", fontWeight: "700" }}>
+                <Truck size={16} /> Ships in 2–3 Days (Est. Delivery: {deliveryDates})
+              </div>
             </div>
 
-            {/* Sizes */}
+            {/* Size Selector */}
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                <span style={{ fontSize: "0.8rem", fontWeight: "700", textTransform: "uppercase", color: "var(--text-muted)" }}>
                   Choose Size
                 </span>
                 <button
@@ -286,7 +283,7 @@ export default function ProductDetailClient({ poster }) {
                   setIsSizeGuideOpen(false);
                 }}
               />
-              <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+              <div style={{ display: "flex", gap: "0.75rem" }}>
                 {sizes.map((s) => {
                   const selectedSizeObj = sizes.find((sz) => sz.id === selectedSize);
                   const selectedMod = selectedSizeObj ? selectedSizeObj.priceModifier : 0;
@@ -309,11 +306,11 @@ export default function ProductDetailClient({ poster }) {
                         padding: "0.75rem 1.25rem",
                         fontSize: "0.85rem",
                         borderRadius: "15px",
-                        border: selectedSize === s.id ? "1.5px solid var(--text-dark)" : "1.5px solid var(--border-color)",
-                        backgroundColor: selectedSize === s.id ? "var(--text-dark)" : "transparent",
-                        color: selectedSize === s.id ? "#FFFFFF" : "var(--text-dark)",
+                        border: selectedSize === s.id ? "2px solid #111111" : "1.5px solid var(--border-color)",
+                        backgroundColor: selectedSize === s.id ? "#111111" : "transparent",
+                        color: selectedSize === s.id ? "#FFFFFF" : "#111111",
                         cursor: "pointer",
-                        fontWeight: "600",
+                        fontWeight: "700",
                         transition: "var(--transition-fast)"
                       }}
                     >
@@ -324,12 +321,12 @@ export default function ProductDetailClient({ poster }) {
               </div>
             </div>
 
-            {/* Frames */}
+            {/* Frame Selector */}
             <div>
-              <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: "700", textTransform: "uppercase", color: "var(--text-muted)", display: "block", marginBottom: "0.5rem" }}>
                 Select Gallery Frame
               </span>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginTop: "0.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 {frames.map((f) => {
                   const frameAddon = f.id === "unframed" ? 0 : (FRAME_COST_BY_SIZE[selectedSize] ?? 155);
                   const labelText = f.id === "unframed" 
@@ -344,9 +341,9 @@ export default function ProductDetailClient({ poster }) {
                         padding: "0.8rem 1rem",
                         fontSize: "0.8rem",
                         borderRadius: "15px",
-                        border: selectedFrame === f.id ? "1.5px solid var(--text-dark)" : "1.5px solid var(--border-color)",
-                        backgroundColor: selectedFrame === f.id ? "var(--accent-charcoal)" : "transparent",
-                        color: selectedFrame === f.id ? "#FFFFFF" : "var(--text-dark)",
+                        border: selectedFrame === f.id ? "2px solid #111111" : "1.5px solid var(--border-color)",
+                        backgroundColor: selectedFrame === f.id ? "#2C2C2A" : "transparent",
+                        color: selectedFrame === f.id ? "#FFFFFF" : "#111111",
                         cursor: "pointer",
                         textAlign: "left",
                         fontWeight: "600",
@@ -360,38 +357,32 @@ export default function ProductDetailClient({ poster }) {
               </div>
             </div>
 
-            {/* Qty */}
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                Qty
-              </span>
+            {/* Qty & Add to Bag */}
+            <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
               <div 
                 style={{
                   display: "flex",
                   alignItems: "center",
                   backgroundColor: "var(--accent-beige)",
-                  borderRadius: "15px",
+                  borderRadius: "18px",
                   padding: "0.4rem 1rem"
                 }}
               >
                 <button 
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  style={{ cursor: "pointer", padding: "4px", fontWeight: "bold" }}
+                  style={{ cursor: "pointer", padding: "4px", fontWeight: "bold", border: "none", background: "none" }}
                 >
                   -
                 </button>
-                <span style={{ width: "36px", textAlign: "center", fontWeight: "600" }}>{quantity}</span>
+                <span style={{ width: "36px", textAlign: "center", fontWeight: "700" }}>{quantity}</span>
                 <button 
                   onClick={() => setQuantity((q) => q + 1)}
-                  style={{ cursor: "pointer", padding: "4px", fontWeight: "bold" }}
+                  style={{ cursor: "pointer", padding: "4px", fontWeight: "bold", border: "none", background: "none" }}
                 >
                   +
                 </button>
               </div>
-            </div>
 
-            {/* Actions */}
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
               <button
                 onClick={handleAddToCart}
                 disabled={poster.inventory === 0 && !poster.isPreorder}
@@ -401,20 +392,15 @@ export default function ProductDetailClient({ poster }) {
                   padding: "1.1rem",
                   borderRadius: "20px",
                   fontSize: "0.95rem",
+                  fontWeight: "700",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "0.5rem",
-                  opacity: (poster.inventory === 0 && !poster.isPreorder) ? 0.5 : 1,
-                  cursor: (poster.inventory === 0 && !poster.isPreorder) ? "not-allowed" : "pointer"
+                  cursor: "pointer"
                 }}
               >
-                <ShoppingBag size={18} /> 
-                {poster.inventory === 0 && !poster.isPreorder 
-                  ? "Sold Out (Prints Exhausted)" 
-                  : poster.inventory === 0 && poster.isPreorder 
-                  ? "Pre-order Print" 
-                  : "Add to Gallery Bag"}
+                <ShoppingBag size={18} /> Add to Gallery Bag
               </button>
 
               <button
@@ -429,160 +415,135 @@ export default function ProductDetailClient({ poster }) {
                   justifyContent: "center",
                   cursor: "pointer",
                   color: isWish ? "red" : "var(--text-dark)",
-                  backgroundColor: isWish ? "rgba(255,0,0,0.05)" : "transparent",
-                  transition: "var(--transition-fast)"
+                  backgroundColor: isWish ? "rgba(255,0,0,0.05)" : "transparent"
                 }}
               >
                 <Heart size={20} fill={isWish ? "red" : "none"} />
               </button>
             </div>
 
-            {/* Specifications */}
-            <div 
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.75rem",
-                borderTop: "1px solid var(--border-color)",
-                paddingTop: "1.5rem",
-                fontSize: "0.85rem",
-                color: "var(--text-muted)",
-                marginTop: "1rem"
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Calendar size={16} />
-                <span>Estimated arrival by <strong>{shippingEstimate}</strong></span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <ShieldCheck size={16} />
-                <span>Museum-grade packaging (rigid cardboard tubes, tissue wraps)</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <RefreshCw size={16} />
-                <span>Print specification: {poster.gsm} GSM {poster.finish}</span>
-              </div>
+            {/* TRUST BADGES SECTION (FEATURE 8) */}
+            <div style={{ backgroundColor: "#FFFFFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid rgba(17,17,17,0.12)", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem" }}>
+              {[
+                "✓ Premium Matte Print",
+                "✓ Fade Resistant (100+ Yrs)",
+                "✓ 250 GSM Museum Paper",
+                "✓ 3.5mm Cardboard Tube Shield",
+                "✓ Ships in 2–3 Business Days"
+              ].map((badgeText, idx) => (
+                <span key={idx} style={{ fontSize: "0.8rem", fontWeight: "700", color: "#111111", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                  {badgeText}
+                </span>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* DETAILS SECTION: NARRATIVE */}
-        <section 
-          style={{ 
-            borderTop: "1px solid var(--border-color)", 
-            paddingTop: "5rem", 
-            marginBottom: "6rem",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "5rem"
-          }}
-          className="editorial-story-grid"
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--text-muted)", fontWeight: "600" }}>
-              The Cinematic Core
+        {/* PACKAGING SECTION: "WHAT'S INSIDE THE BOX" (FEATURE 15) */}
+        <section style={{ backgroundColor: "#EFECE6", padding: "4rem 3rem", borderRadius: "28px", marginBottom: "5rem", border: "1px solid rgba(17,17,17,0.12)" }}>
+          <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+            <span style={{ fontSize: "0.75rem", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.15em", color: "#666666" }}>
+              Unboxing Experience
             </span>
-            <h3 style={{ fontSize: "1.75rem", fontWeight: "700" }}>The Film Story</h3>
-            <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", lineHeight: "1.7" }}>
-              {poster.story}
-            </p>
+            <h3 style={{ fontSize: "2rem", fontWeight: "900", marginTop: "0.25rem" }}>What's Inside Your Package?</h3>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--text-muted)", fontWeight: "600" }}>
-              Craftsmanship Notes
-            </span>
-            <h3 style={{ fontSize: "1.75rem", fontWeight: "700" }}>Design Breakdown</h3>
-            <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", lineHeight: "1.7" }}>
-              {poster.designNotes}
-            </p>
-            <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", lineHeight: "1.7" }}>
-              <strong>Aesthetic Finish:</strong> {poster.finish}<br />
-              <strong>Paper Type:</strong> {poster.paperType} ({poster.gsm} GSM)<br />
-              <strong>Frame borders:</strong> 14-16mm thickness, plexiglass backing protection.
-            </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.5rem" }} className="packaging-grid">
+            {[
+              { title: "Archival Art Print", desc: "250 GSM Giclée matte cotton print", icon: Sparkles },
+              { title: "Protective Tissue Sleeve", desc: "Acid-free glassine moisture shield", icon: Box },
+              { title: "Thank You Collector Card", desc: "Hand-stamped studio authenticity note", icon: Check },
+              { title: "Polacraft Vinyl Sticker", desc: "Collectible brand laptop sticker", icon: ShieldCheck }
+            ].map((pkg, idx) => {
+              const IconComp = pkg.icon;
+              return (
+                <div key={idx} style={{ backgroundColor: "#FFFFFF", padding: "1.5rem", borderRadius: "20px", border: "1px solid rgba(17,17,17,0.1)", textAlign: "center" }}>
+                  <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "#EFECE6", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem auto" }}>
+                    <IconComp size={20} style={{ color: "#111111" }} />
+                  </div>
+                  <h4 style={{ fontSize: "1rem", fontWeight: "800" }}>{pkg.title}</h4>
+                  <p style={{ fontSize: "0.8rem", color: "#666666", marginTop: "4px" }}>{pkg.desc}</p>
+                </div>
+              );
+            })}
           </div>
         </section>
 
-        {/* RELATED ARTWORKS */}
-        {relatedPosters.length > 0 && (
-          <section style={{ borderTop: "1px solid var(--border-color)", paddingTop: "5rem", marginBottom: "5rem" }}>
-            <h3 style={{ fontSize: "1.75rem", fontWeight: "700", marginBottom: "2.5rem" }}>Related Artworks</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2rem" }} className="related-posters-grid">
-              {relatedPosters.map((p) => (
-                <div 
-                  key={p.id}
-                  onClick={() => {
-                    router.push(`/product/${p.slug}`);
-                  }}
-                  style={{ display: "flex", flexDirection: "column", gap: "1rem", cursor: "pointer" }}
-                  className="related-item-card"
-                >
-                  <div style={{ backgroundColor: "var(--accent-beige)", padding: "2.5rem 2rem", borderRadius: "20px" }} className="hover-lift">
-                    <PosterRenderer poster={p} frame="unframed" />
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "0 0.5rem" }}>
-                    <h4 style={{ fontSize: "1rem", fontWeight: "600" }}>{p.title}</h4>
-                    <span style={{ fontSize: "0.95rem", fontWeight: "600" }}>₹{p.price.toLocaleString("en-IN")}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* FULL PRODUCT DESCRIPTION TABS TEMPLATE (FEATURE 14) */}
+        <section style={{ borderTop: "1px solid var(--border-color)", paddingTop: "4rem", marginBottom: "5rem" }}>
+          <div style={{ display: "flex", gap: "1rem", borderBottom: "1.5px solid rgba(17,17,17,0.1)", paddingBottom: "1rem", marginBottom: "2.5rem" }}>
+            {[
+              { id: "story", label: "The Film Story & Design" },
+              { id: "quality", label: "Print & Paper Specifications" },
+              { id: "care", label: "Shipping & Care Instructions" }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                style={{
+                  fontSize: "1rem",
+                  fontWeight: "800",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "100px",
+                  border: "none",
+                  backgroundColor: activeTab === tab.id ? "#111111" : "transparent",
+                  color: activeTab === tab.id ? "#FFFFFF" : "#666666",
+                  cursor: "pointer"
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-        {/* RECENTLY VIEWED */}
-        {recentlyViewed.length > 1 && (
-          <section style={{ borderTop: "1px solid var(--border-color)", paddingTop: "5rem" }}>
-            <h3 style={{ fontSize: "1.75rem", fontWeight: "700", marginBottom: "2.5rem" }}>Recently Viewed</h3>
-            <div style={{ display: "flex", gap: "2rem", overflowX: "auto", paddingBottom: "1rem" }} className="recent-carousel-viewport">
-              {recentlyViewed
-                .filter((p) => p.id !== poster.id)
-                .map((p) => (
-                  <div 
-                    key={p.id}
-                    onClick={() => router.push(`/product/${p.slug}`)}
-                    style={{ flex: "0 0 220px", display: "flex", flexDirection: "column", gap: "0.75rem", cursor: "pointer" }}
-                    className="recent-item-card"
-                  >
-                    <div style={{ backgroundColor: "var(--accent-beige)", padding: "1.5rem", borderRadius: "16px" }} className="hover-lift">
-                      <PosterRenderer poster={p} />
-                    </div>
-                    <span style={{ fontSize: "0.9rem", fontWeight: "600", padding: "0 0.25rem" }}>{p.title}</span>
-                  </div>
-                ))}
+          {activeTab === "story" && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem" }}>
+              <div>
+                <h4 style={{ fontSize: "1.35rem", fontWeight: "800", marginBottom: "1rem" }}>The Film Narrative</h4>
+                <p style={{ fontSize: "0.95rem", color: "#666666", lineHeight: "1.7" }}>{poster.story}</p>
+              </div>
+              <div>
+                <h4 style={{ fontSize: "1.35rem", fontWeight: "800", marginBottom: "1rem" }}>Vector Design & Artistry</h4>
+                <p style={{ fontSize: "0.95rem", color: "#666666", lineHeight: "1.7" }}>{poster.designNotes}</p>
+              </div>
             </div>
-          </section>
-        )}
+          )}
+
+          {activeTab === "quality" && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2rem" }}>
+              <div style={{ backgroundColor: "#FFFFFF", padding: "1.5rem", borderRadius: "18px", border: "1px solid rgba(17,17,17,0.1)" }}>
+                <h4 style={{ fontSize: "1.05rem", fontWeight: "800" }}>Paper Stock</h4>
+                <p style={{ fontSize: "0.85rem", color: "#666666", marginTop: "6px" }}>250 GSM heavy-weight 100% cotton fiber archival fine art paper.</p>
+              </div>
+              <div style={{ backgroundColor: "#FFFFFF", padding: "1.5rem", borderRadius: "18px", border: "1px solid rgba(17,17,17,0.1)" }}>
+                <h4 style={{ fontSize: "1.05rem", fontWeight: "800" }}>Inks & Finish</h4>
+                <p style={{ fontSize: "0.85rem", color: "#666666", marginTop: "6px" }}>Ultra-Matte Giclée pigment inks with high fade-resistance.</p>
+              </div>
+              <div style={{ backgroundColor: "#FFFFFF", padding: "1.5rem", borderRadius: "18px", border: "1px solid rgba(17,17,17,0.1)" }}>
+                <h4 style={{ fontSize: "1.05rem", fontWeight: "800" }}>Framing System</h4>
+                <p style={{ fontSize: "0.85rem", color: "#666666", marginTop: "6px" }}>16-20mm solid wood moldings with off-white cotton matboard margin.</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "care" && (
+            <div style={{ backgroundColor: "#FFFFFF", padding: "2rem", borderRadius: "20px", border: "1px solid rgba(17,17,17,0.1)", lineHeight: "1.7", color: "#666666", fontSize: "0.9rem" }}>
+              <p>• <strong>Handling:</strong> Unroll unframed prints gently on a clean flat surface using cotton gloves or clean hands.</p>
+              <p>• <strong>Framing:</strong> Place under anti-glare glass or acrylic UV-blocking glass away from direct continuous sunlight.</p>
+              <p>• <strong>Transit Insurance:</strong> All packages are 100% insured against loss or damage during transit.</p>
+            </div>
+          )}
+        </section>
+
       </div>
 
       <style>{`
-        .recent-carousel-viewport::-webkit-scrollbar {
-          height: 4px;
-        }
         @media (max-width: 900px) {
-          .product-split {
-            grid-template-columns: 1fr !important;
-            gap: 3rem !important;
-          }
-          .product-gallery-box {
-            position: static !important;
-            padding: 4rem 2rem !important;
-          }
-          .editorial-story-grid {
-            grid-template-columns: 1fr !important;
-            gap: 3rem !important;
-          }
+          .product-split { grid-template-columns: 1fr !important; }
+          .packaging-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
-        @media (max-width: 768px) {
-          .related-posters-grid {
-            grid-template-columns: 1fr 1fr !important;
-          }
-        }
-        @media (max-width: 500px) {
-          .related-posters-grid {
-            grid-template-columns: 1fr !important;
-          }
+        @media (max-width: 600px) {
+          .packaging-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>

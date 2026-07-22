@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { TrendingUp, DollarSign, ShoppingBag, AlertTriangle, Sparkles, Loader2, Clock, CheckCircle2, XCircle, Ban } from "lucide-react";
+import { TrendingUp, DollarSign, ShoppingBag, AlertTriangle, Sparkles, Loader2, Clock, CheckCircle2, Gift, Truck } from "lucide-react";
 
 export default function AdminAnalyticsPage() {
   const [data, setData] = useState<any | null>(null);
@@ -28,22 +28,20 @@ export default function AdminAnalyticsPage() {
   if (loading) {
     return (
       <div style={{ padding: "4rem", textAlign: "center", color: "#888", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
-        <Loader2 size={24} className="animate-spin" /> Calculating store metrics & financial data...
+        <Loader2 size={24} className="animate-spin" /> Calculating strategy metrics & financial data...
       </div>
     );
   }
 
   const metrics = data?.metrics || {
     ordersCreated: 0,
-    ordersPendingPayment: 0,
     ordersPaid: 0,
-    cancelledOrders: 0,
-    expiredOrders: 0,
-    revenueToday: 0,
-    revenueThisMonth: 0,
     revenueCollected: 0,
-    pendingPaymentValue: 0,
     averageOrderValue: 0,
+    freeShippingPercentage: 0,
+    rewardUnlockPercentage: 0,
+    totalRewardCost: 0,
+    rewardCostPercentage: 0
   };
 
   return (
@@ -51,55 +49,16 @@ export default function AdminAnalyticsPage() {
       {/* Header */}
       <div>
         <h1 style={{ fontSize: "2.25rem", fontWeight: "900", letterSpacing: "-0.03em" }}>
-          Store Performance & Payment Analytics
+          Polacraft v1.1 Strategy & Analytics
         </h1>
         <p style={{ color: "#666", fontSize: "0.9rem" }}>
-          Real-time metrics on paid revenue collected, pending WhatsApp orders, expired unpaid orders, AOV, top posters, and stock alerts.
+          Real-time metrics on Average Order Value (AOV), reward unlock rates, free shipping conversions, and reward program profitability.
         </p>
       </div>
 
-      {/* Top Metric Cards Grid (8 Cards) */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
-        {/* 1. Orders Created */}
-        <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
-          <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <ShoppingBag size={16} style={{ color: "#6366F1" }} /> Orders Created
-          </div>
-          <div style={{ fontSize: "1.8rem", fontWeight: "900", color: "#1E1E1E" }}>
-            {metrics.ordersCreated}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: "2px" }}>
-            Total checkouts initiated
-          </div>
-        </div>
-
-        {/* 2. Orders Pending Payment */}
-        <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
-          <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <Clock size={16} style={{ color: "#2563EB" }} /> Pending Payment
-          </div>
-          <div style={{ fontSize: "1.8rem", fontWeight: "900", color: "#2563EB" }}>
-            {metrics.ordersPendingPayment}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: "2px" }}>
-            WhatsApp pending verification
-          </div>
-        </div>
-
-        {/* 3. Orders Paid */}
-        <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
-          <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <CheckCircle2 size={16} style={{ color: "#10B981" }} /> Orders Paid
-          </div>
-          <div style={{ fontSize: "1.8rem", fontWeight: "900", color: "#10B981" }}>
-            {metrics.ordersPaid}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#047857", marginTop: "2px", fontWeight: 700 }}>
-            Payment verified & stock deducted
-          </div>
-        </div>
-
-        {/* 4. Revenue Collected */}
+      {/* Strategy Metric Cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem" }}>
+        {/* 1. Revenue Collected */}
         <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
           <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
             <DollarSign size={16} style={{ color: "#10B981" }} /> Revenue Collected
@@ -112,46 +71,7 @@ export default function AdminAnalyticsPage() {
           </div>
         </div>
 
-        {/* 5. Pending Payment Value */}
-        <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
-          <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <Clock size={16} style={{ color: "#D97706" }} /> Pending Value
-          </div>
-          <div style={{ fontSize: "1.8rem", fontWeight: "900", color: "#D97706" }}>
-            ₹{metrics.pendingPaymentValue.toLocaleString("en-IN")}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: "2px" }}>
-            Unconfirmed orders total
-          </div>
-        </div>
-
-        {/* 6. Cancelled Orders */}
-        <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
-          <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <Ban size={16} style={{ color: "#DC2626" }} /> Cancelled Orders
-          </div>
-          <div style={{ fontSize: "1.8rem", fontWeight: "900", color: "#DC2626" }}>
-            {metrics.cancelledOrders}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: "2px" }}>
-            Rejected or cancelled
-          </div>
-        </div>
-
-        {/* 7. Expired Orders */}
-        <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
-          <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <XCircle size={16} style={{ color: "#94A3B8" }} /> Expired Orders
-          </div>
-          <div style={{ fontSize: "1.8rem", fontWeight: "900", color: "#64748B" }}>
-            {metrics.expiredOrders}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: "2px" }}>
-            Unpaid after 24 hours
-          </div>
-        </div>
-
-        {/* 8. Average Order Value */}
+        {/* 2. Average Order Value (AOV) */}
         <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
           <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
             <TrendingUp size={16} style={{ color: "#8B5CF6" }} /> Average Order Value
@@ -160,7 +80,46 @@ export default function AdminAnalyticsPage() {
             ₹{metrics.averageOrderValue.toLocaleString("en-IN")}
           </div>
           <div style={{ fontSize: "0.75rem", color: "#8B5CF6", marginTop: "2px", fontWeight: 700 }}>
-            Paid transactions average
+            Target: ₹899+ Collector AOV
+          </div>
+        </div>
+
+        {/* 3. Free Shipping Unlock Rate */}
+        <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+          <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <Truck size={16} style={{ color: "#2563EB" }} /> Free Shipping Unlock %
+          </div>
+          <div style={{ fontSize: "1.8rem", fontWeight: "900", color: "#2563EB" }}>
+            {metrics.freeShippingPercentage}%
+          </div>
+          <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: "2px" }}>
+            Orders reaching ₹499+
+          </div>
+        </div>
+
+        {/* 4. Reward Unlock Rate */}
+        <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+          <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <Gift size={16} style={{ color: "#D97706" }} /> Reward Unlock %
+          </div>
+          <div style={{ fontSize: "1.8rem", fontWeight: "900", color: "#D97706" }}>
+            {metrics.rewardUnlockPercentage}%
+          </div>
+          <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: "2px" }}>
+            Orders reaching ₹899+
+          </div>
+        </div>
+
+        {/* 5. Total Reward Cost & Cost % */}
+        <div style={{ backgroundColor: "#FFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+          <div style={{ fontSize: "0.8rem", color: "#666", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <Sparkles size={16} style={{ color: "#EC4899" }} /> Total Reward Cost
+          </div>
+          <div style={{ fontSize: "1.8rem", fontWeight: "900", color: "#EC4899" }}>
+            ₹{metrics.totalRewardCost.toLocaleString("en-IN")}
+          </div>
+          <div style={{ fontSize: "0.75rem", color: "#EC4899", marginTop: "2px", fontWeight: 700 }}>
+            {metrics.rewardCostPercentage}% of revenue
           </div>
         </div>
       </div>

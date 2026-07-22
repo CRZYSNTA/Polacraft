@@ -17,25 +17,42 @@ enum Role {
   SUPER_ADMIN
 }
 
+enum ProductBadge {
+  NEW
+  BEST_SELLER
+  LIMITED
+  TRENDING
+  COLLECTOR_PICK
+}
+
+enum LoyaltyTransactionType {
+  EARNED
+  REDEEMED
+  ADJUSTED
+  EXPIRED
+}
+
 model User {
-  id               String      @id @default(uuid())
-  email            String      @unique
+  id               String               @id @default(uuid())
+  email            String               @unique
   password         String?
   name             String?
   phone            String?
   avatar           String?
-  role             Role        @default(CUSTOMER)
-  emailVerified    Boolean     @default(false)
+  role             Role                 @default(CUSTOMER)
+  emailVerified    Boolean              @default(false)
   lastLogin        DateTime?
-  isBlocked        Boolean     @default(false)
-  marketingConsent Boolean     @default(false)
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  isBlocked        Boolean              @default(false)
+  marketingConsent Boolean              @default(false)
+  loyaltyPoints    Int                  @default(0)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
   
   orders           Order[]
   reviews          Review[]
   wishlists        Wishlist[]
   addresses        Address[]
+  loyaltyHistory   LoyaltyTransaction[]
 
   @@map("users")
 }
@@ -76,6 +93,12 @@ model Product {
   isSoldOut           Boolean        @default(false)
   limitedEditionCount Int?
   
+  // Polacraft v1.1 Limited Edition & Badge Fields
+  badge               ProductBadge?
+  isLimitedEdition    Boolean        @default(false)
+  editionTotal        Int?           @default(100)
+  editionSold         Int?           @default(0)
+
   // Custom flags
   featured            Boolean        @default(false)
   newArrival          Boolean        @default(false)
@@ -190,6 +213,19 @@ model OrderItem {
   @@map("order_items")
 }
 
+model OrderReward {
+  id           String   @id @default(uuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rewardType   String   // "COLLECTOR" | "PREMIUM"
+  rewardOption String   // e.g., "1xA3", "2xA4", "4xA5", "1xA4_2xA5"
+  quantity     Int      @default(1)
+  estimatedCost Float   @default(0.0)
+  createdAt    DateTime @default(now())
+
+  @@map("order_rewards")
+}
+
 model Order {
   id                 String                @id @default(uuid())
   orderNumber        String                @unique
@@ -207,6 +243,7 @@ model Order {
   shippingCountry    String
 
   items              OrderItem[]
+  rewards            OrderReward[]
   subtotal           Float
   shippingCost       Float
   taxAmount          Float                 @default(0.0)
@@ -270,13 +307,13 @@ enum ShippingStatus {
 }
 
 model Coupon {
-  id           String      @id @default(uuid())
-  code         String      @unique
+  id           String       @id @default(uuid())
+  code         String       @unique
   discountType DiscountType @default(percentage)
   value        Float
-  active       Boolean     @default(true)
+  active       Boolean      @default(true)
   expiryDate   DateTime?
-  createdAt    DateTime    @default(now())
+  createdAt    DateTime     @default(now())
 
   @@map("coupons")
 }
@@ -306,17 +343,51 @@ model Testimonial {
 }
 
 model SiteSettings {
-  id                    String   @id @default(uuid())
-  shippingFee           Float    @default(60.0)
-  freeShippingThreshold Float    @default(800.0)
-  instagramUrl          String?
-  logo                  String?
-  supportEmail          String   @default("support@polacraft.com")
-  gstNumber             String?
-  maintenanceMode       Boolean  @default(false)
-  updatedAt             DateTime @updatedAt
+  id                       String   @id @default(uuid())
+  shippingFee              Float    @default(60.0)
+  freeShippingThreshold    Float    @default(499.0)
+  collectorRewardThreshold Float    @default(899.0)
+  premiumRewardThreshold   Float    @default(1499.0)
+  loyaltyPointsRatio       Float    @default(100.0)
+  heroTitle                String   @default("Bring Cinema Home.")
+  heroSubtitle             String   @default("Premium Malayalam Cinema Posters Crafted For Collectors.")
+  rewardsEnabled           Boolean  @default(true)
+  limitedEditionsEnabled   Boolean  @default(true)
+  instagramUrl             String?
+  logo                     String?
+  supportEmail             String   @default("support@polacraft.com")
+  gstNumber                String?
+  maintenanceMode          Boolean  @default(false)
+  updatedAt                DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+model LoyaltyTransaction {
+  id          String                 @id @default(uuid())
+  userId      String
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points      Int
+  type        LoyaltyTransactionType @default(EARNED)
+  description String
+  createdAt   DateTime               @default(now())
+
+  @@map("loyalty_transactions")
+}
+
+model Promotion {
+  id                       String    @id @default(uuid())
+  name                     String
+  startDate                DateTime
+  endDate                  DateTime
+  isActive                 Boolean   @default(true)
+  freeShippingThreshold    Float?
+  collectorRewardThreshold Float?
+  premiumRewardThreshold   Float?
+  bannerText               String?
+  createdAt                DateTime  @default(now())
+
+  @@map("promotions")
 }
 
 model AnalyticsEvent {

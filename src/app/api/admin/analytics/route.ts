@@ -11,14 +11,14 @@ export async function GET(req: Request) {
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
+    const settings = await prisma.siteSettings.findFirst();
+    const freeShipThreshold = settings?.freeShippingThreshold ?? 499;
+    const collectorThreshold = settings?.collectorRewardThreshold ?? 899;
+
     const allOrders = await prisma.order.findMany({
-      select: {
-        id: true,
-        total: true,
-        createdAt: true,
-        shippingStatus: true,
-        paymentStatus: true,
-      },
+      include: {
+        rewards: true
+      }
     });
 
     let revenueToday = 0;
@@ -32,6 +32,10 @@ export async function GET(req: Request) {
     let cancelledOrders = 0;
     let expiredOrders = 0;
 
+    let freeShippingUnlockedCount = 0;
+    let rewardUnlockedCount = 0;
+    let totalRewardCost = 0;
+
     allOrders.forEach((order) => {
       const isPaid =
         order.paymentStatus === "VERIFIED" ||
@@ -41,6 +45,16 @@ export async function GET(req: Request) {
         order.shippingStatus === "PACKED" ||
         order.shippingStatus === "SHIPPED" ||
         order.shippingStatus === "DELIVERED";
+
+      if (order.total >= freeShipThreshold) freeShippingUnlockedCount++;
+      if (order.total >= collectorThreshold) rewardUnlockedCount++;
+
+      // Compute estimated reward cost
+      if (order.rewards && order.rewards.length > 0) {
+        order.rewards.forEach(r => {
+          totalRewardCost += r.estimatedCost > 0 ? r.estimatedCost : 120.0;
+        });
+      }
 
       if (isPaid) {
         revenueCollected += order.total;
@@ -63,6 +77,9 @@ export async function GET(req: Request) {
     });
 
     const averageOrderValue = ordersPaid > 0 ? Math.round(revenueCollected / ordersPaid) : 0;
+    const freeShippingPercentage = ordersCreated > 0 ? Math.round((freeShippingUnlockedCount / ordersCreated) * 100) : 0;
+    const rewardUnlockPercentage = ordersCreated > 0 ? Math.round((rewardUnlockedCount / ordersCreated) * 100) : 0;
+    const rewardCostPercentage = revenueCollected > 0 ? Math.round((totalRewardCost / revenueCollected) * 100) : 0;
 
     // Fetch top best-selling products from OrderItems
     const orderItems = await prisma.orderItem.findMany({
@@ -87,7 +104,7 @@ export async function GET(req: Request) {
       .sort((a, b) => b.unitsSold - a.unitsSold)
       .slice(0, 5);
 
-    // Low stock & sold out alerts
+    // Low stock alerts
     const allProducts = await prisma.product.findMany({
       select: {
         id: true,
@@ -115,6 +132,12 @@ export async function GET(req: Request) {
         revenueCollected,
         pendingPaymentValue,
         averageOrderValue,
+        freeShippingUnlockedCount,
+        freeShippingPercentage,
+        rewardUnlockedCount,
+        rewardUnlockPercentage,
+        totalRewardCost,
+        rewardCostPercentage
       },
       topSellingProducts,
       lowStockAlerts,

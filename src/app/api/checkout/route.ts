@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateProductPrice, frames, sizes } from "@/lib/cms/products";
+import { evaluatePromotionEngine, DEFAULT_STORE_SETTINGS, REWARD_OPTIONS_LIST } from "@/services/promotionEngine";
 
 const MAX_ITEMS_PER_ORDER = 20;
 const MAX_QUANTITY_PER_ITEM = 10;
@@ -29,6 +30,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const items = body.items as CheckoutItem[];
+    const selectedRewardIds = Array.isArray(body.selectedRewards) ? body.selectedRewards : [];
 
     if (!Array.isArray(items) || items.length === 0 || items.length > MAX_ITEMS_PER_ORDER) {
       return NextResponse.json({ error: "Your cart must contain between 1 and 20 items." }, { status: 400 });
@@ -94,12 +96,37 @@ export async function POST(req: Request) {
       couponCode = coupon.code;
     }
 
-    const settings = await prisma.siteSettings.findFirst();
-    const shippingFee = settings?.shippingFee ?? 60;
-    const freeShippingThreshold = settings?.freeShippingThreshold ?? 800;
-    const shippingCost = subtotal >= freeShippingThreshold ? 0 : shippingFee;
+    const settingsFromDb = await prisma.siteSettings.findFirst();
+    const siteSettings = {
+      shippingFee: settingsFromDb?.shippingFee ?? DEFAULT_STORE_SETTINGS.shippingFee,
+      freeShippingThreshold: settingsFromDb?.freeShippingThreshold ?? DEFAULT_STORE_SETTINGS.freeShippingThreshold,
+      collectorRewardThreshold: settingsFromDb?.collectorRewardThreshold ?? DEFAULT_STORE_SETTINGS.collectorRewardThreshold,
+      premiumRewardThreshold: settingsFromDb?.premiumRewardThreshold ?? DEFAULT_STORE_SETTINGS.premiumRewardThreshold,
+      loyaltyPointsRatio: settingsFromDb?.loyaltyPointsRatio ?? DEFAULT_STORE_SETTINGS.loyaltyPointsRatio,
+      heroTitle: settingsFromDb?.heroTitle || DEFAULT_STORE_SETTINGS.heroTitle,
+      heroSubtitle: settingsFromDb?.heroSubtitle || DEFAULT_STORE_SETTINGS.heroSubtitle,
+      rewardsEnabled: settingsFromDb?.rewardsEnabled !== undefined ? Boolean(settingsFromDb.rewardsEnabled) : true,
+      limitedEditionsEnabled: settingsFromDb?.limitedEditionsEnabled !== undefined ? Boolean(settingsFromDb.limitedEditionsEnabled) : true
+    };
+
+    const promo = evaluatePromotionEngine(subtotal, siteSettings);
+    const shippingCost = subtotal >= siteSettings.freeShippingThreshold ? 0 : siteSettings.shippingFee;
     const total = Math.max(0, subtotal - discount) + shippingCost;
     const number = orderNumber();
+
+    // Prepare OrderRewards to create
+    const orderRewardsToCreate = [] as Array<{ rewardType: string; rewardOption: string; quantity: number; estimatedCost: number }>;
+    if (promo.unlockedRewardCount > 0 && selectedRewardIds.length > 0) {
+      selectedRewardIds.slice(0, promo.unlockedRewardCount).forEach((rid: string) => {
+        const optionObj = REWARD_OPTIONS_LIST.find(o => o.id === rid) || REWARD_OPTIONS_LIST[0];
+        orderRewardsToCreate.push({
+          rewardType: promo.unlockedRewardCount === 2 ? "PREMIUM" : "COLLECTOR",
+          rewardOption: optionObj.label,
+          quantity: 1,
+          estimatedCost: 155.0
+        });
+      });
+    }
 
     const order = await prisma.order.create({
       data: {
@@ -122,6 +149,7 @@ export async function POST(req: Request) {
         total,
         notes: couponCode ? `Coupon applied: ${couponCode}` : undefined,
         items: { create: resolvedItems.map(({ title: _title, description: _description, ...item }) => item) },
+        rewards: { create: orderRewardsToCreate },
         statusHistory: { create: { status: "WHATSAPP_PENDING", comment: "Order created via WhatsApp checkout. Payment is pending verification." } },
       },
     });
@@ -129,8 +157,19 @@ export async function POST(req: Request) {
     const formattedItems = resolvedItems.map((item, index) =>
       `${index + 1}. *${item.title}*\n   _"${item.description}"_\n   • Size: ${item.size}\n   • Frame: ${item.frame}\n   • Quantity: ${item.quantity}\n   • Price: ₹${item.price}`
     ).join("\n\n");
+
+    let rewardsFormattedSection = "";
+    let totalSaved = discount + (shippingCost === 0 ? siteSettings.shippingFee : 0);
+
+    if (promo.unlockedRewardCount > 0) {
+      rewardsFormattedSection = `\n\n🎉 *UNLOCKED REWARDS*\n` +
+        `• FREE Shipping Saved: ₹${siteSettings.shippingFee}\n` +
+        orderRewardsToCreate.map(r => `• ${r.rewardType} REWARD: ${r.rewardOption}`).join("\n") +
+        `\n• *Total Value Saved:* ₹${totalSaved + (orderRewardsToCreate.length * 155)}`;
+    }
+
     const whatsappPhone = process.env.NEXT_PUBLIC_WHATSAPP_PHONE || "919496682919";
-    const message = `🛍️ *New Polacraft Order*\n\nOrder: ${number}\n\nCustomer: ${shippingName}\nPhone: ${phone}\n\nAddress:\n${shippingStreet}\n${shippingCity}, ${shippingState} - ${shippingZip}\n\nItems Ordered:\n\n${formattedItems}\n\nSubtotal: ₹${subtotal}\n${couponCode ? `Coupon: ${couponCode}\nDiscount: -₹${discount}\n` : ""}Shipping: ${shippingCost === 0 ? "FREE" : `₹${shippingCost}`}\n\nTotal: ₹${total}\n\nPlease confirm my order & send payment details.`;
+    const message = `🛍️ *New Polacraft Order*\n\nOrder: ${number}\n\nCustomer: ${shippingName}\nPhone: ${phone}\n\nAddress:\n${shippingStreet}\n${shippingCity}, ${shippingState} - ${shippingZip}\n\nItems Ordered:\n\n${formattedItems}${rewardsFormattedSection}\n\nSubtotal: ₹${subtotal}\n${couponCode ? `Coupon: ${couponCode}\nDiscount: -₹${discount}\n` : ""}Shipping: ${shippingCost === 0 ? "FREE" : `₹${shippingCost}`}\n\nTotal: ₹${total}\n\nPlease confirm my order & send payment details.`;
 
     return NextResponse.json({
       success: true,
