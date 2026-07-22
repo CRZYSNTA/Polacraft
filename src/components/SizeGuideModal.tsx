@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from "react";
-import { X, Ruler, Check, ShieldCheck, ArrowLeftRight, ArrowUpDown, FileText, Frame, Layers } from "lucide-react";
+import { X, Ruler, Check, ShieldCheck, BookOpen, Monitor, Frame, Sparkles, Laptop, Smartphone } from "lucide-react";
 
 interface SizeGuideModalProps {
   isOpen: boolean;
@@ -25,39 +25,39 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
   const SIZES = {
     A5: {
       id: "A5",
-      name: "A5 Mini Print",
-      widthCm: 14.8,
-      heightCm: 21.0,
-      widthInches: "5.8 in",
-      heightInches: "8.3 in",
-      ratio: "1 : 1.414",
-      paperEquivalent: "Half of an A4 sheet",
-      frameFit: "Fits standard 6 × 8 inch or A5 photo frames",
-      bestFor: "Study desks, shelf alcoves, small nooks, or photo collage grids."
+      name: "A5 (Small)",
+      badge: "Desk & Shelf",
+      cm: "14.8 × 21 cm",
+      inches: "5.8 × 8.3 in",
+      relatable: "About the size of a paperback book or small notebook 📚",
+      device: "≈ 2 smartphones stacked vertically 📱",
+      bestFor: "Perfect for desks, shelves & bedside tables 📚",
+      scaleWidth: 60,
+      scaleHeight: 85
     },
     A4: {
       id: "A4",
-      name: "A4 Standard Poster",
-      widthCm: 21.0,
-      heightCm: 29.7,
-      widthInches: "8.3 in",
-      heightInches: "11.7 in",
-      ratio: "1 : 1.414",
-      paperEquivalent: "Exact size of standard A4 printer paper & notebooks",
-      frameFit: "Fits standard 8 × 12 inch or A4 photo frames",
-      bestFor: "Most Popular! Bedroom walls, study desks, & college room decor."
+      name: "A4 (Medium)",
+      badge: "Most Popular",
+      cm: "21 × 29.7 cm",
+      inches: "8.3 × 11.7 in",
+      relatable: "Same size as a standard printer sheet 📄",
+      device: "≈ A 14–15\" laptop footprint 💻",
+      bestFor: "The classic wall poster size 🖼️",
+      scaleWidth: 85,
+      scaleHeight: 120
     },
     A3: {
       id: "A3",
-      name: "A3 Statement Poster",
-      widthCm: 29.7,
-      heightCm: 42.0,
-      widthInches: "11.7 in",
-      heightInches: "16.5 in",
-      ratio: "1 : 1.414",
-      paperEquivalent: "Double the size of A4 paper (2 × A4)",
-      frameFit: "Fits standard 12 × 16.5 inch or A3 gallery frames",
-      bestFor: "Statement room decor! Living rooms, main walls, & studio displays."
+      name: "A3 (Large)",
+      badge: "Statement Art",
+      cm: "29.7 × 42 cm",
+      inches: "11.7 × 16.5 in",
+      relatable: "Two A4 sheets side by side (2 × A4) 📑",
+      device: "≈ A 24–27\" monitor screen 🖥️",
+      bestFor: "Statement piece for bedrooms & living rooms ✨",
+      scaleWidth: 120,
+      scaleHeight: 170
     }
   };
 
@@ -121,179 +121,163 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
         {/* Modal Header */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <span style={{ fontSize: "0.75rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
-            <Ruler size={14} /> Precise Poster Width & Height Measurement
+            <Ruler size={14} /> Relatable Size Guide
           </span>
           <h2 style={{ fontSize: "2.25rem", fontWeight: "800", letterSpacing: "-0.03em", marginTop: "0.4rem" }}>
-            Poster Dimensions & Measurements
+            How Big Is Each Poster?
           </h2>
           <p style={{ color: "#666666", fontSize: "0.95rem", marginTop: "0.3rem", maxWidth: "52ch", marginLeft: "auto", marginRight: "auto" }}>
-            Exact width, height, paper comparisons, and frame fitting details for each size.
+            Simple, relatable comparisons to help you choose the right size for your wall.
           </p>
         </div>
 
-        {/* SIZE SELECTOR CARDS */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "2rem" }}>
+        {/* OPTION 2: ROOM WALL VISUAL COMPARISON (ALL 3 FRAMES ON SAME WALL) */}
+        <div
+          style={{
+            backgroundColor: "#EFECE6",
+            borderRadius: "24px",
+            padding: "2.5rem 1.5rem 1.5rem 1.5rem",
+            position: "relative",
+            marginBottom: "2rem",
+            border: "1px solid rgba(17,17,17,0.12)",
+            boxShadow: "inset 0 0 20px rgba(0,0,0,0.03)"
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+            <span style={{ fontSize: "0.8rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.1em", color: "#666666" }}>
+              🖼️ Room Wall View (Side-by-Side Scale)
+            </span>
+          </div>
+
+          {/* Wall Hanging Frames Row */}
+          <div style={{ display: "flex", justifyContent: "space-around", alignItems: "flex-end", height: "200px", paddingBottom: "10px" }}>
+            {(["A5", "A4", "A3"] as const).map((sz) => {
+              const item = SIZES[sz];
+              const isSelected = activeSize === sz;
+              return (
+                <div
+                  key={sz}
+                  onClick={() => {
+                    setActiveSize(sz);
+                    if (onSelectSize) onSelectSize(sz);
+                  }}
+                  style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}
+                >
+                  <span style={{ fontSize: "0.8rem", fontWeight: "800", color: isSelected ? "#111111" : "#666666", marginBottom: "6px" }}>
+                    {item.name}
+                  </span>
+                  
+                  {/* Framed Canvas Box */}
+                  <div
+                    style={{
+                      width: `${item.scaleWidth}px`,
+                      height: `${item.scaleHeight}px`,
+                      backgroundColor: "#FFFFFF",
+                      border: isSelected ? "3px solid #111111" : "2px solid #2C2C2A",
+                      borderRadius: "3px",
+                      boxShadow: isSelected ? "0 15px 35px rgba(0,0,0,0.25)" : "0 6px 15px rgba(0,0,0,0.08)",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "4px",
+                      textAlign: "center",
+                      position: "relative",
+                      transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
+                    }}
+                  >
+                    <div style={{ border: "1px solid rgba(0,0,0,0.08)", width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: "0.85rem", fontWeight: "900" }}>{item.id}</span>
+                      <span style={{ fontSize: "0.65rem", color: "#666666" }}>{item.cm}</span>
+                    </div>
+
+                    {isSelected && (
+                      <span style={{ position: "absolute", top: "-10px", right: "-10px", backgroundColor: "#111111", color: "#FFFFFF", borderRadius: "50%", padding: "2px" }}>
+                        <Check size={12} />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ borderTop: "2px solid rgba(17,17,17,0.15)", paddingTop: "8px", textAlign: "center" }}>
+            <span style={{ fontSize: "0.75rem", color: "#666666" }}>Wall Baseline (Hanging at Eye Level)</span>
+          </div>
+        </div>
+
+        {/* OPTIONS 1 & 3: RELATABLE COMPARISONS CARDS */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem", marginBottom: "2rem" }}>
           {(["A5", "A4", "A3"] as const).map((sz) => {
             const item = SIZES[sz];
             const isSelected = activeSize === sz;
             return (
-              <button
+              <div
                 key={sz}
                 onClick={() => {
                   setActiveSize(sz);
                   if (onSelectSize) onSelectSize(sz);
                 }}
                 style={{
-                  backgroundColor: isSelected ? "#111111" : "#FFFFFF",
-                  color: isSelected ? "#FFFFFF" : "#111111",
-                  padding: "1.25rem 1rem",
-                  borderRadius: "18px",
+                  backgroundColor: isSelected ? "#FFFFFF" : "#FAFAF8",
+                  padding: "1.35rem",
+                  borderRadius: "20px",
                   border: isSelected ? "2.5px solid #111111" : "1.5px solid rgba(17,17,17,0.12)",
                   cursor: "pointer",
-                  textAlign: "center",
+                  boxShadow: isSelected ? "0 10px 25px rgba(0,0,0,0.08)" : "none",
                   display: "flex",
                   flexDirection: "column",
-                  alignItems: "center",
-                  gap: "0.4rem",
+                  gap: "0.75rem",
                   transition: "var(--transition-fast)"
                 }}
               >
-                <span style={{ fontSize: "1.2rem", fontWeight: "900" }}>{item.id}</span>
-                <span style={{ fontSize: "0.9rem", fontWeight: "700" }}>{item.widthCm} × {item.heightCm} cm</span>
-                <span style={{ fontSize: "0.75rem", opacity: 0.8 }}>({item.widthInches} × {item.heightInches})</span>
-              </button>
+                {/* Card Title & Badge */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <h4 style={{ fontSize: "1.15rem", fontWeight: "900" }}>{item.id}</h4>
+                    <span style={{ fontSize: "0.75rem", color: "#666666", fontWeight: "600" }}>{item.cm} ({item.inches})</span>
+                  </div>
+                  <span style={{ fontSize: "0.65rem", fontWeight: "700", backgroundColor: isSelected ? "#111111" : "#EFECE6", color: isSelected ? "#FFFFFF" : "#111111", padding: "0.2rem 0.6rem", borderRadius: "100px" }}>
+                    {item.badge}
+                  </span>
+                </div>
+
+                <div style={{ height: "1px", backgroundColor: "rgba(17,17,17,0.08)" }} />
+
+                {/* Relatable Object Comparison */}
+                <div>
+                  <span style={{ fontSize: "0.7rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#666666" }}>
+                    Relatable Comparison:
+                  </span>
+                  <p style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111", marginTop: "2px", lineHeight: "1.35" }}>
+                    {item.relatable}
+                  </p>
+                </div>
+
+                {/* Device Footprint Comparison */}
+                <div>
+                  <span style={{ fontSize: "0.7rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#666666" }}>
+                    Device Footprint:
+                  </span>
+                  <p style={{ fontSize: "0.82rem", fontWeight: "600", color: "#2563EB", marginTop: "2px" }}>
+                    {item.device}
+                  </p>
+                </div>
+
+                {/* Best Usage Recommendation */}
+                <div style={{ backgroundColor: "#F7F7F4", padding: "0.75rem", borderRadius: "12px", marginTop: "auto" }}>
+                  <p style={{ fontSize: "0.8rem", fontWeight: "600", color: "#111111", margin: 0, lineHeight: "1.35" }}>
+                    {item.bestFor}
+                  </p>
+                </div>
+              </div>
             );
           })}
         </div>
 
-        {/* BLUEPRINT DIMENSIONAL DIAGRAM FOR ACTIVE SIZE */}
-        <div
-          style={{
-            backgroundColor: "#EFECE6",
-            borderRadius: "24px",
-            padding: "2.5rem 2rem",
-            position: "relative",
-            marginBottom: "2rem",
-            border: "1px solid rgba(17,17,17,0.12)",
-            boxShadow: "inset 0 0 20px rgba(0,0,0,0.03)",
-            display: "grid",
-            gridTemplateColumns: "1.2fr 1fr",
-            gap: "2.5rem",
-            alignItems: "center"
-          }}
-          className="dimension-diagram-grid"
-        >
-          {/* LEFT: 2D MEASUREMENT BOX WITH ARROWS */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
-            
-            {/* Top Width Arrow Indicator */}
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "200px", justifyContent: "center", marginBottom: "8px" }}>
-              <div style={{ flexGrow: 1, height: "1.5px", backgroundColor: "#111111" }} />
-              <span style={{ fontSize: "0.85rem", fontWeight: "800", backgroundColor: "#FFFFFF", padding: "2px 8px", borderRadius: "6px", border: "1px solid rgba(17,17,17,0.15)" }}>
-                Width: {current.widthCm} cm ({current.widthInches})
-              </span>
-              <div style={{ flexGrow: 1, height: "1.5px", backgroundColor: "#111111" }} />
-            </div>
-
-            {/* Middle Container with Left Height Arrow & Poster Box */}
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              
-              {/* Left Height Arrow Indicator */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "220px", justifyContent: "center" }}>
-                <div style={{ flexGrow: 1, width: "1.5px", backgroundColor: "#111111" }} />
-                <span style={{ fontSize: "0.85rem", fontWeight: "800", backgroundColor: "#FFFFFF", padding: "4px 6px", borderRadius: "6px", border: "1px solid rgba(17,17,17,0.15)", writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
-                  Height: {current.heightCm} cm ({current.heightInches})
-                </span>
-                <div style={{ flexGrow: 1, width: "1.5px", backgroundColor: "#111111" }} />
-              </div>
-
-              {/* The Poster Box Box */}
-              <div
-                style={{
-                  width: "200px",
-                  height: "283px", // Aspect 1:1.414
-                  backgroundColor: "#FFFFFF",
-                  border: "2.5px solid #111111",
-                  borderRadius: "4px",
-                  boxShadow: "0 15px 35px rgba(0,0,0,0.15)",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "1.5rem",
-                  textAlign: "center",
-                  position: "relative"
-                }}
-              >
-                <div style={{ border: "1px dashed rgba(17,17,17,0.2)", width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
-                  <span style={{ fontSize: "1.75rem", fontWeight: "900" }}>{current.id}</span>
-                  <span style={{ fontSize: "0.85rem", fontWeight: "800", color: "#111111" }}>
-                    {current.widthCm} × {current.heightCm} cm
-                  </span>
-                  <span style={{ fontSize: "0.75rem", color: "#666666" }}>
-                    ({current.widthInches} × {current.heightInches})
-                  </span>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* RIGHT: REAL-WORLD EQUIVALENTS & FRAME FIT DETAILS */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <div style={{ backgroundColor: "#FFFFFF", padding: "1.25rem", borderRadius: "16px", border: "1px solid rgba(17,17,17,0.1)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
-                <FileText size={18} style={{ color: "#2563EB" }} />
-                <h4 style={{ fontSize: "0.9rem", fontWeight: "800" }}>Paper Equivalent</h4>
-              </div>
-              <p style={{ fontSize: "0.85rem", color: "#111111", fontWeight: "600" }}>
-                {current.paperEquivalent}
-              </p>
-            </div>
-
-            <div style={{ backgroundColor: "#FFFFFF", padding: "1.25rem", borderRadius: "16px", border: "1px solid rgba(17,17,17,0.1)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
-                <Frame size={18} style={{ color: "#16A34A" }} />
-                <h4 style={{ fontSize: "0.9rem", fontWeight: "800" }}>Frame Size Compatibility</h4>
-              </div>
-              <p style={{ fontSize: "0.85rem", color: "#111111", fontWeight: "600" }}>
-                {current.frameFit}
-              </p>
-            </div>
-
-            <div style={{ backgroundColor: "#FFFFFF", padding: "1.25rem", borderRadius: "16px", border: "1px solid rgba(17,17,17,0.1)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
-                <Layers size={18} style={{ color: "#9333EA" }} />
-                <h4 style={{ fontSize: "0.9rem", fontWeight: "800" }}>Best Placement</h4>
-              </div>
-              <p style={{ fontSize: "0.85rem", color: "#666666", lineHeight: "1.4" }}>
-                {current.bestFor}
-              </p>
-            </div>
-          </div>
-
-        </div>
-
-        {/* EASY A3 vs A4 vs A5 RELATIVE SIZE RATIO EXPLANATION */}
-        <div style={{ backgroundColor: "#FFFFFF", padding: "1.25rem 1.5rem", borderRadius: "18px", border: "1px solid rgba(17,17,17,0.12)", marginBottom: "1.5rem" }}>
-          <h4 style={{ fontSize: "0.95rem", fontWeight: "800", marginBottom: "0.5rem" }}>
-            💡 Quick Relative Size Rule:
-          </h4>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", fontSize: "0.82rem", color: "#666666" }}>
-            <div>
-              <strong style={{ color: "#111111" }}>A5:</strong> 14.8 cm W × 21.0 cm H<br />(Half size of A4)
-            </div>
-            <div>
-              <strong style={{ color: "#111111" }}>A4:</strong> 21.0 cm W × 29.7 cm H<br />(Standard notebook sheet)
-            </div>
-            <div>
-              <strong style={{ color: "#111111" }}>A3:</strong> 29.7 cm W × 42.0 cm H<br />(Twice size of A4 sheet)
-            </div>
-          </div>
-        </div>
-
-        {/* FOOTER ACTION */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+        {/* FOOTER CONFIRMATION ACTION */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap", borderTop: "1px solid rgba(17,17,17,0.1)", paddingTop: "1.5rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <ShieldCheck size={20} style={{ color: "#111111" }} />
             <span style={{ fontSize: "0.85rem", color: "#111111", fontWeight: "600" }}>
@@ -317,21 +301,12 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
                 border: "none"
               }}
             >
-              Select {activeSize} ({current.widthCm} × {current.heightCm} cm)
+              Select {activeSize} ({current.cm})
             </button>
           )}
         </div>
 
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .dimension-diagram-grid {
-            grid-template-columns: 1fr !important;
-            gap: 2rem !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
