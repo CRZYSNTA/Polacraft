@@ -425,11 +425,11 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
             {/* TRUST BADGES SECTION (FEATURE 8) */}
             <div style={{ backgroundColor: "#FFFFFF", padding: "1.25rem", borderRadius: "18px", border: "1px solid rgba(17,17,17,0.12)", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem" }}>
               {[
-                "✓ Premium Matte Print",
-                "✓ Fade Resistant (100+ Yrs)",
-                "✓ 250 GSM Museum Paper",
-                "✓ 3.5mm Cardboard Tube Shield",
-                "✓ Ships in 2–3 Business Days"
+                "✔ Printed on 300 GSM Premium Matte Paper",
+                "✔ Packed in a Protective Sleeve",
+                "✔ Secured with a Rigid Backing Board",
+                "✔ Shipped in a Durable Kraft Envelope",
+                "✔ Carefully Quality Checked Before Dispatch"
               ].map((badgeText, idx) => (
                 <span key={idx} style={{ fontSize: "0.8rem", fontWeight: "700", color: "#111111", display: "flex", alignItems: "center", gap: "0.35rem" }}>
                   {badgeText}
@@ -448,21 +448,22 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
             <h3 style={{ fontSize: "2rem", fontWeight: "900", marginTop: "0.25rem" }}>What's Inside Your Package?</h3>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.5rem" }} className="packaging-grid">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "1.25rem" }} className="packaging-grid">
             {[
-              { title: "Archival Art Print", desc: "250 GSM Giclée matte cotton print", icon: Sparkles },
-              { title: "Protective Tissue Sleeve", desc: "Acid-free glassine moisture shield", icon: Box },
-              { title: "Thank You Collector Card", desc: "Hand-stamped studio authenticity note", icon: Check },
-              { title: "Polacraft Vinyl Sticker", desc: "Collectible brand laptop sticker", icon: ShieldCheck }
+              { title: "300 GSM Premium Matte", desc: "Heavy-weight archival paper print", icon: Sparkles },
+              { title: "Protective Sleeve", desc: "Dust & moisture moisture shield", icon: Box },
+              { title: "Rigid Backing Board", desc: "Zero-bend structural protection", icon: ShieldCheck },
+              { title: "Durable Kraft Envelope", desc: "Eco-friendly heavy transit armor", icon: Box },
+              { title: "Quality Checked", desc: "Inspected before dispatch", icon: Check }
             ].map((pkg, idx) => {
               const IconComp = pkg.icon;
               return (
-                <div key={idx} style={{ backgroundColor: "#FFFFFF", padding: "1.5rem", borderRadius: "20px", border: "1px solid rgba(17,17,17,0.1)", textAlign: "center" }}>
-                  <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "#EFECE6", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem auto" }}>
-                    <IconComp size={20} style={{ color: "#111111" }} />
+                <div key={idx} style={{ backgroundColor: "#FFFFFF", padding: "1.25rem 1rem", borderRadius: "20px", border: "1px solid rgba(17,17,17,0.1)", textAlign: "center" }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "12px", backgroundColor: "#EFECE6", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 0.75rem auto" }}>
+                    <IconComp size={18} style={{ color: "#111111" }} />
                   </div>
-                  <h4 style={{ fontSize: "1rem", fontWeight: "800" }}>{pkg.title}</h4>
-                  <p style={{ fontSize: "0.8rem", color: "#666666", marginTop: "4px" }}>{pkg.desc}</p>
+                  <h4 style={{ fontSize: "0.9rem", fontWeight: "800" }}>{pkg.title}</h4>
+                  <p style={{ fontSize: "0.75rem", color: "#666666", marginTop: "4px" }}>{pkg.desc}</p>
                 </div>
               );
             })}

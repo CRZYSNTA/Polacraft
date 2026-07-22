@@ -702,23 +702,23 @@ export default function Home() {
             {[
               {
                 icon: <Award size={26} />,
-                title: "250 GSM Museum Cotton",
-                desc: "Heavy-weight acid-free archival cotton paper. Will not yellow or fade over generations."
+                title: "300 GSM Premium Matte",
+                desc: "Printed on heavy 300 GSM premium matte paper with rich, saturated deep gradients and sharp typography."
               },
               {
                 icon: <Sparkles size={26} />,
-                title: "Ultra-Matte Giclée Print",
-                desc: "High-density pigment inkjet printing delivering crisp typographic kerning and rich gradients."
+                title: "Sleeve & Backing Board",
+                desc: "Protected inside a clear sleeve and secured with a rigid backing board to ensure zero bends."
               },
               {
                 icon: <Box size={26} />,
-                title: "Archival Tube Packaging",
-                desc: "Packed inside heavy 3.5mm thick tubes wrapped in delicate, acid-free glassine tissue paper."
+                title: "Durable Kraft Envelope",
+                desc: "Shipped in a heavy-duty Kraft envelope designed for safe transit and unboxing experience."
               },
               {
                 icon: <ShieldCheck size={26} />,
-                title: "Tracked Express Shipping",
-                desc: "Insured shipping across India. Instant WhatsApp order updates and secure payment verification."
+                title: "Quality Checked Dispatch",
+                desc: "Carefully quality checked before dispatch. Tracked shipping across India with instant WhatsApp updates."
               }
             ].map((item, idx) => (
               <div 
