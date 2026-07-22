@@ -23,6 +23,7 @@ export interface Product {
   gsm: number;
   finish: string;
   paperType: string;
+  heroImage?: string;
   galleryImages: string[];
   wallMockups: string[];
   seoTitle: string;

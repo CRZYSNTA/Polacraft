@@ -5,6 +5,13 @@ import { prisma } from "@/lib/prisma";
  * Hourly Cron / API Endpoint to expire unpaid WhatsApp orders older than 24 hours.
  */
 export async function POST(req: Request) {
+  const cronSecret = process.env.CRON_SECRET;
+  const authorization = req.headers.get("authorization");
+
+  if (!cronSecret || authorization !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 

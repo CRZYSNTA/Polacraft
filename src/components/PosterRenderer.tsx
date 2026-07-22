@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import Image from "next/image";
 
 export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }: any) => {
-  if (!poster) return null;
-
   const [imgError, setImgError] = useState(false);
+
+  if (!poster) return null;
 
   // Frame classes mapped from posters data
   let frameClass = "frame-unframed";

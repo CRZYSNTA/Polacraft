@@ -96,6 +96,7 @@ export const Navbar = () => {
         >
           {[
             { path: "/shop", label: "Shop" },
+            { path: "/custom", label: "Custom Print" },
             { path: "/about", label: "About" },
             { path: "/journal", label: "Journal" },
             { path: "/contact", label: "Contact" },
@@ -220,6 +221,7 @@ export const Navbar = () => {
         >
           {[
             { path: "/shop", label: "Shop Posters" },
+            { path: "/custom", label: "Upload Custom Design" },
             { path: "/about", label: "Our Story" },
             { path: "/journal", label: "Editorial Journal" },
             { path: "/contact", label: "Contact Studio" },

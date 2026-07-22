@@ -11,22 +11,14 @@ export async function POST(req: Request) {
 
     const cleanCode = code.trim().toUpperCase();
 
-    // Query Prisma for active coupon
-    let coupon = await prisma.coupon.findUnique({
+    const normalizedSubtotal = Number(subtotal);
+    if (!Number.isFinite(normalizedSubtotal) || normalizedSubtotal < 0) {
+      return NextResponse.json({ error: "A valid subtotal is required." }, { status: 400 });
+    }
+
+    const coupon = await prisma.coupon.findUnique({
       where: { code: cleanCode },
     });
-
-    // Seed default coupons if database has none
-    if (!coupon && (cleanCode === "WELCOME10" || cleanCode === "POLA10")) {
-      coupon = await prisma.coupon.create({
-        data: {
-          code: cleanCode,
-          discountType: "percentage",
-          value: 10, // 10% discount
-          active: true,
-        },
-      });
-    }
 
     if (!coupon || !coupon.active) {
       return NextResponse.json(
@@ -45,9 +37,9 @@ export async function POST(req: Request) {
     // Calculate discount amount
     let discountAmount = 0;
     if (coupon.discountType === "percentage") {
-      discountAmount = Math.round((subtotal * coupon.value) / 100);
+      discountAmount = Math.round((normalizedSubtotal * coupon.value) / 100);
     } else {
-      discountAmount = Math.min(subtotal, coupon.value);
+      discountAmount = Math.min(normalizedSubtotal, coupon.value);
     }
 
     return NextResponse.json({

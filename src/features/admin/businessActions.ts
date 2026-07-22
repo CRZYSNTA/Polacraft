@@ -206,22 +206,37 @@ export async function verifyAndApprovePaymentAction(
   if (!session) return { success: false, error: "Unauthorized" };
 
   try {
-    const existingOrder = await prisma.order.findUnique({
-      where: { id: orderId },
-      include: { items: true },
-    });
-
-    if (!existingOrder) return { success: false, error: "Order not found" };
-
-    // Prevent duplicate processing
-    if (existingOrder.paymentStatus === PaymentStatus.VERIFIED && existingOrder.inventoryDeductedAt) {
-      return { success: false, error: "Payment has already been verified and inventory deducted." };
-    }
-
     const now = new Date();
 
-    // Execute payment verification and inventory stock reduction inside a single atomic Prisma transaction
+    // Claim the order and reduce stock in one transaction. The conditional update makes
+    // repeated clicks/concurrent requests idempotent.
     const updatedOrder = await prisma.$transaction(async (tx) => {
+      const claimed = await tx.order.updateMany({
+        where: {
+          id: orderId,
+          paymentStatus: PaymentStatus.PENDING,
+          inventoryDeductedAt: null,
+        },
+        data: {
+          paymentStatus: PaymentStatus.VERIFIED,
+          shippingStatus: ShippingStatus.PAID,
+          paymentVerifiedAt: now,
+          inventoryDeductedAt: now,
+          upiTransactionId: upiTransactionId || undefined,
+          paymentProofImage: paymentProofImage || undefined,
+          confirmedByAdminId: session.userId,
+        },
+      });
+
+      if (claimed.count !== 1) {
+        throw new Error("Order is missing, no longer pending, or has already been verified.");
+      }
+
+      const existingOrder = await tx.order.findUniqueOrThrow({
+        where: { id: orderId },
+        include: { items: true },
+      });
+
       // 1. Reduce inventory for every order item safely (preventing negative inventory)
       for (const item of existingOrder.items) {
         const prod = await tx.product.findUnique({ where: { id: item.productId } });
@@ -237,17 +252,10 @@ export async function verifyAndApprovePaymentAction(
         }
       }
 
-      // 2. Update Order status
+      // 2. Record the state transition after the one-time claim above.
       const updated = await tx.order.update({
         where: { id: orderId },
         data: {
-          paymentStatus: PaymentStatus.VERIFIED,
-          shippingStatus: ShippingStatus.PAID,
-          paymentVerifiedAt: now,
-          inventoryDeductedAt: now,
-          upiTransactionId: upiTransactionId || existingOrder.upiTransactionId,
-          paymentProofImage: paymentProofImage || existingOrder.paymentProofImage,
-          confirmedByAdminId: session.userId,
           statusHistory: {
             create: {
               status: ShippingStatus.PAID,
