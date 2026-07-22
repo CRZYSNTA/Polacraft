@@ -2,7 +2,7 @@
  * Polacraft v1.0 Centralized Commerce & Business Logic Utilities
  */
 
-export const FREE_SHIPPING_THRESHOLD = 800;
+export const FREE_SHIPPING_THRESHOLD = 499;
 export const STANDARD_SHIPPING_FEE = 60;
 export const POLACRAFT_WHATSAPP_PHONE = "919496682919";
 
