@@ -46,7 +46,7 @@ export default function AdminProductsPage() {
   const [director, setDirector] = useState("");
   const [collectionName, setCollectionName] = useState("Classic Malayalam");
   const [genre, setGenre] = useState("Drama");
-  const [price, setPrice] = useState(1499);
+  const [price, setPrice] = useState(49);
   const [inventory, setInventory] = useState(20);
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [isPreorder, setIsPreorder] = useState(false);
@@ -112,7 +112,7 @@ export default function AdminProductsPage() {
     setDirector("");
     setCollectionName(collections[0] || "Classic Malayalam");
     setGenre("Drama");
-    setPrice(1499);
+    setPrice(49);
     setInventory(20);
     setLowStockThreshold(5);
     setIsPreorder(false);
