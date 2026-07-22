@@ -42,10 +42,11 @@ export const Navbar = () => {
         alignItems: "center",
         zIndex: 1000,
         transition: "var(--transition-smooth)",
-        backgroundColor: isScrolled ? "var(--glass-bg)" : "transparent",
-        borderBottom: isScrolled ? "1px solid var(--glass-border)" : "1px solid transparent",
+        backgroundColor: isScrolled ? "rgba(250, 250, 248, 0.85)" : "transparent",
+        borderBottom: isScrolled ? "1px solid rgba(17, 17, 17, 0.08)" : "1px solid transparent",
         backdropFilter: isScrolled ? "blur(20px)" : "none",
-        WebkitBackdropFilter: isScrolled ? "blur(20px)" : "none"
+        WebkitBackdropFilter: isScrolled ? "blur(20px)" : "none",
+        boxShadow: isScrolled ? "0 10px 30px rgba(0,0,0,0.03)" : "none"
       }}
     >
       <div 
@@ -70,15 +71,16 @@ export const Navbar = () => {
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            gap: "0.25rem"
+            gap: "0.25rem",
+            textDecoration: "none"
           }}
         >
-          <span style={{ color: "var(--text-dark)" }}>POLA</span>
-          <span style={{ color: "var(--text-muted)", fontWeight: "300" }}>CRAFT</span>
+          <span style={{ color: "#111111" }}>POLA</span>
+          <span style={{ color: "#666666", fontWeight: "300" }}>CRAFT</span>
           <span style={{ 
             width: "6px", 
             height: "6px", 
-            backgroundColor: "var(--text-dark)", 
+            backgroundColor: "#D4AF37", 
             borderRadius: "50%", 
             marginLeft: "2px",
             display: "inline-block"
@@ -109,10 +111,14 @@ export const Navbar = () => {
                 href={item.path}
                 className="underline-hover"
                 style={{
-                  fontWeight: isActive ? "600" : "400",
-                  color: isActive ? "var(--text-dark)" : "var(--text-muted)",
+                  fontWeight: isActive ? "700" : "500",
+                  color: isActive ? "#111111" : "#666666",
                   transition: "var(--transition-fast)",
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  fontSize: "0.9rem",
+                  textDecoration: "none",
+                  borderBottom: isActive ? "2px solid #D4AF37" : "2px solid transparent",
+                  paddingBottom: "4px"
                 }}
               >
                 {item.label}
