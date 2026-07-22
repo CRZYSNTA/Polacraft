@@ -232,10 +232,7 @@ export default function Home() {
         premiumRewardThreshold={siteSettings.premiumRewardThreshold}
       />
 
-      {/* 5. FEATURED COLLECTIONS */}
-      <FeaturedCollectionsSection />
-
-      {/* 6. BEST SELLERS CAROUSEL */}
+      {/* 5. BEST SELLERS CAROUSEL */}
       <BestSellersSection
         bestSellers={bestSellers}
         wishlist={wishlist}
