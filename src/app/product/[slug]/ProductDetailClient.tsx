@@ -4,10 +4,11 @@ import React, { useContext, useState, useEffect, useMemo } from "react";
 import { AppContext } from "../../../features/cart/AppContext";
 import PosterRenderer from "../../../components/PosterRenderer";
 import { sizes, frames, posters, calculateProductPrice, FRAME_COST_BY_SIZE } from "../../../lib/cms/products";
-import { Heart, ShoppingBag, Calendar, ShieldCheck, RefreshCw, ZoomIn, AlertTriangle } from "lucide-react";
+import { Heart, ShoppingBag, Calendar, ShieldCheck, RefreshCw, ZoomIn, AlertTriangle, Ruler } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { trackCartEvent } from "../../../services/analytics";
 import JsonLd from "../../../components/JsonLd";
+import SizeGuideModal from "../../../components/SizeGuideModal";
 
 export default function ProductDetailClient({ poster }) {
   const { addToCart, wishlist, toggleWishlist, recentlyViewed, addRecentlyViewed } = useContext(AppContext);
@@ -16,6 +17,7 @@ export default function ProductDetailClient({ poster }) {
   const [selectedSize, setSelectedSize] = useState("A4");
   const [selectedFrame, setSelectedFrame] = useState("unframed");
   const [quantity, setQuantity] = useState(1);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
   // Zoom magnifier states
   const [zoomStyle, setZoomStyle] = useState({ transform: "scale(1)", transformOrigin: "center" });
@@ -251,9 +253,39 @@ export default function ProductDetailClient({ poster }) {
 
             {/* Sizes */}
             <div>
-              <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                Choose Size
-              </span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                  Choose Size
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsSizeGuideOpen(true)}
+                  style={{
+                    backgroundColor: "transparent",
+                    border: "none",
+                    color: "var(--text-dark)",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    cursor: "pointer",
+                    textDecoration: "underline"
+                  }}
+                >
+                  <Ruler size={14} /> Size Guide & Scale
+                </button>
+              </div>
+              
+              <SizeGuideModal
+                isOpen={isSizeGuideOpen}
+                onClose={() => setIsSizeGuideOpen(false)}
+                selectedSize={selectedSize}
+                onSelectSize={(sz) => {
+                  setSelectedSize(sz);
+                  setIsSizeGuideOpen(false);
+                }}
+              />
               <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
                 {sizes.map((s) => {
                   const selectedSizeObj = sizes.find((sz) => sz.id === selectedSize);

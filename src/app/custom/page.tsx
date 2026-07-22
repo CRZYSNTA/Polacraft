@@ -18,8 +18,10 @@ import {
   Truck, 
   Info,
   RefreshCw,
-  X
+  X,
+  Ruler
 } from "lucide-react";
+import SizeGuideModal from "../../components/SizeGuideModal";
 
 export default function CustomPrintStudio() {
   const { addToCart, setCartOpen } = useContext(AppContext);
@@ -38,6 +40,7 @@ export default function CustomPrintStudio() {
   const [selectedSize, setSelectedSize] = useState<"A5" | "A4" | "A3">("A4");
   const [selectedFrame, setSelectedFrame] = useState<"unframed" | "black" | "white" | "wood">("unframed");
   const [quantity, setQuantity] = useState(1);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
   // Size Base Rates
   const BASE_RATES: Record<string, number> = {
@@ -375,10 +378,35 @@ export default function CustomPrintStudio() {
                 <span style={{ fontSize: "0.85rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>
                   Step 3: Choose Size
                 </span>
-                <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-dark)" }}>
-                  Base Print: ₹{basePrice}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsSizeGuideOpen(true)}
+                  style={{
+                    backgroundColor: "transparent",
+                    border: "none",
+                    color: "var(--text-dark)",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    cursor: "pointer",
+                    textDecoration: "underline"
+                  }}
+                >
+                  <Ruler size={14} /> Size Guide & Scale
+                </button>
               </div>
+
+              <SizeGuideModal
+                isOpen={isSizeGuideOpen}
+                onClose={() => setIsSizeGuideOpen(false)}
+                selectedSize={selectedSize}
+                onSelectSize={(sz) => {
+                  setSelectedSize(sz);
+                  setIsSizeGuideOpen(false);
+                }}
+              />
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
                 {[
