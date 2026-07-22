@@ -24,6 +24,11 @@ export const QuickViewModal = () => {
   const [selectedFrame, setSelectedFrame] = useState("unframed");
   const [quantity, setQuantity] = useState(1);
 
+  // Reset quantity to 1 when size changes
+  React.useEffect(() => {
+    setQuantity(1);
+  }, [selectedSize]);
+
   if (!quickViewProduct) return null;
 
   const isWishlisted = wishlist.includes(quickViewProduct.id);

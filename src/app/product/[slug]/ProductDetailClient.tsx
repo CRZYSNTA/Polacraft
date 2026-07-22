@@ -29,6 +29,11 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
     }
   }, [poster]);
 
+  // Reset quantity to 1 when size changes
+  useEffect(() => {
+    setQuantity(1);
+  }, [selectedSize]);
+
   const isWish = wishlist.includes(poster.id);
 
   // Price calculations
