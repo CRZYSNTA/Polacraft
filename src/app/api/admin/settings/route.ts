@@ -25,6 +25,16 @@ export async function GET(req: Request) {
           supportEmail: "support@polacraft.com"
         }
       });
+    } else if (settings.freeShippingThreshold === 3000 || settings.freeShippingThreshold > 499) {
+      settings = await prisma.siteSettings.update({
+        where: { id: settings.id },
+        data: {
+          freeShippingThreshold: 499.0,
+          shippingFee: 60.0,
+          collectorRewardThreshold: 899.0,
+          premiumRewardThreshold: 1499.0
+        }
+      });
     }
 
     return NextResponse.json({ settings });

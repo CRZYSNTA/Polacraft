@@ -21,6 +21,17 @@ export async function GET() {
           supportEmail: "support@polacraft.com"
         }
       });
+    } else if (settings.freeShippingThreshold === 3000 || settings.freeShippingThreshold > 499) {
+      // Force sync legacy 3000 threshold to 499 in Neon PostgreSQL Database
+      settings = await prisma.siteSettings.update({
+        where: { id: settings.id },
+        data: {
+          freeShippingThreshold: 499.0,
+          shippingFee: 60.0,
+          collectorRewardThreshold: 899.0,
+          premiumRewardThreshold: 1499.0
+        }
+      });
     }
 
     return NextResponse.json({ settings });
