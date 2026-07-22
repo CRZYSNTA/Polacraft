@@ -20,12 +20,16 @@ export default function AdminDashboard() {
 
         if (analyticsRes.ok) {
           const aJson = await analyticsRes.json();
-          setAnalyticsData(aJson.metrics || null);
+          setAnalyticsData(aJson.metrics || { revenueCollected: 0, ordersPaid: 0, ordersCreated: 0 });
+        } else {
+          setAnalyticsData({ revenueCollected: 0, ordersPaid: 0, ordersCreated: 0 });
         }
 
         if (ordersRes.ok) {
           const oJson = await ordersRes.json();
           setRecentOrders(oJson.orders || []);
+        } else {
+          setRecentOrders([]);
         }
       } catch (e) {
         console.error("Failed to load admin dashboard live metrics:", e);
