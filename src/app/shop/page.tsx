@@ -60,7 +60,7 @@ function mapDbProductToPoster(p: any): Product {
     paperType: p.paperType || "Fine Art Cotton Archival",
     gsm: p.gsm || 250,
     finish: p.finish || "Ultra-Matte Giclée",
-    price: p.price || 45,
+    price: p.price || 49,
     inventory: p.inventory ?? 25,
     lowStockThreshold: p.lowStockThreshold || 5,
     isPreorder: Boolean(p.isPreorder),
