@@ -220,6 +220,52 @@ export class OpenAIProvider implements IAIProvider {
 
   async generateStructuredData<T>(options: StructuredDataOptions<T>): Promise<GenerationResult<T>> {
     const startTime = Date.now();
+
+    if (this.isAvailable()) {
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            response_format: { type: "json_object" },
+            messages: [
+              {
+                role: "system",
+                content: options.schemaDescription || "You are a professional copywriter. Generate structured JSON output.",
+              },
+              {
+                role: "user",
+                content: options.prompt,
+              },
+            ],
+            max_tokens: 1200,
+          }),
+        });
+
+        if (response.ok) {
+          const rawText = await response.text();
+          const json = JSON.parse(rawText);
+          const contentString = json.choices?.[0]?.message?.content || "";
+          const cleanJsonString = contentString.replace(/```json/gi, "").replace(/```/g, "").trim();
+          const parsedData = JSON.parse(cleanJsonString) as T;
+
+          return {
+            success: true,
+            provider: this.name,
+            data: parsedData,
+            executionTimeMs: Date.now() - startTime,
+            usage: json.usage,
+          };
+        }
+      } catch (err) {
+        AILogger.warn(`[${this.name}] generateStructuredData API call failed, using fallback data`, { error: String(err) });
+      }
+    }
+
     return {
       success: true,
       provider: this.name,
