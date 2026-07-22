@@ -366,6 +366,7 @@ model SiteSettings {
   
   // Polacraft v1.2 AI Settings
   aiEnabled                Boolean  @default(true)
+  aiProvider               String   @default("openai")
   aiVisionEnabled          Boolean  @default(true)
   aiMetadataEnabled        Boolean  @default(true)
   aiSocialCaptionsEnabled  Boolean  @default(true)

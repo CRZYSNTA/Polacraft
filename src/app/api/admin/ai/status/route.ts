@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 import { protectAdminApiRoute } from "@/lib/auth/guards";
 import { getAIProvider, getAllAIHealthChecks } from "@/services/ai";
+import { prisma } from "@/lib/prisma";
+import { AIProviderName } from "@/services/ai/types";
 
 export async function GET(req: Request) {
   const authError = await protectAdminApiRoute(req);
   if (authError) return authError;
 
   try {
-    const currentProvider = getAIProvider();
+    const settings = await prisma.siteSettings.findFirst();
+    const activeProviderName = (settings?.aiProvider || process.env.AI_PROVIDER || "openai") as AIProviderName;
+
+    const currentProvider = getAIProvider(activeProviderName);
     const currentHealth = await currentProvider.healthCheck();
     const allHealthChecks = await getAllAIHealthChecks();
 

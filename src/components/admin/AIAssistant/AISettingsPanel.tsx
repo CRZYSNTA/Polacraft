@@ -7,6 +7,7 @@ import AIStatusCard from "./AIStatusCard";
 interface AISettingsPanelProps {
   settings: {
     aiEnabled: boolean;
+    aiProvider?: string;
     aiVisionEnabled: boolean;
     aiMetadataEnabled: boolean;
     aiSocialCaptionsEnabled: boolean;
@@ -42,6 +43,35 @@ export default function AISettingsPanel({ settings, onChange }: AISettingsPanelP
             Configure Vision AI analysis, metadata verification, tone defaults, and description bounds.
           </p>
         </div>
+      </div>
+
+      {/* Provider Switcher Card */}
+      <div style={{ backgroundColor: "#0F172A", padding: "1.25rem 1.5rem", borderRadius: "18px", border: "1px solid rgba(212, 175, 55, 0.25)", marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          <span style={{ fontSize: "0.75rem", color: "#D4AF37", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.05em" }}>Single Setting Provider Switcher</span>
+          <h4 style={{ fontSize: "1.05rem", fontWeight: "800", color: "#F8FAFC", margin: "2px 0 0 0" }}>Active AI Model Provider</h4>
+          <p style={{ fontSize: "0.78rem", color: "#94A3B8", margin: "2px 0 0 0" }}>Switch instantly between OpenAI, Google Gemini, and Anthropic Claude.</p>
+        </div>
+
+        <select
+          value={settings.aiProvider || "openai"}
+          onChange={(e) => onChange("aiProvider", e.target.value)}
+          style={{
+            backgroundColor: "#1E293B",
+            color: "#F8FAFC",
+            border: "1.5px solid #D4AF37",
+            borderRadius: "12px",
+            padding: "0.65rem 1.25rem",
+            fontSize: "0.9rem",
+            fontWeight: "700",
+            cursor: "pointer",
+            outline: "none"
+          }}
+        >
+          <option value="openai">OpenAI (GPT-4o Mini / GPT-4o)</option>
+          <option value="gemini">Google Gemini (Gemini 1.5 Pro / Flash)</option>
+          <option value="anthropic">Anthropic (Claude 3.5 Sonnet / Haiku)</option>
+        </select>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.25rem", marginBottom: "1.75rem" }} className="ai-settings-grid">

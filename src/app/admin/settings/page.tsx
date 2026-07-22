@@ -22,6 +22,7 @@ export default function AdminSettingsPage() {
   // AI Assistant Settings
   const [aiSettings, setAiSettings] = useState({
     aiEnabled: true,
+    aiProvider: "openai",
     aiVisionEnabled: true,
     aiMetadataEnabled: true,
     aiSocialCaptionsEnabled: true,
@@ -54,6 +55,17 @@ export default function AdminSettingsPage() {
             setSupportEmail(data.settings.supportEmail || "support@polacraft.com");
             setGstNumber(data.settings.gstNumber || "");
             setInstagramUrl(data.settings.instagramUrl || "");
+
+            setAiSettings({
+              aiEnabled: data.settings.aiEnabled !== undefined ? Boolean(data.settings.aiEnabled) : true,
+              aiProvider: data.settings.aiProvider || "openai",
+              aiVisionEnabled: data.settings.aiVisionEnabled !== undefined ? Boolean(data.settings.aiVisionEnabled) : true,
+              aiMetadataEnabled: data.settings.aiMetadataEnabled !== undefined ? Boolean(data.settings.aiMetadataEnabled) : true,
+              aiSocialCaptionsEnabled: data.settings.aiSocialCaptionsEnabled !== undefined ? Boolean(data.settings.aiSocialCaptionsEnabled) : true,
+              aiDefaultTone: data.settings.aiDefaultTone || "Collector Focused",
+              aiDefaultLanguage: data.settings.aiDefaultLanguage || "English",
+              aiMaxDescriptionLength: data.settings.aiMaxDescriptionLength || 120
+            });
           }
         }
       } catch (e) {
@@ -86,7 +98,8 @@ export default function AdminSettingsPage() {
           limitedEditionsEnabled,
           supportEmail,
           gstNumber,
-          instagramUrl
+          instagramUrl,
+          ...aiSettings
         })
       });
 

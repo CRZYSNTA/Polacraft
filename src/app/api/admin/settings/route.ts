@@ -63,7 +63,15 @@ export async function PUT(req: Request) {
       limitedEditionsEnabled: body.limitedEditionsEnabled !== undefined ? Boolean(body.limitedEditionsEnabled) : true,
       supportEmail: body.supportEmail || "support@polacraft.com",
       gstNumber: body.gstNumber || null,
-      instagramUrl: body.instagramUrl || null
+      instagramUrl: body.instagramUrl || null,
+      aiEnabled: body.aiEnabled !== undefined ? Boolean(body.aiEnabled) : true,
+      aiProvider: body.aiProvider || "openai",
+      aiVisionEnabled: body.aiVisionEnabled !== undefined ? Boolean(body.aiVisionEnabled) : true,
+      aiMetadataEnabled: body.aiMetadataEnabled !== undefined ? Boolean(body.aiMetadataEnabled) : true,
+      aiSocialCaptionsEnabled: body.aiSocialCaptionsEnabled !== undefined ? Boolean(body.aiSocialCaptionsEnabled) : true,
+      aiDefaultTone: body.aiDefaultTone || "Collector Focused",
+      aiDefaultLanguage: body.aiDefaultLanguage || "English",
+      aiMaxDescriptionLength: body.aiMaxDescriptionLength !== undefined ? parseInt(body.aiMaxDescriptionLength) : 120
     };
 
     if (settings) {
