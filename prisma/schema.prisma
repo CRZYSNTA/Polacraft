@@ -121,6 +121,11 @@ model Product {
   story               String         @db.Text
   designNotes         String         @db.Text
 
+  // Polacraft v1.2 AI Product Assistant Fields
+  aiGenerated         Boolean?       @default(false)
+  aiGeneratedAt       DateTime?
+  aiReviewedByAdmin   Boolean?       @default(false)
+
   images              ProductImage[]
   reviews             Review[]
   orderItems          OrderItem[]
@@ -358,6 +363,16 @@ model SiteSettings {
   supportEmail             String   @default("support@polacraft.com")
   gstNumber                String?
   maintenanceMode          Boolean  @default(false)
+  
+  // Polacraft v1.2 AI Settings
+  aiEnabled                Boolean  @default(true)
+  aiVisionEnabled          Boolean  @default(true)
+  aiMetadataEnabled        Boolean  @default(true)
+  aiSocialCaptionsEnabled  Boolean  @default(true)
+  aiDefaultTone            String   @default("Collector Focused")
+  aiDefaultLanguage        String   @default("English")
+  aiMaxDescriptionLength   Int      @default(120)
+
   updatedAt                DateTime @updatedAt
 
   @@map("site_settings")

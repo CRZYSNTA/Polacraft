@@ -8,6 +8,7 @@ import {
   ProductInput,
 } from "@/features/admin/businessActions";
 import ImageUploader from "@/components/admin/ImageUploader";
+import AIAssistantModule from "@/components/admin/AIAssistant/AIAssistantModule";
 import {
   Package,
   Plus,
@@ -180,6 +181,22 @@ export default function AdminProductsPage() {
         : [{ url: "", alt: p.title, type: "HERO", sortOrder: 0 }]
     );
     setIsModalOpen(true);
+  };
+
+  const handleApplyAIDraft = (draft: any) => {
+    if (!draft) return;
+    if (draft.title) setTitle(draft.title);
+    if (draft.movie) setFilm(draft.movie);
+    if (draft.year) setYear(draft.year);
+    if (draft.director) setDirector(draft.director);
+    if (draft.genre) setGenre(draft.genre);
+    if (draft.tagline) setTagline(draft.tagline);
+    if (draft.longDescription) setStory(draft.longDescription);
+    if (draft.shortDescription) setDesignNotes(draft.shortDescription);
+    if (draft.suggestedCollections?.[0]) {
+      const match = collections.find((c) => c.toLowerCase() === draft.suggestedCollections[0].toLowerCase());
+      if (match) setCollectionName(match);
+    }
   };
 
   const handleAddImageField = () => {
@@ -545,6 +562,12 @@ export default function AdminProductsPage() {
 
             {/* Modal Form */}
             <form onSubmit={handleSubmitProduct} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {/* ✨ AI PRODUCT ASSISTANT MODULE */}
+              <AIAssistantModule
+                imageUrl={images[0]?.url || ""}
+                onApplyAIDraft={handleApplyAIDraft}
+              />
+
               {/* Row 1: Title & Slug */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div>

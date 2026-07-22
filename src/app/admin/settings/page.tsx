@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Settings, Save, ShieldCheck, Mail, Loader2, CheckCircle2, DollarSign, AlertTriangle, Gift, Sparkles, Layout } from "lucide-react";
+import AISettingsPanel from "@/components/admin/AIAssistant/AISettingsPanel";
 import { DEFAULT_STORE_SETTINGS } from "@/services/promotionEngine";
 
 export default function AdminSettingsPage() {
@@ -17,6 +18,17 @@ export default function AdminSettingsPage() {
   const [supportEmail, setSupportEmail] = useState<string>("support@polacraft.com");
   const [gstNumber, setGstNumber] = useState<string>("");
   const [instagramUrl, setInstagramUrl] = useState<string>("");
+
+  // AI Assistant Settings
+  const [aiSettings, setAiSettings] = useState({
+    aiEnabled: true,
+    aiVisionEnabled: true,
+    aiMetadataEnabled: true,
+    aiSocialCaptionsEnabled: true,
+    aiDefaultTone: "Collector Focused",
+    aiDefaultLanguage: "English",
+    aiMaxDescriptionLength: 120
+  });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -186,6 +198,12 @@ export default function AdminSettingsPage() {
               <input type="number" required value={loyaltyPointsRatio} onChange={(e) => setLoyaltyPointsRatio(Number(e.target.value))} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
               <span style={{ fontSize: "0.75rem", color: "#666" }}>Default: ₹100 spent = 1 Loyalty Point earned in customer account.</span>
             </div>
+
+            {/* SECTION 4: AI PRODUCT ASSISTANT SETTINGS */}
+            <AISettingsPanel
+              settings={aiSettings}
+              onChange={(field, val) => setAiSettings((prev) => ({ ...prev, [field]: val }))}
+            />
 
             <button type="submit" disabled={saving} style={{ marginTop: "1rem", padding: "0.85rem", borderRadius: "12px", border: "none", backgroundColor: "#111111", color: "#FFF", fontWeight: 800, fontSize: "0.95rem", cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
               {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
