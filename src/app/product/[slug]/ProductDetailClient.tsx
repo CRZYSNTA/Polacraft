@@ -278,16 +278,17 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
                   <Ruler size={14} /> Size Guide & Scale
                 </button>
               </div>
-              
-              <SizeGuideModal
+                       <SizeGuideModal
                 isOpen={isSizeGuideOpen}
                 onClose={() => setIsSizeGuideOpen(false)}
                 selectedSize={selectedSize}
                 onSelectSize={(sz) => {
                   setSelectedSize(sz);
+                  setQuantity(1);
                   setIsSizeGuideOpen(false);
                 }}
               />
+
               <div style={{ display: "flex", gap: "0.75rem" }}>
                 {sizes.map((s) => {
                   const selectedSizeObj = sizes.find((sz) => sz.id === selectedSize);
@@ -306,7 +307,10 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
                   return (
                     <button
                       key={s.id}
-                      onClick={() => setSelectedSize(s.id)}
+                      onClick={() => {
+                        setSelectedSize(s.id);
+                        setQuantity(1);
+                      }}
                       style={{
                         padding: "0.75rem 1.25rem",
                         fontSize: "0.85rem",

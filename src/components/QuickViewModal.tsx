@@ -204,7 +204,10 @@ export const QuickViewModal = () => {
                   return (
                     <button
                       key={s.id}
-                      onClick={() => setSelectedSize(s.id)}
+                      onClick={() => {
+                        setSelectedSize(s.id);
+                        setQuantity(1);
+                      }}
                       style={{
                         padding: "0.5rem 0.9rem",
                         fontSize: "0.8rem",
