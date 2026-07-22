@@ -24,7 +24,7 @@ export default function CollectorWallsSection() {
   ];
 
   return (
-    <section style={{ padding: "8rem 0", backgroundColor: "#0A0A0C", position: "relative" }}>
+    <section style={{ padding: "8rem 0", backgroundColor: "#F7F7F4", position: "relative" }}>
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -33,13 +33,13 @@ export default function CollectorWallsSection() {
           transition={{ duration: 0.8 }}
           style={{ textAlign: "center", marginBottom: "4.5rem" }}
         >
-          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#D4AF37", fontWeight: "700" }}>
+          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666", fontWeight: "700" }}>
             Real Collector Spaces
           </span>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)", fontWeight: "900", color: "#FAFAFA", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
+          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)", fontWeight: "900", color: "#111111", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
             Collector Walls
           </h2>
-          <p style={{ color: "#A1A1AA", maxWidth: "54ch", margin: "0.5rem auto 0 auto", fontSize: "0.95rem" }}>
+          <p style={{ color: "#666666", maxWidth: "54ch", margin: "0.5rem auto 0 auto", fontSize: "0.95rem" }}>
             See how film enthusiasts and interior curators style their focal walls, desk setups, and studio corners.
           </p>
         </motion.div>
@@ -58,8 +58,8 @@ export default function CollectorWallsSection() {
                 height: "400px",
                 borderRadius: "28px",
                 overflow: "hidden",
-                boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                boxShadow: "0 15px 35px rgba(0,0,0,0.06)",
+                border: "1px solid rgba(17,17,17,0.08)",
                 cursor: "pointer"
               }}
             >
@@ -70,12 +70,12 @@ export default function CollectorWallsSection() {
                   bottom: 0,
                   inset: "auto 0 0 0",
                   padding: "1.75rem",
-                  background: "linear-gradient(to top, rgba(10,10,12,0.95) 0%, rgba(10,10,12,0.6) 60%, transparent 100%)",
-                  color: "#FAFAFA"
+                  background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)",
+                  color: "#FFFFFF"
                 }}
               >
                 <h4 style={{ fontSize: "1.05rem", fontWeight: "800" }}>{wall.title}</h4>
-                <p style={{ fontSize: "0.8rem", color: "#A1A1AA", marginTop: "4px" }}>{wall.subtitle}</p>
+                <p style={{ fontSize: "0.8rem", opacity: 0.85, marginTop: "4px" }}>{wall.subtitle}</p>
               </div>
             </motion.div>
           ))}

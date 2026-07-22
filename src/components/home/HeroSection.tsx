@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import PosterRenderer from "../PosterRenderer";
 import { Product } from "@/types";
 
@@ -32,43 +32,32 @@ export default function HeroSection({
   return (
     <section
       style={{
-        minHeight: "92vh",
+        minHeight: "90vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         position: "relative",
         paddingTop: "60px",
         paddingBottom: "80px",
-        backgroundColor: "#0A0A0C",
-        backgroundImage: "radial-gradient(circle at 50% 25%, rgba(212, 175, 55, 0.12) 0%, rgba(10, 10, 12, 0) 65%)",
+        backgroundColor: "#FAFAFA",
+        backgroundImage: "radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.15) 0%, rgba(250, 250, 250, 0) 75%)",
         overflow: "hidden"
       }}
     >
-      {/* Background Soft Noise Overlay */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          opacity: 0.03,
-          pointerEvents: "none",
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")"
-        }}
-      />
-
       <div className="container" style={{ width: "100%", display: "flex", justifyContent: "center", position: "relative", zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={isLoading ? {} : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as const }}
           style={{
             width: "100%",
             maxWidth: "1280px",
-            backgroundColor: "rgba(255, 255, 255, 0.02)",
+            backgroundColor: "rgba(255, 255, 255, 0.85)",
             backdropFilter: "blur(30px)",
             WebkitBackdropFilter: "blur(30px)",
             borderRadius: "36px",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            boxShadow: "0 30px 90px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.1)",
+            border: "1px solid rgba(17, 17, 17, 0.08)",
+            boxShadow: "0 30px 80px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(212, 175, 55, 0.2)",
             padding: "4rem 2rem 5rem 2rem",
             display: "flex",
             flexDirection: "column",
@@ -87,10 +76,10 @@ export default function HeroSection({
               fontWeight: "800",
               textTransform: "uppercase",
               letterSpacing: "0.2em",
-              color: "#D4AF37",
+              color: "#997300",
               marginBottom: "1.25rem",
-              backgroundColor: "rgba(212, 175, 55, 0.1)",
-              border: "1px solid rgba(212, 175, 55, 0.25)",
+              backgroundColor: "#FFF8E6",
+              border: "1px solid rgba(212, 175, 55, 0.3)",
               padding: "0.4rem 1.2rem",
               borderRadius: "100px",
               display: "inline-flex",
@@ -110,11 +99,10 @@ export default function HeroSection({
               fontSize: "clamp(2.5rem, 5.5vw, 4.75rem)",
               fontWeight: "900",
               letterSpacing: "-0.04em",
-              color: "#FAFAFA",
+              color: "#111111",
               lineHeight: "1.05",
               maxWidth: "880px",
-              marginBottom: "1.25rem",
-              textShadow: "0 10px 30px rgba(0,0,0,0.5)"
+              marginBottom: "1.25rem"
             }}
           >
             {heroTitle}
@@ -127,7 +115,7 @@ export default function HeroSection({
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const, delay: 0.35 }}
             style={{
               fontSize: "clamp(1rem, 2vw, 1.2rem)",
-              color: "#A1A1AA",
+              color: "#555555",
               lineHeight: "1.7",
               maxWidth: "600px",
               marginBottom: "2.5rem"
@@ -147,8 +135,8 @@ export default function HeroSection({
               <Link
                 href="/shop"
                 style={{
-                  backgroundColor: "#D4AF37",
-                  color: "#0A0A0C",
+                  backgroundColor: "#111111",
+                  color: "#FAFAFA",
                   padding: "1rem 2.4rem",
                   borderRadius: "100px",
                   fontSize: "0.92rem",
@@ -156,7 +144,7 @@ export default function HeroSection({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "0.6rem",
-                  boxShadow: "0 10px 30px rgba(212, 175, 55, 0.25)",
+                  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
                   cursor: "pointer",
                   textDecoration: "none"
                 }}
@@ -169,8 +157,8 @@ export default function HeroSection({
               <a
                 href="#best-sellers"
                 style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
-                  color: "#FAFAFA",
+                  backgroundColor: "#FFFFFF",
+                  color: "#111111",
                   padding: "1rem 2.4rem",
                   borderRadius: "100px",
                   fontSize: "0.92rem",
@@ -178,9 +166,8 @@ export default function HeroSection({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "0.5rem",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  border: "1.5px solid rgba(17, 17, 17, 0.15)",
                   cursor: "pointer",
-                  backdropFilter: "blur(10px)",
                   textDecoration: "none"
                 }}
               >
@@ -203,7 +190,6 @@ export default function HeroSection({
               alignItems: "center"
             }}
           >
-            {/* Ambient Floating Container */}
             <motion.div
               animate={shouldReduceMotion ? {} : { y: [0, -10, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
@@ -245,11 +231,11 @@ export default function HeroSection({
                       position: "absolute",
                       width: "195px",
                       cursor: "pointer",
-                      borderRadius: "12px",
+                      borderRadius: "10px",
                       overflow: "hidden",
                       boxShadow: isHovered
-                        ? "0 30px 60px rgba(0,0,0,0.8), 0 0 30px rgba(212,175,55,0.3)"
-                        : "0 15px 35px rgba(0,0,0,0.5)"
+                        ? "0 30px 60px rgba(0,0,0,0.22)"
+                        : "0 12px 30px rgba(0,0,0,0.08)"
                     }}
                   >
                     <PosterRenderer poster={posterObj} frame="unframed" />

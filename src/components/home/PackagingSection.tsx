@@ -1,7 +1,6 @@
 'use client';
 
 import React from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, Box, ShieldCheck, Check, Layers } from "lucide-react";
 
@@ -15,7 +14,7 @@ export default function PackagingSection() {
   ];
 
   return (
-    <section style={{ padding: "8rem 0", backgroundColor: "#0A0A0C", position: "relative" }}>
+    <section style={{ padding: "8rem 0", backgroundColor: "#F7F7F4", position: "relative" }}>
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -23,22 +22,21 @@ export default function PackagingSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.02)",
-            backdropFilter: "blur(30px)",
+            backgroundColor: "#EFECE6",
             borderRadius: "32px",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
+            border: "1px solid rgba(17, 17, 17, 0.08)",
             padding: "4rem 3rem",
-            boxShadow: "0 30px 80px rgba(0,0,0,0.6)"
+            boxShadow: "0 20px 60px rgba(0,0,0,0.03)"
           }}
         >
           <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.2em", color: "#D4AF37" }}>
+            <span style={{ fontSize: "0.8rem", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666" }}>
               Unboxing Experience
             </span>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#FAFAFA", marginTop: "0.5rem", letterSpacing: "-0.03em" }}>
+            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#111111", marginTop: "0.5rem", letterSpacing: "-0.03em" }}>
               What's Inside Your Package?
             </h2>
-            <p style={{ color: "#A1A1AA", maxWidth: "50ch", margin: "0.5rem auto 0 auto", fontSize: "0.95rem" }}>
+            <p style={{ color: "#666666", maxWidth: "50ch", margin: "0.5rem auto 0 auto", fontSize: "0.95rem" }}>
               Every print is individually inspected, protected in a clear sleeve, secured with a rigid backing board, and sealed inside a durable Kraft envelope.
             </p>
           </div>
@@ -55,18 +53,18 @@ export default function PackagingSection() {
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
                   whileHover={{ y: -4, scale: 1.03 }}
                   style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.03)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid rgba(17, 17, 17, 0.08)",
                     padding: "1.5rem 1rem",
                     borderRadius: "20px",
                     textAlign: "center"
                   }}
                 >
-                  <div style={{ width: "44px", height: "44px", borderRadius: "14px", backgroundColor: "rgba(212, 175, 55, 0.12)", border: "1px solid rgba(212, 175, 55, 0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem auto" }}>
-                    <IconComp size={20} style={{ color: "#D4AF37" }} />
+                  <div style={{ width: "44px", height: "44px", borderRadius: "14px", backgroundColor: "#EFECE6", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem auto" }}>
+                    <IconComp size={20} style={{ color: "#111111" }} />
                   </div>
-                  <h4 style={{ fontSize: "0.95rem", fontWeight: "800", color: "#FAFAFA" }}>{pkg.title}</h4>
-                  <p style={{ fontSize: "0.78rem", color: "#A1A1AA", marginTop: "4px" }}>{pkg.desc}</p>
+                  <h4 style={{ fontSize: "0.95rem", fontWeight: "800", color: "#111111" }}>{pkg.title}</h4>
+                  <p style={{ fontSize: "0.78rem", color: "#666666", marginTop: "4px" }}>{pkg.desc}</p>
                 </motion.div>
               );
             })}

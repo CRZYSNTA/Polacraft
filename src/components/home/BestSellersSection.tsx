@@ -37,7 +37,7 @@ export default function BestSellersSection({
   };
 
   return (
-    <section id="best-sellers" style={{ padding: "8rem 0", backgroundColor: "#0D0D0F", position: "relative" }}>
+    <section id="best-sellers" style={{ padding: "8rem 0", backgroundColor: "#FAFAFA", position: "relative" }}>
       <div className="container">
         {/* Section Header */}
         <motion.div
@@ -48,10 +48,10 @@ export default function BestSellersSection({
           style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3.5rem" }}
         >
           <div>
-            <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#D4AF37", fontWeight: "700" }}>
+            <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666", fontWeight: "700" }}>
               Most Coveted Art
             </span>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#FAFAFA", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
+            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#111111", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
               Best Sellers
             </h2>
           </div>
@@ -65,9 +65,9 @@ export default function BestSellersSection({
                 width: "48px",
                 height: "48px",
                 borderRadius: "50%",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                backgroundColor: "rgba(255, 255, 255, 0.04)",
-                color: "#FAFAFA",
+                border: "1.5px solid rgba(17, 17, 17, 0.15)",
+                backgroundColor: "#FFFFFF",
+                color: "#111111",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -84,9 +84,9 @@ export default function BestSellersSection({
                 width: "48px",
                 height: "48px",
                 borderRadius: "50%",
-                border: "1px solid rgba(212, 175, 55, 0.3)",
-                backgroundColor: "rgba(212, 175, 55, 0.1)",
-                color: "#D4AF37",
+                border: "1.5px solid #111111",
+                backgroundColor: "#111111",
+                color: "#FFFFFF",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -135,8 +135,8 @@ export default function BestSellersSection({
                     position: "relative",
                     borderRadius: "20px",
                     overflow: "hidden",
-                    backgroundColor: "rgba(255, 255, 255, 0.03)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    backgroundColor: "#EFECE6",
+                    border: "1px solid rgba(17, 17, 17, 0.08)",
                     padding: "1.75rem 1.25rem",
                     cursor: "pointer"
                   }}
@@ -166,13 +166,13 @@ export default function BestSellersSection({
                       whileHover={{ scale: 1.1 }}
                       onClick={() => openQuickView(poster)}
                       style={{
-                        backgroundColor: "rgba(10, 10, 12, 0.85)",
-                        backdropFilter: "blur(10px)",
-                        color: "#FAFAFA",
+                        backgroundColor: "#FAFAF8",
+                        color: "#111111",
                         width: "40px",
                         height: "40px",
                         borderRadius: "50%",
-                        border: "1px solid rgba(255,255,255,0.15)",
+                        border: "none",
+                        boxShadow: "0 4px 15px rgba(0,0,0,0.12)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -185,12 +185,13 @@ export default function BestSellersSection({
                       whileHover={{ scale: 1.1 }}
                       onClick={() => addToCart(poster, "A4", "unframed", 1)}
                       style={{
-                        backgroundColor: "#D4AF37",
-                        color: "#0A0A0C",
+                        backgroundColor: "#111111",
+                        color: "#FAFAF8",
                         width: "40px",
                         height: "40px",
                         borderRadius: "50%",
                         border: "none",
+                        boxShadow: "0 4px 15px rgba(0,0,0,0.12)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -204,30 +205,30 @@ export default function BestSellersSection({
                       whileHover={{ scale: 1.1 }}
                       onClick={() => toggleWishlist(poster.id)}
                       style={{
-                        backgroundColor: isWish ? "rgba(239, 68, 68, 0.2)" : "rgba(10, 10, 12, 0.85)",
-                        backdropFilter: "blur(10px)",
-                        color: isWish ? "#EF4444" : "#FAFAFA",
+                        backgroundColor: isWish ? "#FFF5F5" : "#FAFAF8",
+                        color: isWish ? "red" : "#111111",
                         width: "40px",
                         height: "40px",
                         borderRadius: "50%",
-                        border: isWish ? "1px solid #EF4444" : "1px solid rgba(255,255,255,0.15)",
+                        border: "none",
+                        boxShadow: "0 4px 15px rgba(0,0,0,0.12)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         cursor: "pointer"
                       }}
                     >
-                      <Heart size={16} fill={isWish ? "#EF4444" : "none"} />
+                      <Heart size={16} fill={isWish ? "red" : "none"} />
                     </motion.button>
                   </div>
                 </motion.div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 0.25rem" }}>
                   <div>
-                    <h4 style={{ fontSize: "1.05rem", fontWeight: "700", color: "#FAFAFA" }}>{poster.title}</h4>
-                    <p style={{ fontSize: "0.8rem", color: "#A1A1AA" }}>{poster.collection}</p>
+                    <h4 style={{ fontSize: "1.05rem", fontWeight: "700", color: "#111111" }}>{poster.title}</h4>
+                    <p style={{ fontSize: "0.8rem", color: "#666666" }}>{poster.collection}</p>
                   </div>
-                  <span style={{ fontSize: "1.1rem", fontWeight: "800", color: "#D4AF37" }}>
+                  <span style={{ fontSize: "1.1rem", fontWeight: "800", color: "#111111" }}>
                     ₹{poster.price.toLocaleString("en-IN")}
                   </span>
                 </div>

@@ -29,7 +29,7 @@ export default function CraftsmanshipSection() {
   ];
 
   return (
-    <section style={{ padding: "8rem 0", backgroundColor: "#0D0D0F", position: "relative" }}>
+    <section style={{ padding: "8rem 0", backgroundColor: "#FAFAFA", position: "relative" }}>
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -38,10 +38,10 @@ export default function CraftsmanshipSection() {
           transition={{ duration: 0.8 }}
           style={{ textAlign: "center", marginBottom: "4.5rem" }}
         >
-          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#D4AF37", fontWeight: "700" }}>
+          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666", fontWeight: "700" }}>
             Craftsmanship Specs
           </span>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)", fontWeight: "900", color: "#FAFAFA", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
+          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)", fontWeight: "900", color: "#111111", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
             Why Polacraft?
           </h2>
         </motion.div>
@@ -58,14 +58,14 @@ export default function CraftsmanshipSection() {
                 transition={{ duration: 0.6, delay: idx * 0.1 }}
                 whileHover={{ y: -6, scale: 1.02 }}
                 style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.03)",
-                  backdropFilter: "blur(20px)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid rgba(17, 17, 17, 0.08)",
                   borderRadius: "24px",
                   padding: "2rem",
                   display: "flex",
                   flexDirection: "column",
-                  gap: "1.25rem"
+                  gap: "1.25rem",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.03)"
                 }}
               >
                 {/* Icon Pop Animation (Scale 0.8 -> 1, 350ms) */}
@@ -78,19 +78,18 @@ export default function CraftsmanshipSection() {
                     width: "52px",
                     height: "52px",
                     borderRadius: "16px",
-                    backgroundColor: "rgba(212, 175, 55, 0.12)",
-                    border: "1px solid rgba(212, 175, 55, 0.25)",
+                    backgroundColor: "#EFECE6",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#D4AF37"
+                    color: "#111111"
                   }}
                 >
                   <IconComp size={24} />
                 </motion.div>
 
-                <h3 style={{ fontSize: "1.2rem", fontWeight: "800", color: "#FAFAFA" }}>{item.title}</h3>
-                <p style={{ fontSize: "0.88rem", color: "#A1A1AA", lineHeight: "1.6" }}>{item.desc}</p>
+                <h3 style={{ fontSize: "1.2rem", fontWeight: "800", color: "#111111" }}>{item.title}</h3>
+                <p style={{ fontSize: "0.88rem", color: "#666666", lineHeight: "1.6" }}>{item.desc}</p>
               </motion.div>
             );
           })}

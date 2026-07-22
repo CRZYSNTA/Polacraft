@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function NewsletterSection() {
   return (
-    <section style={{ padding: "9rem 0", backgroundColor: "#0A0A0C", position: "relative" }}>
+    <section style={{ padding: "9rem 0", backgroundColor: "#FAFAFA", position: "relative" }}>
       <div className="container" style={{ position: "relative", zIndex: 5 }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
@@ -16,22 +16,21 @@ export default function NewsletterSection() {
           style={{
             maxWidth: "850px",
             margin: "0 auto",
-            backgroundColor: "rgba(255, 255, 255, 0.02)",
-            backdropFilter: "blur(30px)",
+            backgroundColor: "#EFECE6",
             borderRadius: "36px",
-            border: "1px solid rgba(212, 175, 55, 0.2)",
+            border: "1px solid rgba(17, 17, 17, 0.08)",
             padding: "5rem 3rem",
             textAlign: "center",
-            boxShadow: "0 30px 90px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)"
+            boxShadow: "0 25px 70px rgba(0,0,0,0.04)"
           }}
         >
-          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#D4AF37", fontWeight: "700" }}>
+          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666", fontWeight: "700" }}>
             Join the Society
           </span>
-          <h2 style={{ fontSize: "clamp(2.25rem, 5vw, 3.5rem)", fontWeight: "900", color: "#FAFAFA", letterSpacing: "-0.04em", lineHeight: "1.1", marginTop: "0.5rem" }}>
+          <h2 style={{ fontSize: "clamp(2.25rem, 5vw, 3.5rem)", fontWeight: "900", color: "#111111", letterSpacing: "-0.04em", lineHeight: "1.1", marginTop: "0.5rem" }}>
             Subscribe to the Polacraft Club.
           </h2>
-          <p style={{ color: "#A1A1AA", fontSize: "1.05rem", maxWidth: "48ch", margin: "1rem auto 2.5rem auto", lineHeight: "1.7" }}>
+          <p style={{ color: "#666666", fontSize: "1.05rem", maxWidth: "48ch", margin: "1rem auto 2.5rem auto", lineHeight: "1.7" }}>
             Get early access to limited edition drops, behind-the-scenes design breakdowns, and exclusive collector rewards.
           </p>
 
@@ -57,9 +56,9 @@ export default function NewsletterSection() {
                 flexGrow: 1,
                 padding: "1rem 1.5rem",
                 borderRadius: "100px",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                color: "#FAFAFA",
+                border: "1.5px solid rgba(17, 17, 17, 0.15)",
+                backgroundColor: "#FFFFFF",
+                color: "#111111",
                 fontSize: "0.85rem",
                 outline: "none"
               }}
@@ -71,8 +70,8 @@ export default function NewsletterSection() {
               style={{
                 padding: "1rem 2.2rem",
                 borderRadius: "100px",
-                backgroundColor: "#D4AF37",
-                color: "#0A0A0C",
+                backgroundColor: "#111111",
+                color: "#FFFFFF",
                 fontWeight: "800",
                 fontSize: "0.85rem",
                 border: "none",

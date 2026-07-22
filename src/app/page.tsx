@@ -124,7 +124,7 @@ export default function Home() {
   const bestSellers = livePosters.slice(0, 6);
 
   return (
-    <div style={{ position: "relative", backgroundColor: "#0A0A0C", color: "#FAFAFA", overflow: "hidden" }}>
+    <div style={{ position: "relative", backgroundColor: "#FAFAFA", color: "#111111", overflow: "hidden" }}>
       
       {/* 1. PAGE LOAD INTRO ANIMATION (800ms sequence) */}
       <AnimatePresence>
@@ -132,11 +132,11 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
             style={{
               position: "fixed",
               inset: 0,
-              backgroundColor: "#0A0A0C",
+              backgroundColor: "#FAFAF8",
               zIndex: 99999,
               display: "flex",
               flexDirection: "column",
@@ -150,17 +150,18 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               style={{
+                fontFamily: "var(--font-serif)",
                 fontSize: "clamp(2rem, 5vw, 3.5rem)",
-                fontWeight: "900",
+                fontWeight: "800",
                 letterSpacing: "-0.04em",
-                color: "#FAFAFA",
+                color: "#111111",
                 display: "flex",
                 alignItems: "center",
                 gap: "0.3rem"
               }}
             >
               <span>POLA</span>
-              <span style={{ fontWeight: "300", color: "#D4AF37" }}>CRAFT</span>
+              <span style={{ fontWeight: "300", opacity: 0.6 }}>CRAFT</span>
             </motion.div>
 
             <motion.div
@@ -170,11 +171,11 @@ export default function Home() {
               style={{
                 width: "140px",
                 height: "2px",
-                backgroundColor: "#D4AF37",
+                backgroundColor: "#111111",
                 originX: 0
               }}
             />
-            <p style={{ fontSize: "0.75rem", letterSpacing: "0.2em", color: "#A1A1AA", textTransform: "uppercase" }}>
+            <p style={{ fontSize: "0.75rem", letterSpacing: "0.2em", color: "#666666", textTransform: "uppercase" }}>
               Curating Malayalam Cinema Heritage
             </p>
           </motion.div>
@@ -184,7 +185,7 @@ export default function Home() {
       {/* 2. DYNAMIC STOREWIDE OFFER BANNER */}
       <div
         style={{
-          backgroundColor: "#121215",
+          backgroundColor: "#111111",
           color: "#FAFAFA",
           padding: "0.65rem 1rem",
           fontSize: "0.82rem",
@@ -213,7 +214,7 @@ export default function Home() {
           🏆 <strong>Premium Status</strong> on ₹{siteSettings.premiumRewardThreshold}+
         </span>
         <span style={{ opacity: 0.3 }}>|</span>
-        <span style={{ color: "#D4AF37", fontWeight: "700" }}>Mix Any Movie. Mix Any Size.</span>
+        <span style={{ color: "#F59E0B", fontWeight: "700" }}>Mix Any Movie. Mix Any Size.</span>
       </div>
 
       {/* 3. HERO SECTION */}

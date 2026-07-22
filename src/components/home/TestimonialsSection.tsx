@@ -28,7 +28,7 @@ export default function TestimonialsSection() {
   ];
 
   return (
-    <section style={{ padding: "8rem 0", backgroundColor: "#0D0D0F", overflow: "hidden", position: "relative" }}>
+    <section style={{ padding: "8rem 0", backgroundColor: "#FAFAFA", overflow: "hidden", position: "relative" }}>
       <div className="container" style={{ marginBottom: "3rem" }}>
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -37,10 +37,10 @@ export default function TestimonialsSection() {
           transition={{ duration: 0.8 }}
           style={{ textAlign: "center" }}
         >
-          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#D4AF37", fontWeight: "700" }}>
+          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666", fontWeight: "700" }}>
             Verified Collector Words
           </span>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#FAFAFA", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
+          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#111111", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
             What Collectors Say
           </h2>
         </motion.div>
@@ -60,18 +60,18 @@ export default function TestimonialsSection() {
                   display: "flex",
                   flexDirection: "column",
                   gap: "1rem",
-                  backgroundColor: "rgba(255, 255, 255, 0.03)",
-                  backdropFilter: "blur(20px)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: "24px"
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid rgba(17, 17, 17, 0.08)",
+                  borderRadius: "24px",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.03)"
                 }}
               >
                 <span style={{ color: "#D4AF37", fontSize: "0.9rem" }}>{t.rating}</span>
-                <p style={{ fontSize: "0.9rem", fontStyle: "italic", color: "#A1A1AA", lineHeight: "1.7" }}>
+                <p style={{ fontSize: "0.9rem", fontStyle: "italic", color: "#666666", lineHeight: "1.7" }}>
                   "{t.quote}"
                 </p>
-                <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(255,255,255,0.08)" }} />
-                <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "#FAFAFA" }}>{t.author}</span>
+                <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(17,17,17,0.08)" }} />
+                <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111" }}>{t.author}</span>
               </motion.div>
             ))}
           </div>

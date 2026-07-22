@@ -9,10 +9,10 @@ export default function FeaturedCollectionsSection() {
   const shouldReduceMotion = useReducedMotion();
 
   const collections = [
-    { title: "Mohanlal Collectibles", count: "12 Posters", href: "/shop?filter=Mohanlal", accent: "#E6C15C", bg: "rgba(66, 38, 22, 0.6)" },
-    { title: "Mammootty Classics", count: "10 Posters", href: "/shop?filter=Mammootty", accent: "#D4AF37", bg: "rgba(20, 20, 25, 0.8)" },
-    { title: "Fahadh Faasil Series", count: "8 Posters", href: "/shop?filter=Fahadh", accent: "#F87171", bg: "rgba(224, 26, 34, 0.4)" },
-    { title: "Cult & Retro Malayalam", count: "15 Posters", href: "/shop?filter=Classic", accent: "#F59E0B", bg: "rgba(230, 193, 92, 0.2)" }
+    { title: "Mohanlal Collectibles", count: "12 Posters", href: "/shop?filter=Mohanlal", bg: "#422616", text: "#FFFFFF" },
+    { title: "Mammootty Classics", count: "10 Posters", href: "/shop?filter=Mammootty", bg: "#111111", text: "#FFFFFF" },
+    { title: "Fahadh Faasil Series", count: "8 Posters", href: "/shop?filter=Fahadh", bg: "#E01A22", text: "#FFFFFF" },
+    { title: "Cult & Retro Malayalam", count: "15 Posters", href: "/shop?filter=Classic", bg: "#E6C15C", text: "#111111" }
   ];
 
   const containerVariants = {
@@ -35,7 +35,7 @@ export default function FeaturedCollectionsSection() {
   };
 
   return (
-    <section style={{ padding: "7rem 0", backgroundColor: "#0A0A0C", position: "relative" }}>
+    <section style={{ padding: "7rem 0", backgroundColor: "#F7F7F4", position: "relative" }}>
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -44,10 +44,10 @@ export default function FeaturedCollectionsSection() {
           transition={{ duration: 0.7 }}
           style={{ textAlign: "center", marginBottom: "4rem" }}
         >
-          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#D4AF37", fontWeight: "700" }}>
+          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666", fontWeight: "700" }}>
             Curated Collectible Series
           </span>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#FAFAFA", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
+          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#111111", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
             Featured Collections
           </h2>
         </motion.div>
@@ -71,9 +71,7 @@ export default function FeaturedCollectionsSection() {
                 href={col.href}
                 style={{
                   backgroundColor: col.bg,
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  color: col.text,
                   padding: "2.25rem 1.75rem",
                   borderRadius: "24px",
                   display: "flex",
@@ -81,23 +79,21 @@ export default function FeaturedCollectionsSection() {
                   justifyContent: "space-between",
                   height: "230px",
                   textDecoration: "none",
-                  boxShadow: "0 15px 35px rgba(0,0,0,0.4)",
+                  boxShadow: "0 15px 35px rgba(0,0,0,0.06)",
                   position: "relative",
                   overflow: "hidden"
                 }}
               >
-                <div style={{ position: "absolute", top: 0, right: 0, width: "120px", height: "120px", background: `radial-gradient(circle, ${col.accent}22 0%, transparent 70%)`, pointerEvents: "none" }} />
-                
-                <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.15em", color: col.accent, fontWeight: "800" }}>
+                <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.15em", opacity: 0.85, fontWeight: "800" }}>
                   {col.count}
                 </span>
 
                 <div>
-                  <h3 style={{ fontSize: "1.35rem", fontWeight: "800", color: "#FAFAFA", lineHeight: "1.2", marginBottom: "0.5rem" }}>
+                  <h3 style={{ fontSize: "1.35rem", fontWeight: "800", lineHeight: "1.2", marginBottom: "0.5rem" }}>
                     {col.title}
                   </h3>
-                  <span style={{ fontSize: "0.8rem", color: "#A1A1AA", display: "inline-flex", alignItems: "center", gap: "0.4rem", fontWeight: "600" }}>
-                    Explore Series <ArrowRight size={14} style={{ color: col.accent }} />
+                  <span style={{ fontSize: "0.8rem", opacity: 0.85, display: "inline-flex", alignItems: "center", gap: "0.4rem", fontWeight: "600" }}>
+                    Explore Series <ArrowRight size={14} />
                   </span>
                 </div>
               </Link>
