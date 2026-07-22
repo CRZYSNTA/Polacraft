@@ -138,7 +138,7 @@ export const QuickViewModal = () => {
           {/* Left Column: Poster Canvas */}
           <div
             style={{
-              backgroundColor: "var(--accent-beige)",
+              backgroundColor: "#EFECE6",
               padding: "4rem 3rem",
               display: "flex",
               alignItems: "center",
@@ -152,7 +152,7 @@ export const QuickViewModal = () => {
           </div>
 
           {/* Right Column: Poster Story & Specs */}
-          <div style={{ padding: "4rem 3rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <div style={{ backgroundColor: "#FAFAF8", padding: "4rem 3rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             {/* Header */}
             <div>
               <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--text-muted)" }}>

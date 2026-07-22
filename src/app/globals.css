@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+:root {
+  --bg-warm: #FAFAF8;
+  --text-dark: #111111;
+  --text-muted: #666666;
+  --accent-beige: #EFECE6;
+  --accent-charcoal: #2C2C2A;
+  --accent-muted: #E2DDD5;
+  --border-color: rgba(17, 17, 17, 0.12);
+  --glass-bg: rgba(250, 250, 248, 0.95);
+  --glass-border: rgba(17, 17, 17, 0.08);
+  --radius-md: 28px;
+  --radius-lg: 40px;
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.04);
+  --shadow-lift: 0 15px 35px rgba(0, 0, 0, 0.06);
+  --shadow-framed: 0 25px 60px rgba(0, 0, 0, 0.15);
+  --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @theme {
   /* Typography fonts */
   --font-serif: var(--font-instrument-serif), Georgia, serif;
@@ -12,16 +31,16 @@
   --color-beige-accent: #EFECE6;
   --color-charcoal-accent: #2C2C2A;
   --color-muted-accent: #E2DDD5;
-  --color-border-grey: rgba(17, 17, 17, 0.06);
-  --color-glass-border: rgba(17, 17, 17, 0.04);
+  --color-border-grey: rgba(17, 17, 17, 0.12);
+  --color-glass-border: rgba(17, 17, 17, 0.08);
   
   /* Border Radius */
   --radius-md: 28px;
   --radius-lg: 40px;
   
   /* Shadows */
-  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.02);
-  --shadow-lift: 0 15px 35px rgba(0, 0, 0, 0.04);
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.04);
+  --shadow-lift: 0 15px 35px rgba(0, 0, 0, 0.06);
   --shadow-framed: 0 25px 60px rgba(0, 0, 0, 0.15);
   
   /* Transitions */
@@ -31,8 +50,8 @@
 
 /* Custom Base resets */
 body {
-  background-color: var(--color-warm-bg);
-  color: var(--color-dark-txt);
+  background-color: var(--bg-warm);
+  color: var(--text-dark);
   overflow-x: hidden;
 }
 
@@ -56,21 +75,21 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-warm-bg);
+  background: var(--bg-warm);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-muted-accent);
+  background: var(--accent-muted);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-muted-txt);
+  background: var(--text-muted);
 }
 
 /* Custom Cursor definitions */
 .custom-cursor {
   width: 24px;
   height: 24px;
-  border: 2.5px solid var(--color-dark-txt);
+  border: 2.5px solid var(--text-dark);
   border-radius: 50%;
   position: fixed;
   transform: translate(-50%, -50%);
@@ -83,7 +102,7 @@ body {
 .custom-cursor-dot {
   width: 6px;
   height: 6px;
-  background-color: var(--color-dark-txt);
+  background-color: var(--text-dark);
   border-radius: 50%;
   position: fixed;
   transform: translate(-50%, -50%);
@@ -117,7 +136,7 @@ body {
   height: 1px;
   bottom: -2px;
   left: 0;
-  background-color: var(--color-dark-txt);
+  background-color: var(--text-dark);
   transform-origin: bottom right;
   transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
 }
