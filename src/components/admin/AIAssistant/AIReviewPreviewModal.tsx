@@ -164,13 +164,13 @@ export default function AIReviewPreviewModal({ draft, isOpen, onClose, onAccept 
 
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
               <span style={{ fontSize: "0.75rem", padding: "0.25rem 0.65rem", borderRadius: "100px", backgroundColor: "#0F172A", color: "#CBD5E1", border: "1px solid rgba(255,255,255,0.1)" }}>
-                Movie: {editableDraft.confidence?.movie || 95}%
+                Movie: {Math.round((editableDraft.confidence?.movie <= 1 ? editableDraft.confidence.movie * 100 : editableDraft.confidence.movie) || 95)}%
               </span>
               <span style={{ fontSize: "0.75rem", padding: "0.25rem 0.65rem", borderRadius: "100px", backgroundColor: "#0F172A", color: "#CBD5E1", border: "1px solid rgba(255,255,255,0.1)" }}>
-                Actor: {editableDraft.confidence?.actor || 98}%
+                Actor: {Math.round((editableDraft.confidence?.actor <= 1 ? editableDraft.confidence.actor * 100 : editableDraft.confidence.actor) || 98)}%
               </span>
               <span style={{ fontSize: "0.75rem", padding: "0.25rem 0.65rem", borderRadius: "100px", backgroundColor: "#0F172A", color: "#CBD5E1", border: "1px solid rgba(255,255,255,0.1)" }}>
-                Character: {editableDraft.confidence?.character || 94}%
+                Character: {Math.round((editableDraft.confidence?.character <= 1 ? editableDraft.confidence.character * 100 : editableDraft.confidence.character) || 94)}%
               </span>
             </div>
           </div>

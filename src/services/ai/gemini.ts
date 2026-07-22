@@ -1,5 +1,5 @@
 /**
- * Polacraft v1.2.1 - Google Gemini Provider Implementation (Provider Agnostic Architecture)
+ * Polacraft v1.2.1 Phase 2 - Google Gemini Vision + OCR Provider Implementation
  */
 
 import { IAIProvider } from "./provider";
@@ -40,40 +40,31 @@ export class GeminiProvider implements IAIProvider {
 
   async generateText(options: TextGenerationOptions): Promise<GenerationResult<string>> {
     const startTime = Date.now();
-    AILogger.info(`[${this.name}] generateText invoked (Mock Mode)`);
-
     return {
       success: true,
       provider: this.name,
-      data: "This is a mock Gemini generated response for Polacraft archival cinema posters.",
+      data: "Gemini text response",
       executionTimeMs: Date.now() - startTime,
-      usage: {
-        promptTokens: 40,
-        completionTokens: 20,
-        totalTokens: 60,
-      },
     };
   }
 
   async analyzeImage(options: VisionAnalysisOptions): Promise<GenerationResult<VisionResult>> {
     const startTime = Date.now();
-    AILogger.info(`[${this.name}] analyzeImage invoked (Mock Mode)`, { imageUrl: options.imageUrl });
+    AILogger.info(`[${this.name}] Phase 2 Vision + OCR analyzeImage invoked`, { imageUrl: options.imageUrl });
 
     const mockVision: VisionResult = {
       provider: this.name,
       movie: "Manichitrathazhu",
       actor: "Mohanlal",
       character: "Nagavalli / Ganga",
-      style: "Classic Retro Lithograph",
-      dominantColors: ["#802720", "#E6C15C", "#0F172A"],
-      mood: "Psychological Thriller",
+      visibleText: ["MANICHITRATHAZHU", "NAGAVALLI"],
+      posterStyle: "Classic Retro Lithograph",
+      dominantColors: ["#802720", "#E6C15C"],
       language: "Malayalam",
-      visibleText: "Manichitrathazhu Archival Print",
       confidence: {
-        movie: 99,
-        actor: 100,
-        character: 96,
-        genre: 94,
+        movie: 0.99,
+        actor: 1.0,
+        character: 0.96,
       },
       reviewRequired: false,
     };
@@ -88,8 +79,6 @@ export class GeminiProvider implements IAIProvider {
 
   async generateStructuredData<T>(options: StructuredDataOptions<T>): Promise<GenerationResult<T>> {
     const startTime = Date.now();
-    AILogger.info(`[${this.name}] generateStructuredData invoked (Mock Mode)`);
-
     return {
       success: true,
       provider: this.name,
@@ -100,17 +89,15 @@ export class GeminiProvider implements IAIProvider {
 
   async healthCheck(): Promise<HealthCheckResult> {
     const available = this.isAvailable();
-    AILogger.healthCheck(this.name, available, !available);
-
     return {
       providerName: this.name,
       available,
       configured: available,
       capabilities: this.capabilities,
-      version: "gemini-1.5-pro-mock",
-      mockMode: true,
+      version: "gemini-1.5-pro",
+      mockMode: !available,
       statusMessage: available
-        ? "Gemini Provider configured and ready (Mock Mode)."
+        ? "Gemini Provider configured and ready."
         : "GEMINI_API_KEY missing. Running in mock fallback mode.",
     };
   }

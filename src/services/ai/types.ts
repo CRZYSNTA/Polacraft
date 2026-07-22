@@ -25,16 +25,14 @@ export interface VisionResult {
   movie: string | null;
   actor: string | null;
   character: string | null;
-  style: string;
+  visibleText: string[];
+  posterStyle: string;
   dominantColors: string[];
-  mood: string;
   language: string;
-  visibleText: string | null;
   confidence: {
     movie: number;
     actor: number;
     character: number;
-    genre: number;
   };
   reviewRequired: boolean;
 }

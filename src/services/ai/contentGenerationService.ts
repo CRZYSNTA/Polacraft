@@ -3,7 +3,7 @@
  */
 
 import { getVerifiedMovieMetadata, VerifiedMovieMetadata } from "../movieMetadata/verifiedMetadataService";
-import { VisionAnalysisResult } from "./visionAnalysisService";
+import { VisionResult } from "./types";
 
 export interface AIProductDraftPayload {
   // Fact-checked metadata
@@ -45,27 +45,26 @@ export interface AIProductDraftPayload {
     movie: number;
     actor: number;
     character: number;
-    genre: number;
   };
   reviewRequired: boolean;
   generatedAt: string;
 }
 
 export async function generateFullAIProductDraft(
-  vision: VisionAnalysisResult,
+  vision: VisionResult,
   options?: { tone?: string; language?: string; maxLength?: number }
 ): Promise<AIProductDraftPayload> {
   // 1. Fetch Verified Movie Metadata
-  const movieQuery = vision.detectedMovie || "";
+  const movieQuery = vision.movie || "";
   const verifiedMeta: VerifiedMovieMetadata | null = await getVerifiedMovieMetadata(movieQuery);
 
-  const movieName = verifiedMeta?.movie || vision.detectedMovie || "Malayalam Cinema";
+  const movieName = verifiedMeta?.movie || vision.movie || "Malayalam Cinema";
   const year = verifiedMeta?.year || null;
   const director = verifiedMeta?.director || "";
-  const cast = verifiedMeta?.cast || (vision.detectedActor ? [vision.detectedActor] : []);
+  const cast = verifiedMeta?.cast || (vision.actor ? [vision.actor] : []);
   const genre = verifiedMeta?.genre || "Drama";
-  const actorName = cast[0] || vision.detectedActor || "";
-  const charName = vision.detectedCharacter || "";
+  const actorName = cast[0] || vision.actor || "";
+  const charName = vision.character || "";
 
   // 2. Format Product Title: Lucifer – Stephen Nedumpally Premium Poster
   const titlePart = charName ? `${movieName} – ${charName}` : movieName;

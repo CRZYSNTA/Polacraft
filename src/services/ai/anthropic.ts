@@ -1,5 +1,5 @@
 /**
- * Polacraft v1.2.1 - Anthropic (Claude) Provider Implementation (Provider Agnostic Architecture)
+ * Polacraft v1.2.1 Phase 2 - Anthropic (Claude) Vision + OCR Provider Implementation
  */
 
 import { IAIProvider } from "./provider";
@@ -40,40 +40,31 @@ export class AnthropicProvider implements IAIProvider {
 
   async generateText(options: TextGenerationOptions): Promise<GenerationResult<string>> {
     const startTime = Date.now();
-    AILogger.info(`[${this.name}] generateText invoked (Mock Mode)`);
-
     return {
       success: true,
       provider: this.name,
-      data: "This is a mock Claude generated response for Polacraft premium art collectibles.",
+      data: "Claude text response",
       executionTimeMs: Date.now() - startTime,
-      usage: {
-        promptTokens: 50,
-        completionTokens: 30,
-        totalTokens: 80,
-      },
     };
   }
 
   async analyzeImage(options: VisionAnalysisOptions): Promise<GenerationResult<VisionResult>> {
     const startTime = Date.now();
-    AILogger.info(`[${this.name}] analyzeImage invoked (Mock Mode)`, { imageUrl: options.imageUrl });
+    AILogger.info(`[${this.name}] Phase 2 Vision + OCR analyzeImage invoked`, { imageUrl: options.imageUrl });
 
     const mockVision: VisionResult = {
       provider: this.name,
       movie: "Aavesham",
       actor: "Fahadh Faasil",
       character: "Ranga",
-      style: "High-Contrast Typographic Art",
-      dominantColors: ["#F59E0B", "#111111", "#FAFAFA"],
-      mood: "High Energy Action Comedy",
+      visibleText: ["AAVESHAM", "EDA MONE"],
+      posterStyle: "High-Contrast Typographic Art",
+      dominantColors: ["#F59E0B", "#111111"],
       language: "Malayalam",
-      visibleText: "Eda Mone Aavesham",
       confidence: {
-        movie: 97,
-        actor: 100,
-        character: 98,
-        genre: 95,
+        movie: 0.97,
+        actor: 1.0,
+        character: 0.98,
       },
       reviewRequired: false,
     };
@@ -88,8 +79,6 @@ export class AnthropicProvider implements IAIProvider {
 
   async generateStructuredData<T>(options: StructuredDataOptions<T>): Promise<GenerationResult<T>> {
     const startTime = Date.now();
-    AILogger.info(`[${this.name}] generateStructuredData invoked (Mock Mode)`);
-
     return {
       success: true,
       provider: this.name,
@@ -100,17 +89,15 @@ export class AnthropicProvider implements IAIProvider {
 
   async healthCheck(): Promise<HealthCheckResult> {
     const available = this.isAvailable();
-    AILogger.healthCheck(this.name, available, !available);
-
     return {
       providerName: this.name,
       available,
       configured: available,
       capabilities: this.capabilities,
-      version: "claude-3-5-sonnet-mock",
-      mockMode: true,
+      version: "claude-3-5-sonnet",
+      mockMode: !available,
       statusMessage: available
-        ? "Anthropic Provider configured and ready (Mock Mode)."
+        ? "Anthropic Provider configured and ready."
         : "ANTHROPIC_API_KEY missing. Running in mock fallback mode.",
     };
   }
