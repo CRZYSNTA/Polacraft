@@ -96,10 +96,11 @@ export const Navbar = () => {
         >
           {[
             { path: "/shop", label: "Shop" },
+            { path: "/custom", label: "Custom Print" },
             { path: "/about", label: "About" },
             { path: "/journal", label: "Journal" },
             { path: "/contact", label: "Contact" },
-            { path: "/admin", label: "Admin" }
+            { path: "/profile", label: "Account" }
           ].map((item) => {
             const isActive = pathname === item.path;
             return (
@@ -220,10 +221,11 @@ export const Navbar = () => {
         >
           {[
             { path: "/shop", label: "Shop Posters" },
+            { path: "/custom", label: "Upload Custom Design" },
             { path: "/about", label: "Our Story" },
             { path: "/journal", label: "Editorial Journal" },
             { path: "/contact", label: "Contact Studio" },
-            { path: "/admin", label: "Admin Dashboard" }
+            { path: "/profile", label: "Collector Account" }
           ].map((item) => (
             <Link
               key={item.path}
