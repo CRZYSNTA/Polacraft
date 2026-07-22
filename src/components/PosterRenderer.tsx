@@ -35,10 +35,11 @@ export const PosterRenderer = ({ poster, frame = "unframed", size = "A4" }: any)
         <div 
           className="frame-matboard"
           style={{
-            position: "absolute",
-            inset: 0,
+            width: "100%",
+            height: "100%",
             display: "flex",
-            flexDirection: "column"
+            flexDirection: "column",
+            boxSizing: "border-box"
           }}
         >
           <div className="matboard-window" style={{ flexGrow: 1, position: "relative", width: "100%", height: "100%" }}>
