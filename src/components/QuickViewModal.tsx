@@ -72,7 +72,7 @@ export const QuickViewModal = () => {
         {/* Backdrop overlay */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
+          animate={{ opacity: 0.85 }}
           exit={{ opacity: 0 }}
           onClick={closeQuickView}
           style={{
@@ -81,7 +81,9 @@ export const QuickViewModal = () => {
             left: 0,
             width: "100%",
             height: "100%",
-            backgroundColor: "#000000",
+            backgroundColor: "rgba(0, 0, 0, 0.85)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
             cursor: "pointer"
           }}
         />
@@ -98,13 +100,14 @@ export const QuickViewModal = () => {
             maxWidth: "960px",
             height: "auto",
             maxHeight: "90vh",
-            backgroundColor: "var(--bg-warm)",
+            backgroundColor: "#FAFAF8",
+            color: "#111111",
             borderRadius: "var(--radius-md)",
             overflowY: "auto",
             display: "grid",
             gridTemplateColumns: "1.1fr 1fr",
             zIndex: 3001,
-            boxShadow: "0 25px 60px rgba(0,0,0,0.15)",
+            boxShadow: "0 30px 80px rgba(0,0,0,0.4)",
             border: "1px solid var(--border-color)"
           }}
           className="quickview-modal-grid"

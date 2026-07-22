@@ -209,7 +209,7 @@ export const Navbar = () => {
             top: "100%",
             left: 0,
             width: "100%",
-            backgroundColor: "var(--bg-warm)",
+            backgroundColor: "#FAFAF8",
             borderBottom: "1px solid var(--border-color)",
             padding: "2rem 1.5rem",
             display: "flex",
