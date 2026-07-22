@@ -225,23 +225,23 @@ export default function Home() {
         isLoading={isLoading}
       />
 
-      {/* 4. FEATURED COLLECTIONS */}
+      {/* 4. COLLECTOR REWARDS PROGRAM */}
+      <CollectorRewardsSection
+        freeShippingThreshold={siteSettings.freeShippingThreshold}
+        collectorRewardThreshold={siteSettings.collectorRewardThreshold}
+        premiumRewardThreshold={siteSettings.premiumRewardThreshold}
+      />
+
+      {/* 5. FEATURED COLLECTIONS */}
       <FeaturedCollectionsSection />
 
-      {/* 5. BEST SELLERS CAROUSEL */}
+      {/* 6. BEST SELLERS CAROUSEL */}
       <BestSellersSection
         bestSellers={bestSellers}
         wishlist={wishlist}
         toggleWishlist={toggleWishlist}
         openQuickView={openQuickView}
         addToCart={addToCart}
-      />
-
-      {/* 6. COLLECTOR REWARDS PROGRAM */}
-      <CollectorRewardsSection
-        freeShippingThreshold={siteSettings.freeShippingThreshold}
-        collectorRewardThreshold={siteSettings.collectorRewardThreshold}
-        premiumRewardThreshold={siteSettings.premiumRewardThreshold}
       />
 
       {/* 7. WHY POLACRAFT (CRAFTSMANSHIP) */}
