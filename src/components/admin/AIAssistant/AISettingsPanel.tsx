@@ -3,6 +3,7 @@
 import React from "react";
 import { Sparkles, Sliders, Check } from "lucide-react";
 import AIStatusCard from "./AIStatusCard";
+import VisionDebuggerCard from "./VisionDebuggerCard";
 
 interface AISettingsPanelProps {
   settings: {
@@ -23,6 +24,9 @@ export default function AISettingsPanel({ settings, onChange }: AISettingsPanelP
     <div>
       {/* Infrastructure Status Card */}
       <AIStatusCard />
+
+      {/* Phase 2.2 Vision AI Debugger Inspector */}
+      <VisionDebuggerCard />
 
       <div
         style={{
