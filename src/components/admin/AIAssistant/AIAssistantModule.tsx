@@ -19,6 +19,8 @@ const STAGES = [
 ];
 
 export default function AIAssistantModule({ imageUrl, onApplyAIDraft }: AIAssistantModuleProps) {
+  console.log("[FLOW AUDIT 3: AIAssistantModule received imageUrl prop]", imageUrl);
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [isTestingVision, setIsTestingVision] = useState(false);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
@@ -32,6 +34,8 @@ export default function AIAssistantModule({ imageUrl, onApplyAIDraft }: AIAssist
       setErrorMessage("Please upload a poster before testing Vision.");
       return;
     }
+
+    console.log("[FLOW AUDIT 4: Request payload sent to /api/admin/ai/vision-analyze]", { imageUrl });
 
     setIsTestingVision(true);
     setVisionDiagnostic(null);
@@ -62,6 +66,8 @@ export default function AIAssistantModule({ imageUrl, onApplyAIDraft }: AIAssist
       setErrorMessage("Please upload a poster before generating AI.");
       return;
     }
+
+    console.log("[FLOW AUDIT 4: Request payload sent to /api/admin/ai/generate-product]", { imageUrl });
 
     setIsGenerating(true);
     setErrorMessage(null);

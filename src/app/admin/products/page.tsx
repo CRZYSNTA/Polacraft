@@ -554,11 +554,17 @@ export default function AdminProductsPage() {
 
             {/* Modal Form */}
             <form onSubmit={handleSubmitProduct} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              {/* ✨ AI PRODUCT ASSISTANT MODULE */}
-              <AIAssistantModule
-                imageUrl={images[0]?.url || ""}
-                onApplyAIDraft={handleApplyAIDraft}
-              />
+              {/* Single Source of Truth for Hero Poster Image URL */}
+              {(() => {
+                const heroImageUrl = images.find((img) => img.type === "HERO")?.url || images[0]?.url || "";
+                console.log("[FLOW AUDIT 2: Single Source of Truth Hero Image URL]", heroImageUrl);
+                return (
+                  <AIAssistantModule
+                    imageUrl={heroImageUrl}
+                    onApplyAIDraft={handleApplyAIDraft}
+                  />
+                );
+              })()}
 
               {/* Row 1: Title & Slug */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
@@ -667,6 +673,7 @@ export default function AdminProductsPage() {
                       <ImageUploader
                         value=""
                         onChange={(url, publicId) => {
+                          console.log("[FLOW AUDIT 1: ImageUploader Uploaded Hero Poster]", { secure_url: url, public_id: publicId });
                           setImages([{ url, publicId, alt: title || "Hero Poster", type: "HERO", sortOrder: 0 }]);
                         }}
                         label="Upload Primary Hero Poster"

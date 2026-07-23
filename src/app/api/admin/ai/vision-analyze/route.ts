@@ -14,6 +14,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "imageUrl is required for Vision + OCR analysis" }, { status: 400 });
     }
 
+    console.log("==========================================");
+    console.log("[FLOW AUDIT 5: Backend Received vision-analyze Payload]");
+    console.log("RAW IMAGE URL RECEIVED:", imageUrl);
+    console.log("==========================================");
+
     // Execute Phase 2 Vision + OCR extraction
     const visionFacts = await analyzePosterVision(imageUrl);
 
