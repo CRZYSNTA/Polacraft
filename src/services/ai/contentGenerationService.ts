@@ -1,6 +1,6 @@
 /**
  * Polacraft v1.2.1 Phase 4 - Real LLM Content Generation Service
- * Refactored to replace static JS string templates with actual LLM generation via IAIProvider.
+ * Zero hardcoded fallback strings ("Malayalam Cinema", "Malayalam Film Print", etc.).
  */
 
 import { getVerifiedMovieMetadata, VerifiedMovieMetadata } from "../movieMetadata/verifiedMetadataService";
@@ -56,32 +56,33 @@ export interface AIProductDraftPayload {
   generatedAt: string;
 }
 
-/**
- * Phase 4 Real LLM Generation Workflow:
- * 1. Facts Layer: Vision facts + Verified Metadata
- * 2. Creative Layer: Calls IAIProvider with system prompts to generate unique JSON
- */
 export async function generateFullAIProductDraft(
   vision: VisionResult,
   options?: { tone?: string; language?: string; maxLength?: number }
 ): Promise<AIProductDraftPayload> {
-  // ==========================================
-  // LAYER 1: FACTS LAYER
-  // ==========================================
+  // STAGE 3: Verified Metadata Lookup using vision.movie
   const movieQuery = vision.movie || "";
-  const verifiedMeta: VerifiedMovieMetadata | null = await getVerifiedMovieMetadata(movieQuery);
+  const verifiedMeta: VerifiedMovieMetadata | null = movieQuery
+    ? await getVerifiedMovieMetadata(movieQuery)
+    : null;
 
-  // Movie, actor, character facts (Zero forced "Malayalam Cinema" strings!)
+  console.log("==========================================");
+  console.log("STAGE 3: METADATA", verifiedMeta);
+  console.log("==========================================");
+
+  // Facts Layer (Zero hardcoded "Malayalam Cinema" or "Malayalam Film Print" strings)
   const movieName = verifiedMeta?.movie || vision.movie || null;
+  const displayMovie = movieName || "Unknown Artwork";
   const year = verifiedMeta?.year || null;
   const director = verifiedMeta?.director || null;
   const cast = verifiedMeta?.cast || (vision.actor ? [vision.actor] : []);
-  const genre = verifiedMeta?.genre || "Malayalam Cinema";
+  const genre = verifiedMeta?.genre || null;
   const actorName = cast[0] || vision.actor || null;
   const charName = vision.character || null;
 
   const factsPayload = {
-    detectedMovie: movieName,
+    detectedMovie: displayMovie,
+    isMovieIdentified: Boolean(movieName),
     releaseYear: year,
     director: director,
     cast: cast,
@@ -89,15 +90,15 @@ export async function generateFullAIProductDraft(
     actorName: actorName,
     characterName: charName,
     ocrVisibleText: vision.visibleText || [],
-    posterStyle: vision.posterStyle || "Minimal Character Poster",
+    posterStyle: vision.posterStyle || "Minimalist Poster",
     dominantColors: vision.dominantColors || ["#111111", "#D4AF37"],
     requestedTone: options?.tone || "Collector Focused",
     requestedLanguage: options?.language || "English",
     maxDescriptionWords: options?.maxLength || 120,
-    paperSpecs: "300 GSM Heavyweight Premium Matte Cotton Paper, Archival Giclée Pigment Inks, Rigid Backing Protection"
+    paperSpecs: "300 GSM Heavyweight Premium Matte Paper, Archival Giclée Pigment Inks, Rigid Backing Protection"
   };
 
-  // Resolve Active Provider from SiteSettings or environment
+  // Resolve Active Provider
   let activeProviderName: AIProviderName = "openai";
   try {
     const settings = await prisma.siteSettings.findFirst();
@@ -110,9 +111,6 @@ export async function generateFullAIProductDraft(
 
   const provider = getAIProvider(activeProviderName);
 
-  // ==========================================
-  // LAYER 2: CREATIVE LLM GENERATION LAYER
-  // ==========================================
   const systemPrompt = `
 ${DESCRIPTION_GENERATION_PROMPT}
 
@@ -124,6 +122,7 @@ COMBINED INSTRUCTION:
 You are an expert copywriter and SEO strategist for Polacraft archival cinema prints.
 Based on the provided film facts and poster visual details below, write a unique, context-aware, creative product listing.
 DO NOT use repetitive generic template phrases. Adapt your writing style specifically to the tone, themes, director, and cultural impact of the specific film.
+If detectedMovie is "Unknown Artwork", create an intriguing fine art print description for the unidentified poster without inventing a fake movie title.
 
 Return a SINGLE, valid JSON object matching this schema EXACTLY:
 {
@@ -148,17 +147,28 @@ Return a SINGLE, valid JSON object matching this schema EXACTLY:
 }
 `;
 
+  const userPrompt = `FILM & POSTER FACTS: ${JSON.stringify(factsPayload, null, 2)}`;
+
+  // Fallback payload if provider is unavailable or fails (NEVER invents "Malayalam Cinema" / "Malayalam Film Print")
   const fallbackData: AIProductDraftPayload = {
-    movie: movieName || "Malayalam Film Print",
+    movie: displayMovie,
     year,
     director,
     cast,
-    genre,
+    genre: genre || "Fine Art",
     language: options?.language || "English",
-    title: movieName ? `${movieName}${charName ? ` – ${charName}` : ""} Archival Poster` : `${actorName || "Collector"} Archival Cinema Print`,
-    shortDescription: `Handcrafted 300 GSM archival fine art print celebrating ${movieName || "Malayalam cinema"}. Printed on heavyweight matte paper with rigid backing protection.`,
-    longDescription: `Immortalize the cinematic art of ${movieName || "classic cinema"}${year ? ` (${year})` : ""}. Designed for cinephiles and interior curators, this fine art print captures the visual tone of the film in a clean minimalist aesthetic. Printed on 300 GSM heavy-weight matte paper with archival pigment inks for deep contrast and zero glare.`,
-    tagline: `Archival Fine Art Print celebrating ${movieName || "Malayalam Cinema"}.`,
+    title: movieName
+      ? `${movieName}${charName ? ` – ${charName}` : ""} Premium Poster`
+      : actorName
+      ? `${actorName} Archival Portrait Print`
+      : "Archival Fine Art Print",
+    shortDescription: movieName
+      ? `Handcrafted 300 GSM archival fine art print celebrating ${movieName}. Printed on heavyweight matte paper with rigid backing protection.`
+      : `Handcrafted 300 GSM archival fine art print. Printed on heavyweight matte paper with rigid backing protection.`,
+    longDescription: movieName
+      ? `Immortalize the cinematic art of ${movieName}${year ? ` (${year})` : ""}. Designed for cinephiles and interior curators, this fine art print captures the visual tone of the film in a clean minimalist aesthetic. Printed on 300 GSM heavy-weight matte paper with archival pigment inks for deep contrast and zero glare.`
+      : `Collectible 300 GSM archival fine art print. Designed for film enthusiasts and interior curators, this fine art print captures fine art detail in a clean minimalist aesthetic. Printed on 300 GSM heavy-weight matte paper with archival pigment inks for deep contrast and zero glare.`,
+    tagline: movieName ? `Archival Fine Art Print celebrating ${movieName}.` : "Archival Fine Art Collectible Print.",
     highlights: [
       "Printed on 300 GSM Premium Matte Heavyweight Paper",
       "High-contrast fade-resistant archival pigment Giclée print",
@@ -170,32 +180,39 @@ Return a SINGLE, valid JSON object matching this schema EXACTLY:
       "Handle with clean cotton gloves when framing to avoid surface oils",
       "Keep in dry, low-humidity indoor environments"
     ],
-    seoTitle: `${movieName || "Cinema"} Poster | Polacraft Studio`,
-    seoDescription: `Archival 300 GSM fine art poster of ${movieName || "Malayalam Cinema"}. Premium matte print with protective sleeve & rigid backing board.`,
+    seoTitle: movieName ? `${movieName} Poster | Polacraft Studio` : "Archival Fine Art Poster | Polacraft Studio",
+    seoDescription: movieName
+      ? `Archival 300 GSM fine art poster of ${movieName}. Premium matte print with protective sleeve & rigid backing board.`
+      : "Archival 300 GSM fine art poster. Premium matte print with protective sleeve & rigid backing board.",
     keywords: [
-      `${movieName || "Cinema"} poster`,
+      ...(movieName ? [`${movieName} poster`] : []),
       ...(actorName ? [`${actorName} poster`] : []),
       "300 GSM poster",
-      "Polacraft cinema print",
-      "Malayalam movie poster"
+      "Polacraft print",
+      "Archival wall art"
     ],
-    ogDescription: `Bring cinema heritage home with this 300 GSM fine art print of ${movieName || "Polacraft artwork"}.`,
-    imageAltText: `Archival fine art poster print of ${movieName || "Polacraft Cinema Poster"}`,
+    ogDescription: movieName ? `Bring cinema heritage home with this 300 GSM fine art print of ${movieName}.` : "Bring wall art home with this 300 GSM fine art print.",
+    imageAltText: movieName ? `Archival fine art poster print of ${movieName}` : "Archival fine art poster print",
     suggestedCollections: verifiedMeta?.collectionSuggestions || [
       ...(actorName ? [actorName] : []),
-      genre,
-      "Malayalam Cinema"
+      ...(genre ? [genre] : ["Fine Art Collection"])
     ],
     tags: verifiedMeta?.tags || [
-      movieName || "Cinema",
+      ...(movieName ? [movieName] : []),
       ...(actorName ? [actorName] : []),
       "300 GSM",
       "Archival"
     ],
     socialCaptions: {
-      instagram: `✨ Celebrate the spirit of ${movieName || "cinema"} with our 300 GSM Archival Poster 🖼️\n\nPrinted on heavy matte paper & packed with rigid backing protection. Free nationwide shipping on ₹499+ 🚚\n\nTap link in bio to shop.\n\n#Polacraft #${(movieName || "Cinema").replace(/\s+/g, "")}`,
-      facebook: `Bring cinema heritage home with the ${movieName || "Polacraft"} Archival Fine Art Print — pressed on heavy 300 GSM matte paper. Order yours today at polacraft-1.vercel.app`,
-      twitter: `🔥 NEW DROP: ${movieName || "Archival Print"} 300 GSM Premium Matte. Free shipping on ₹499+: polacraft-1.vercel.app`
+      instagram: movieName
+        ? `✨ Celebrate ${movieName} with our 300 GSM Archival Poster 🖼️\n\nPrinted on heavy matte paper & packed with rigid backing protection. Free nationwide shipping on ₹499+ 🚚\n\nTap link in bio to shop.\n\n#Polacraft #${movieName.replace(/\s+/g, "")}`
+        : `✨ Check out our newly pressed 300 GSM Archival Fine Art Poster 🖼️\n\nFree shipping on ₹499+ 🚚\n\n#Polacraft #WallArt #FineArtPrint`,
+      facebook: movieName
+        ? `Bring cinema heritage home with the ${movieName} Archival Fine Art Print — pressed on heavy 300 GSM matte paper. Order yours today at polacraft-1.vercel.app`
+        : `Bring fine art home with this 300 GSM Archival Print — pressed on heavy matte paper. Order yours at polacraft-1.vercel.app`,
+      twitter: movieName
+        ? `🔥 NEW DROP: ${movieName} Archival Print. 300 GSM Premium Matte. Free shipping on ₹499+: polacraft-1.vercel.app`
+        : `🔥 NEW DROP: 300 GSM Premium Matte Archival Print. Free shipping on ₹499+: polacraft-1.vercel.app`
     },
     confidence: vision.confidence,
     reviewRequired: vision.reviewRequired,
@@ -205,19 +222,20 @@ Return a SINGLE, valid JSON object matching this schema EXACTLY:
   if (provider.isAvailable()) {
     try {
       const llmResult = await provider.generateStructuredData<AIProductDraftPayload>({
-        prompt: `FILM & POSTER FACTS: ${JSON.stringify(factsPayload, null, 2)}`,
-        schemaDescription: "AIProductDraftPayload structured JSON",
+        prompt: userPrompt,
+        schemaDescription: systemPrompt,
         fallback: fallbackData
       });
 
       if (llmResult.success && llmResult.data) {
+        // Return parsed LLM output WITHOUT overwriting fields with defaults!
         return {
           ...llmResult.data,
-          movie: movieName || llmResult.data.movie || "Malayalam Film Print",
-          year,
-          director,
-          cast,
-          genre,
+          movie: movieName || llmResult.data.movie || "Unknown Artwork",
+          year: llmResult.data.year ?? year,
+          director: llmResult.data.director ?? director,
+          cast: (llmResult.data.cast && llmResult.data.cast.length > 0) ? llmResult.data.cast : cast,
+          genre: llmResult.data.genre || genre || "Fine Art",
           confidence: vision.confidence,
           reviewRequired: vision.reviewRequired,
           generatedAt: new Date().toISOString()

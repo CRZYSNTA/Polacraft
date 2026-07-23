@@ -25,5 +25,9 @@ export async function analyzePosterVision(imageUrl: string): Promise<VisionResul
   const provider = getAIProvider(activeProviderName);
   const result = await provider.analyzeImage({ imageUrl });
 
+  console.log("==========================================");
+  console.log("STAGE 2: VISION RESULT", result.data);
+  console.log("==========================================");
+
   return result.data;
 }

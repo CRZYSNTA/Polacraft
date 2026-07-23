@@ -19,11 +19,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Poster image URL is required" }, { status: 400 });
     }
 
+    console.log("==========================================");
+    console.log("STAGE 1: IMAGE UPLOAD");
+    console.log("IMAGE URL:", imageUrl);
+    console.log("==========================================");
+
     // Step 1: Vision AI Analysis
     const vision = await analyzePosterVision(imageUrl);
 
     // Step 2: Verified Metadata Lookup & Content Generation
     const draftPayload = await generateFullAIProductDraft(vision, options);
+
+    console.log("==========================================");
+    console.log("STAGE 7: API ROUTE OUTPUT");
+    console.log(JSON.stringify(draftPayload, null, 2));
+    console.log("==========================================");
 
     const durationMs = Date.now() - startTime;
     recordAIGenerationEvent(durationMs);

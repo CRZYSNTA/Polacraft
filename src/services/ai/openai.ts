@@ -221,6 +221,12 @@ export class OpenAIProvider implements IAIProvider {
   async generateStructuredData<T>(options: StructuredDataOptions<T>): Promise<GenerationResult<T>> {
     const startTime = Date.now();
 
+    console.log("==========================================");
+    console.log("STAGE 4: LLM PROMPT SENT TO OPENAI");
+    console.log("SYSTEM PROMPT:", options.schemaDescription);
+    console.log("USER PROMPT:", options.prompt);
+    console.log("==========================================");
+
     if (this.isAvailable()) {
       try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -246,12 +252,23 @@ export class OpenAIProvider implements IAIProvider {
           }),
         });
 
+        const rawText = await response.text();
+
+        console.log("==========================================");
+        console.log("STAGE 5: RAW OPENAI RESPONSE");
+        console.log(rawText);
+        console.log("==========================================");
+
         if (response.ok) {
-          const rawText = await response.text();
           const json = JSON.parse(rawText);
           const contentString = json.choices?.[0]?.message?.content || "";
           const cleanJsonString = contentString.replace(/```json/gi, "").replace(/```/g, "").trim();
           const parsedData = JSON.parse(cleanJsonString) as T;
+
+          console.log("==========================================");
+          console.log("STAGE 6: PARSED JSON RESPONSE");
+          console.log(JSON.stringify(parsedData, null, 2));
+          console.log("==========================================");
 
           return {
             success: true,
