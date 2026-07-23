@@ -95,14 +95,8 @@ export default function Home() {
         const res = await fetch(`/api/search?t=${Date.now()}`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
-          if (data.products && data.products.length > 0) {
-            const mapped = data.products.map(mapDbProductToPoster);
-            const dbSlugs = new Set(mapped.map((p: Product) => p.slug));
-            const merged = [
-              ...mapped,
-              ...staticPosters.filter((sp) => !dbSlugs.has(sp.slug))
-            ];
-            setLivePosters(merged);
+          if (data.products && Array.isArray(data.products)) {
+            setLivePosters(data.products.map(mapDbProductToPoster));
           }
         }
       } catch (e) {

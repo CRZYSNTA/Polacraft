@@ -76,19 +76,15 @@ export async function getPosters(): Promise<Product[]> {
       orderBy: { createdAt: "desc" },
     });
 
-    if (dbProducts.length > 0) {
-      const livePosters = dbProducts.map(mapDbProductToPoster);
-      const liveSlugs = new Set(livePosters.map((p) => p.slug));
-      return [
-        ...livePosters,
-        ...staticPosters.filter((sp) => !liveSlugs.has(sp.slug)),
-      ];
+    if (dbProducts) {
+      return dbProducts.map(mapDbProductToPoster);
     }
   } catch (e) {
     console.warn("Database lookup failed in getPosters, falling back to static:", e);
+    return staticPosters;
   }
 
-  return staticPosters;
+  return [];
 }
 
 export async function getPosterBySlug(slug: string): Promise<Product | null> {
@@ -108,14 +104,11 @@ export async function getPosterBySlug(slug: string): Promise<Product | null> {
       },
     });
 
-    if (dbProduct) {
-      return mapDbProductToPoster(dbProduct);
-    }
+    return dbProduct ? mapDbProductToPoster(dbProduct) : null;
   } catch (e) {
     console.warn("Database lookup failed in getPosterBySlug, falling back to static:", e);
+    return staticPosters.find((p) => p.slug === slug || p.slug === slug.toLowerCase().replace(/[^a-z0-9]+/g, "-")) || null;
   }
-
-  return staticPosters.find((p) => p.slug === slug || p.slug === slug.toLowerCase().replace(/[^a-z0-9]+/g, "-")) || null;
 }
 
 export async function getFeaturedPosters(): Promise<Product[]> {

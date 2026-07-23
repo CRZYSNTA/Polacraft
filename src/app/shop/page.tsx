@@ -109,16 +109,8 @@ function ShopContent() {
         const res = await fetch(`/api/search?t=${Date.now()}`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
-          if (data.products && data.products.length > 0) {
-            const livePosters = data.products.map(mapDbProductToPoster);
-            
-            // Merge live posters with static ones, prioritizing live database items
-            const liveSlugs = new Set(livePosters.map((p: Product) => p.slug));
-            const merged = [
-              ...livePosters,
-              ...staticPosters.filter((sp) => !liveSlugs.has(sp.slug))
-            ];
-            setPosters(merged);
+          if (data.products && Array.isArray(data.products)) {
+            setPosters(data.products.map(mapDbProductToPoster));
           }
         }
       } catch (e) {
