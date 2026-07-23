@@ -82,6 +82,7 @@ export class OpenAIProvider implements IAIProvider {
             actor: 0.0,
             character: 0.0,
           },
+          alternatives: [],
           reviewRequired: true,
         };
 
@@ -115,6 +116,7 @@ export class OpenAIProvider implements IAIProvider {
         actor: confActor,
         character: confChar,
       },
+      alternatives: Array.isArray(parsed.alternatives) ? parsed.alternatives : [],
       reviewRequired: confMovie < 0.7 || !parsed.movie,
     };
 

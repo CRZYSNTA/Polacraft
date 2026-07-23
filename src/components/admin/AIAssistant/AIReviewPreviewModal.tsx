@@ -190,6 +190,21 @@ export default function AIReviewPreviewModal({ draft, isOpen, onClose, onAccept 
               <div>
                 <label style={{ fontSize: "0.75rem", color: "#94A3B8", fontWeight: "700" }}>Movie</label>
                 <input type="text" value={editableDraft.movie || ""} onChange={(e) => handleFieldChange("movie", e.target.value)} style={{ width: "100%", padding: "0.6rem 0.85rem", borderRadius: "10px", backgroundColor: "#0F172A", border: "1px solid rgba(255,255,255,0.1)", color: "#F8FAFC", fontSize: "0.85rem", marginTop: "4px" }} />
+                {editableDraft.alternatives?.length > 0 && (
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "6px", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.68rem", color: "#94A3B8" }}>Candidates:</span>
+                    {editableDraft.alternatives.map((alt: string) => (
+                      <button
+                        key={alt}
+                        type="button"
+                        onClick={() => handleFieldChange("movie", alt)}
+                        style={{ fontSize: "0.68rem", padding: "0.15rem 0.5rem", borderRadius: "100px", backgroundColor: "rgba(212, 175, 55, 0.15)", color: "#D4AF37", border: "1px solid rgba(212, 175, 55, 0.3)", cursor: "pointer" }}
+                      >
+                        {alt}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label style={{ fontSize: "0.75rem", color: "#94A3B8", fontWeight: "700" }}>Release Year</label>

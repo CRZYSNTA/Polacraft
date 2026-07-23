@@ -34,6 +34,7 @@ export interface VisionResult {
     actor: number;
     character: number;
   };
+  alternatives: string[];
   reviewRequired: boolean;
 }
 

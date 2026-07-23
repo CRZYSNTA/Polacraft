@@ -66,6 +66,7 @@ export class AnthropicProvider implements IAIProvider {
         actor: 1.0,
         character: 0.98,
       },
+      alternatives: ["Aavesham"],
       reviewRequired: false,
     };
 

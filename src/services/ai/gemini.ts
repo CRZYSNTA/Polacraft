@@ -66,6 +66,7 @@ export class GeminiProvider implements IAIProvider {
         actor: 1.0,
         character: 0.96,
       },
+      alternatives: ["Manichitrathazhu"],
       reviewRequired: false,
     };
 
