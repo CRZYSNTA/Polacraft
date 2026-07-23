@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
     console.log("==========================================");
     console.log("STAGE 1: IMAGE UPLOAD");
-    console.log("IMAGE URL:", imageUrl);
+    console.log("RAW IMAGE URL:", imageUrl);
     console.log("==========================================");
 
     // Step 1: Vision AI Analysis
