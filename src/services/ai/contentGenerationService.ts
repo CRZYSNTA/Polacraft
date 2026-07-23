@@ -62,9 +62,23 @@ export async function generateFullAIProductDraft(
 ): Promise<AIProductDraftPayload> {
   // STAGE 3: Verified Metadata Lookup using vision.movie
   const movieQuery = vision.movie || "";
-  const verifiedMeta: VerifiedMovieMetadata | null = movieQuery
+  let verifiedMeta: VerifiedMovieMetadata | null = movieQuery
     ? await getVerifiedMovieMetadata(movieQuery)
     : null;
+
+  // OCR-First Verified Database Match Strategy:
+  // If Vision didn't identify movie title directly, check OCR text strings against Verified Database
+  if (!verifiedMeta && vision.visibleText && vision.visibleText.length > 0) {
+    for (const text of vision.visibleText) {
+      if (text && text.trim().length > 2) {
+        const ocrMatch = await getVerifiedMovieMetadata(text.trim());
+        if (ocrMatch) {
+          verifiedMeta = ocrMatch;
+          break;
+        }
+      }
+    }
+  }
 
   console.log("==========================================");
   console.log("STAGE 3: METADATA", verifiedMeta);
