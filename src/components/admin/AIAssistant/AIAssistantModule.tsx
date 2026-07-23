@@ -26,8 +26,8 @@ export default function AIAssistantModule({ imageUrl, onApplyAIDraft }: AIAssist
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleStartAIGeneration = async () => {
-    if (!imageUrl) {
-      setErrorMessage("Please upload a poster image first before generating details with AI.");
+    if (!imageUrl || imageUrl.trim() === "") {
+      setErrorMessage("Please upload a poster before generating AI.");
       return;
     }
 
@@ -140,6 +140,14 @@ export default function AIAssistantModule({ imageUrl, onApplyAIDraft }: AIAssist
           )}
         </button>
       </div>
+
+      {/* Upload Required Banner */}
+      {!imageUrl && !errorMessage && (
+        <div style={{ marginTop: "1rem", padding: "0.75rem 1.25rem", backgroundColor: "rgba(234, 179, 8, 0.1)", border: "1px solid rgba(234, 179, 8, 0.25)", borderRadius: "12px", color: "#FDE047", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
+          <AlertTriangle size={16} />
+          <span>Upload a poster image below to enable <strong>✨ Generate with AI</strong>.</span>
+        </div>
+      )}
 
       {/* Loading Experience Multi-Stage Progress */}
       {isGenerating && (

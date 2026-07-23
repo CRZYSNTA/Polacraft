@@ -49,7 +49,7 @@ export default function AdminBlogPage() {
     setSlug("");
     setExcerpt("");
     setContent("");
-    setImg("https://images.unsplash.com/photo-1579783900280-496030999557?w=600");
+    setImg("");
     setReadTime("5 min read");
     setCategoryName("Design Notes");
     setAuthorName("Polacraft Curators");

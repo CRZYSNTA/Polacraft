@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Bug, Send, Loader2, CheckCircle2, AlertTriangle, Terminal, Code, Eye } from "lucide-react";
 
 export default function VisionDebuggerCard() {
-  const [testImageUrl, setTestImageUrl] = useState("https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600");
+  const [testImageUrl, setTestImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [debugResult, setDebugResult] = useState<any | null>(null);
 

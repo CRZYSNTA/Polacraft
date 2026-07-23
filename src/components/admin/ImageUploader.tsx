@@ -18,7 +18,7 @@ export default function ImageUploader({
   onChange,
   label = "Upload Image",
   folder = "GALLERY",
-  placeholder = "https://images.unsplash.com/...",
+  placeholder = "https://res.cloudinary.com/.../poster.jpg",
 }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);

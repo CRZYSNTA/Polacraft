@@ -71,14 +71,7 @@ export default function AdminProductsPage() {
   // Multiple Product Images (with publicId + sortOrder)
   const [images, setImages] = useState<
     { url: string; publicId?: string; alt: string; type: any; sortOrder: number }[]
-  >([
-    {
-      url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600",
-      alt: "Hero Art",
-      type: "HERO",
-      sortOrder: 0,
-    },
-  ]);
+  >([]);
 
   const router = useRouter();
 
@@ -131,14 +124,7 @@ export default function AdminProductsPage() {
     setTagline("Limited Edition Fine Art Print");
     setStory("");
     setDesignNotes("");
-    setImages([
-      {
-        url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600",
-        alt: "Main Hero",
-        type: "HERO",
-        sortOrder: 0,
-      },
-    ]);
+    setImages([]);
     setIsModalOpen(true);
   };
 
@@ -178,7 +164,7 @@ export default function AdminProductsPage() {
             type: img.type,
             sortOrder: img.sortOrder ?? idx,
           }))
-        : [{ url: "", alt: p.title, type: "HERO", sortOrder: 0 }]
+        : []
     );
     setIsModalOpen(true);
   };
@@ -660,7 +646,35 @@ export default function AdminProductsPage() {
                   </button>
                 </div>
 
-                {images.map((img, idx) => (
+                {images.length === 0 ? (
+                  <div
+                    style={{
+                      border: "2px dashed #CBD5E1",
+                      borderRadius: "16px",
+                      padding: "2rem 1.5rem",
+                      textAlign: "center",
+                      backgroundColor: "#FFF",
+                    }}
+                  >
+                    <ImageIcon size={40} style={{ color: "#94A3B8", marginBottom: "0.75rem" }} />
+                    <h4 style={{ margin: "0 0 0.4rem 0", fontSize: "1.1rem", fontWeight: "800", color: "#0F172A" }}>
+                      Upload a Hero Poster
+                    </h4>
+                    <p style={{ margin: "0 0 1.25rem 0", fontSize: "0.85rem", color: "#64748B" }}>
+                      No poster uploaded yet. Upload a high-resolution poster to activate the AI Product Assistant.
+                    </p>
+                    <div style={{ maxWidth: "480px", margin: "0 auto" }}>
+                      <ImageUploader
+                        value=""
+                        onChange={(url, publicId) => {
+                          setImages([{ url, publicId, alt: title || "Hero Poster", type: "HERO", sortOrder: 0 }]);
+                        }}
+                        label="Upload Primary Hero Poster"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  images.map((img, idx) => (
                   <div key={idx} style={{ border: "1px solid #E2E8F0", borderRadius: "12px", padding: "1rem", backgroundColor: "#FFF", marginBottom: "1rem" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -779,7 +793,8 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                ))
+              )}
               </div>
 
               {/* Checkboxes: Flags */}
