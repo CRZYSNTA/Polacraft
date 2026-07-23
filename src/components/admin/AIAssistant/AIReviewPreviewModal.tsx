@@ -14,6 +14,12 @@ export default function AIReviewPreviewModal({ draft, isOpen, onClose, onAccept 
   const [editableDraft, setEditableDraft] = useState(draft);
   const [regeneratingField, setRegeneratingField] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (draft) {
+      setEditableDraft(draft);
+    }
+  }, [draft]);
+
   if (!isOpen) return null;
 
   const handleFieldChange = (field: string, value: any) => {
