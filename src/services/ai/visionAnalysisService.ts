@@ -7,20 +7,20 @@ import { VisionResult, AIProviderName } from "./types";
 import { prisma } from "@/lib/prisma";
 
 /**
- * Strips thumbnail transformations from Cloudinary and Unsplash image URLs to deliver full-resolution images to Vision AI.
+ * Strips all Cloudinary and Unsplash transformations to return the original full-resolution master image asset.
  */
 export function getOriginalFullResImageUrl(url: string): string {
   if (!url) return url;
 
   let cleaned = url.trim();
 
-  // Strip Cloudinary resize/crop transformations like /c_thumb,w_80,h_80/ or /w_120,h_120,c_fill/
+  // Cloudinary URL cleaning: Remove any transformation path segment between /image/upload/ and /v.../ or public_id
   if (cleaned.includes("res.cloudinary.com")) {
-    cleaned = cleaned.replace(/\/image\/upload\/(?:c_[^/]+,)?(?:w_\d+,)?(?:h_\d+,)?[^/]+\/(v\d+\/)/i, "/image/upload/$1");
-    cleaned = cleaned.replace(/\/image\/upload\/w_\d+,\w+[^/]*\//i, "/image/upload/");
+    cleaned = cleaned.replace(/\/image\/upload\/(?:[a-z]_[^/]+,)*[a-z]_[^/]+\/(v\d+\/)/i, "/image/upload/$1");
+    cleaned = cleaned.replace(/\/image\/upload\/[a-z]_[^/]+\//gi, "/image/upload/");
   }
 
-  // Strip Unsplash sizing query parameters like ?w=600 or ?w=120
+  // Unsplash URL cleaning: Strip sizing query parameters
   if (cleaned.includes("images.unsplash.com") && cleaned.includes("?")) {
     cleaned = cleaned.split("?")[0];
   }
@@ -37,6 +37,14 @@ export async function analyzePosterVision(imageUrl: string): Promise<VisionResul
 
   console.log("==========================================");
   console.log("VISION FULL RES IMAGE URL:", fullResUrl);
+  try {
+    const headRes = await fetch(fullResUrl, { method: "HEAD" });
+    const contentType = headRes.headers.get("content-type");
+    const contentLength = headRes.headers.get("content-length");
+    console.log(`VERIFIED ASSET METADATA — Content-Type: ${contentType}, Size: ${contentLength ? `${(parseInt(contentLength) / 1024).toFixed(1)} KB` : "Unknown"}`);
+  } catch (e) {
+    console.log("Asset metadata check skipped");
+  }
   console.log("==========================================");
 
   // Load configured AI provider from SiteSettings or environment
