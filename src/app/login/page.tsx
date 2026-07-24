@@ -9,7 +9,9 @@ import { Mail, Lock, User, Phone, ArrowRight, Loader2, Apple, ChevronDown, Chevr
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/account";
+  const rawCallback = searchParams.get("callbackUrl");
+  // Customer login should always redirect to /account unless explicitly returning to shop/checkout
+  const callbackUrl = rawCallback && !rawCallback.startsWith("/admin") ? rawCallback : "/account";
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");

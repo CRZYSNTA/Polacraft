@@ -1,8 +1,17 @@
+'use client';
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 
 export const Footer = () => {
+  const pathname = usePathname();
+
+  // Hide Storefront Footer completely on Admin Portal routes (/admin/*)
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
   return (
     <footer 
       style={{

@@ -31,6 +31,11 @@ export const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
+  // Hide Storefront Navbar completely on Admin Portal routes (/admin/*)
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <nav
       className="glass-nav"
