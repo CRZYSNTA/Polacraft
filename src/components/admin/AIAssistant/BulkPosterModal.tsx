@@ -460,13 +460,13 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                               <button
                                 onClick={() => handleOpenEditDraft(idx, "COLLECTION")}
                                 style={{
-                                  border: "1px solid #CBD5E1",
-                                  backgroundColor: "#FFF",
-                                  color: "#0F172A",
-                                  padding: "0.35rem 0.65rem",
+                                  border: "none",
+                                  backgroundColor: "#3B82F6",
+                                  color: "#FFF",
+                                  padding: "0.4rem 0.75rem",
                                   borderRadius: "8px",
                                   fontSize: "0.75rem",
-                                  fontWeight: 700,
+                                  fontWeight: 800,
                                   cursor: "pointer",
                                   display: "flex",
                                   alignItems: "center",
@@ -601,18 +601,19 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                         onClick={() => handleOpenEditDraft(idx, "BATCH_UPLOAD")}
                         style={{
                           width: "100%",
-                          padding: "0.45rem",
-                          borderRadius: "8px",
-                          border: "1px solid #CBD5E1",
-                          backgroundColor: "#F8FAFC",
-                          color: "#1E293B",
-                          fontWeight: 700,
-                          fontSize: "0.8rem",
+                          padding: "0.55rem",
+                          borderRadius: "10px",
+                          border: "none",
+                          backgroundColor: "#2563EB",
+                          color: "#FFFFFF",
+                          fontWeight: 800,
+                          fontSize: "0.85rem",
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           gap: "0.4rem",
+                          boxShadow: "0 2px 8px rgba(37, 99, 235, 0.25)",
                         }}
                       >
                         <Edit size={14} /> Quick Edit Details
