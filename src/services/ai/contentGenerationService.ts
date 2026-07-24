@@ -91,50 +91,6 @@ export function extractMovieFromFilename(input: string): { movie: string | null;
   return { movie: null, title: null };
 }
 
-const KNOWN_DIRECTORS = [
-  "Priyadarshan",
-  "Sathyan Anthikad",
-  "P. Padmarajan",
-  "Blessy",
-  "Jeethu Joseph",
-  "Amal Neerad",
-  "Lijo Jose Pellissery",
-  "Dileesh Pothan",
-  "Karthik Subbaraj",
-  "Adoor Gopalakrishnan",
-  "Sibi Malayil",
-  "Fazil",
-];
-
-function stringHash(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
-export function getProceduralFallbackMetadata(movieName: string) {
-  const seed = stringHash(movieName || "Archival Print");
-  const year = 1985 + (seed % 39); // Realistic year between 1985 and 2024
-  const directorIndex = seed % KNOWN_DIRECTORS.length;
-  const director = KNOWN_DIRECTORS[directorIndex];
-
-  const taglines = [
-    `Immortal Cinema Heritage: ${movieName}`,
-    `A Timeless Visual Masterpiece (${year})`,
-    `Capturing the Cinematic Atmosphere of ${movieName}`,
-    `Minimalist Archival Heritage: ${movieName}`,
-    `The Iconic Visual Story of ${movieName}`,
-  ];
-
-  const tagline = taglines[seed % taglines.length];
-  const story = `Immortalize the cinematic art of ${movieName} (${year}${director ? `, Dir. ${director}` : ""}). Designed for cinephiles and interior curators, this fine art print captures the visual tone and nostalgic heritage of the film in a clean minimalist aesthetic. Printed on 300 GSM heavy-weight matte paper with archival pigment inks for deep contrast and zero glare.`;
-
-  return { year, director, tagline, story };
-}
-
 export async function generateFullAIProductDraft(
   vision: VisionResult,
   options?: { tone?: string; language?: string; maxLength?: number; originalFilename?: string; imageUrl?: string }
@@ -146,7 +102,6 @@ export async function generateFullAIProductDraft(
     : null;
 
   // OCR-First Verified Database Match Strategy:
-  // If Vision didn't identify movie title directly, check OCR text strings against Verified Database
   if (!verifiedMeta && vision.visibleText && vision.visibleText.length > 0) {
     for (const text of vision.visibleText) {
       if (text && text.trim().length > 2) {
@@ -160,7 +115,6 @@ export async function generateFullAIProductDraft(
   }
 
   // Filename Fallback Match Strategy:
-  // If Vision + OCR didn't identify movie title directly, check original filename / image URL
   const filenameHint = extractMovieFromFilename(options?.originalFilename || options?.imageUrl || "");
   if (!verifiedMeta && filenameHint.movie) {
     const filenameMatch = await getVerifiedMovieMetadata(filenameHint.movie);
@@ -177,12 +131,10 @@ export async function generateFullAIProductDraft(
   const movieName = verifiedMeta?.movie || vision.movie || filenameHint.movie || null;
   const displayMovie = movieName || "Unknown Artwork";
 
-  const procedural = getProceduralFallbackMetadata(displayMovie);
-
-  const year = verifiedMeta?.year || procedural.year;
-  const director = verifiedMeta?.director || procedural.director;
-  const taglineText = verifiedMeta?.tagline || (movieName ? procedural.tagline : "Archival Fine Art Collectible Print.");
-  const storyText = verifiedMeta?.story || (movieName ? procedural.story : "Collectible 300 GSM archival fine art print. Designed for film enthusiasts and interior curators.");
+  const year = verifiedMeta?.year || 2024;
+  const director = verifiedMeta?.director || "Polacraft Studio";
+  const taglineText = verifiedMeta?.tagline || (movieName ? `${movieName}: Iconic Archival Heritage` : "Archival Fine Art Collectible Print.");
+  const storyText = verifiedMeta?.story || (movieName ? `Handcrafted 300 GSM archival fine art print celebrating ${movieName}. Printed on heavyweight matte paper with protective sleeve & rigid backing.` : "Collectible 300 GSM archival fine art print. Designed for film enthusiasts and interior curators.");
 
   const cast = verifiedMeta?.cast || (vision.actor ? [vision.actor] : []);
   const genre = verifiedMeta?.genre || null;

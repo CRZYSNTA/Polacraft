@@ -409,39 +409,54 @@ export async function fetchLiveWikipediaMovieMetadata(movieTitle: string): Promi
   const cleanTitle = movieTitle.trim();
 
   try {
-    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanTitle + " film")}&utf8=1&format=json&origin=*`;
-    const res = await fetch(wikiUrl);
-    if (!res.ok) return null;
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanTitle + " film")}&utf8=1&format=json&origin=*`;
+    const searchRes = await fetch(searchUrl);
+    if (!searchRes.ok) return null;
 
-    const data = await res.json();
-    const searchResults = data?.query?.search;
+    const searchData = await searchRes.json();
+    const searchResults = searchData?.query?.search;
     if (!searchResults || searchResults.length === 0) return null;
 
-    // Pick top matching film result
-    const topResult = searchResults.find(
+    const topMatch = searchResults.find(
       (r: any) =>
         r.snippet.toLowerCase().includes("film") ||
         r.snippet.toLowerCase().includes("directed") ||
         r.title.toLowerCase().includes("film")
     ) || searchResults[0];
 
-    const title = topResult.title.replace(/\s*\([^)]*film[^)]*\)/gi, "").trim();
-    const rawSnippet = topResult.snippet.replace(/<[^>]*>/g, ""); // Strip HTML tags
+    // Query Wikipedia REST Summary API for exact clean page extract & description
+    const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topMatch.title)}`;
+    const summaryRes = await fetch(summaryUrl);
+    
+    let summaryExtract = topMatch.snippet.replace(/<[^>]*>/g, "");
+    let descriptionText = "";
+
+    if (summaryRes.ok) {
+      const summaryData = await summaryRes.json();
+      if (summaryData.extract) {
+        summaryExtract = summaryData.extract;
+      }
+      if (summaryData.description) {
+        descriptionText = summaryData.description;
+      }
+    }
+
+    const fullText = `${descriptionText} ${summaryExtract}`;
+    const cleanMovieName = topMatch.title.replace(/\s*\([^)]*\)/gi, "").trim();
 
     // Extract Release Year (4 digits like 1992, 2024)
-    const yearMatch = rawSnippet.match(/\b(19[5-9]\d|20[0-2]\d)\b/);
-    const year = yearMatch ? parseInt(yearMatch[1], 10) : 2020;
+    const yearMatch = fullText.match(/\b(19[5-9]\d|20[0-2]\d)\b/);
+    const year = yearMatch ? parseInt(yearMatch[1], 10) : 2024;
 
     // Extract Director (Pattern: "directed by [Name]")
-    const dirMatch = rawSnippet.match(/directed by ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
+    const dirMatch = fullText.match(/directed by ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/i);
     const director = dirMatch ? dirMatch[1] : "Polacraft Studio";
 
-    // Dynamic authentic tagline & plot summary from snippet
-    const tagline = `${title}: A Landmark ${year} Cinematic Masterpiece`;
-    const story = `${rawSnippet.trim()} Designed for cinephiles and interior curators, this fine art print captures the visual tone and nostalgic heritage of ${title} (${year}, Dir. ${director}).`;
+    const tagline = `${cleanMovieName}: Iconic ${year} Cinema Heritage`;
+    const story = `${summaryExtract} Designed for film enthusiasts and interior curators, this 300 GSM fine art print celebrates the visual tone of ${cleanMovieName} (${year}, Dir. ${director}).`;
 
     return {
-      movie: title || cleanTitle,
+      movie: cleanMovieName || cleanTitle,
       year: year,
       director: director,
       cast: [],
@@ -449,12 +464,12 @@ export async function fetchLiveWikipediaMovieMetadata(movieTitle: string): Promi
       language: "Indian Cinema",
       tagline: tagline,
       story: story,
-      collectionSuggestions: [title || cleanTitle, "Cinema Classics"],
-      tags: [title || cleanTitle, String(year)].filter(Boolean),
+      collectionSuggestions: [cleanMovieName || cleanTitle, "Cinema Classics"],
+      tags: [cleanMovieName || cleanTitle, String(year)].filter(Boolean),
       verified: true,
     };
   } catch (err) {
-    console.warn("Wikipedia live lookup failed:", err);
+    console.warn("Wikipedia REST lookup failed:", err);
   }
 
   return null;
