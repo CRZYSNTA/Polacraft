@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Script from "next/script";
 import { ShieldCheck, Mail, Lock, User, Phone, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function CustomerLoginPage() {
@@ -119,6 +120,7 @@ export default function CustomerLoginPage() {
 
   return (
     <div style={{ minHeight: "100vh", paddingTop: "120px", paddingBottom: "80px", backgroundColor: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
       <div style={{ width: "100%", maxWidth: "460px", margin: "0 auto", padding: "0 1.5rem" }}>
         
         {/* POLACRAFT BRANDING */}
