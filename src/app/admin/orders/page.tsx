@@ -288,7 +288,7 @@ export default function AdminOrdersPage() {
                 <th style={{ padding: "1rem" }}>Total</th>
                 <th style={{ padding: "1rem" }}>Fulfillment</th>
                 <th style={{ padding: "1rem" }}>Payment Status</th>
-                <th style={{ padding: "1rem", textAlign: "right" }}>Actions</th>
+                <th style={{ padding: "1rem", textAlign: "right", minWidth: "270px" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -363,7 +363,7 @@ export default function AdminOrdersPage() {
                     </td>
 
                     <td style={{ padding: "1rem", textAlign: "right" }}>
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.4rem" }}>
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.4rem", flexWrap: "wrap" }}>
                         <button
                           onClick={() => handleOpenWhatsAppChat(order.phone, order.orderNumber)}
                           style={{
@@ -699,6 +699,38 @@ export default function AdminOrdersPage() {
                     {isPending ? <Loader2 size={16} className="animate-spin" /> : "Update Fulfillment Status"}
                   </button>
                 </form>
+
+                {/* Danger Zone: Permanent Order Deletion */}
+                <div style={{ backgroundColor: "#FEF2F2", padding: "1.25rem", borderRadius: "16px", border: "1.5px solid #FCA5A5", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  <h4 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 800, color: "#DC2626", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Trash2 size={18} /> Danger Zone: Delete Order
+                  </h4>
+                  <p style={{ margin: 0, fontSize: "0.8rem", color: "#991B1B" }}>
+                    Permanently delete Order #{selectedOrder.orderNumber} from the database.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteOrder(selectedOrder.id, selectedOrder.orderNumber)}
+                    disabled={isPending}
+                    style={{
+                      padding: "0.75rem",
+                      borderRadius: "10px",
+                      border: "none",
+                      backgroundColor: "#DC2626",
+                      color: "#FFF",
+                      fontWeight: 800,
+                      fontSize: "0.85rem",
+                      cursor: isPending ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.5rem",
+                    }}
+                  >
+                    {isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                    Delete Order Permanently
+                  </button>
+                </div>
 
                 {/* Audit Log Timeline */}
                 <div>
