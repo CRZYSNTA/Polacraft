@@ -23,7 +23,7 @@ export default function CustomerProfilePage() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/auth/me");
+      const res = await fetch(`/api/auth/me?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       if (res.ok && data.authenticated && data.user) {
         setUser(data.user);
