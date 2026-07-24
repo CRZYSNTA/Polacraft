@@ -69,13 +69,21 @@ export async function saveProductAction(input: ProductInput) {
       }
     }
 
+    // Guarantee Collection foreign key exists in PostgreSQL
+    const targetCollectionName = input.collectionName || "Classic Malayalam";
+    await prisma.collection.upsert({
+      where: { name: targetCollectionName },
+      update: {},
+      create: { name: targetCollectionName, description: `${targetCollectionName} Poster Collection` },
+    });
+
     const dataPayload = {
       title: input.title,
       slug: finalSlug,
       film: input.film,
       year: Number(input.year),
       director: input.director,
-      collectionName: input.collectionName,
+      collectionName: targetCollectionName,
       genre: input.genre,
       price: Number(input.price),
       inventory: Number(input.inventory),
@@ -601,20 +609,28 @@ export async function deleteOrderAction(orderId: string) {
 
 export async function bulkSaveProductsAction(inputs: ProductInput[]) {
   const session = await requireAdminSession();
-  if (!session) return { success: false, error: "Unauthorized" };
+  if (!session) return { success: false, error: "Unauthorized session" };
 
   try {
     const createdProducts = [];
+    const errors: string[] = [];
+
     for (const input of inputs) {
       const res = await saveProductAction(input);
       if (res.success && res.product) {
         createdProducts.push(res.product);
+      } else if (res.error) {
+        errors.push(res.error);
       }
     }
 
     revalidatePath("/admin/products");
     revalidatePath("/shop");
     revalidatePath("/");
+
+    if (createdProducts.length === 0 && errors.length > 0) {
+      return { success: false, error: errors[0], count: 0, products: [] };
+    }
 
     return { success: true, count: createdProducts.length, products: createdProducts };
   } catch (error: any) {

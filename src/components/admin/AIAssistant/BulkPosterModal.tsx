@@ -219,14 +219,14 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
 
       const res = await bulkSaveProductsAction(inputs);
 
-      if (res.success) {
+      if (res.success && res.count > 0) {
         alert(`Success! Successfully created and published ${res.count} poster products.`);
         setGeneratedDrafts([]);
         setBatchDrafts([]);
         onSuccess();
         onClose();
       } else {
-        alert("Bulk Publish Error: " + (res.error || "Failed to publish products"));
+        alert("Bulk Publish Error: " + (res.error || "0 products were saved. Please check poster details and try again."));
       }
     });
   };
