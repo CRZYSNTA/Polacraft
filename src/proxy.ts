@@ -3,49 +3,52 @@ import type { NextRequest } from "next/server";
 import { verifySessionToken, SESSION_COOKIE_NAME } from "./lib/session";
 
 /**
- * Next.js 16 Edge Proxy to enforce authentication and authorization for admin routes.
- * Executed before rendering any /admin/* route.
+ * Next.js 16 Edge Proxy to enforce authentication and authorization for account and admin routes.
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Only intercept /admin routes
-  if (!pathname.startsWith("/admin")) {
-    return NextResponse.next();
-  }
+  // Session tokens check
+  const sessionToken =
+    request.cookies.get("authjs.session-token")?.value ||
+    request.cookies.get("__Secure-authjs.session-token")?.value ||
+    request.cookies.get("next-auth.session-token")?.value ||
+    request.cookies.get("__Secure-next-auth.session-token")?.value ||
+    request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const session = token ? await verifySessionToken(token) : null;
+  const isAccountRoute = pathname.startsWith("/account");
+  const isAdminRoute = pathname.startsWith("/admin");
 
-  // Route 1: /admin/login
-  if (pathname === "/admin/login") {
-    // If user is already authenticated as ADMIN, redirect to /admin dashboard
-    if (session && (session.role === "ADMIN" || session.role === "SUPER_ADMIN")) {
-      return NextResponse.redirect(new URL("/admin", request.url));
-    }
-    // Allow login page access
-    return NextResponse.next();
-  }
-
-  // Route 2: Any other /admin/* route
-  // Unauthenticated user -> redirect to /admin/login
-  if (!session) {
-    const loginUrl = new URL("/admin/login", request.url);
+  // 1. Protect /account customer routes
+  if (isAccountRoute && !sessionToken) {
+    const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Authenticated non-admin user (e.g. CUSTOMER) -> redirect to storefront /
-  if (session.role !== "ADMIN" && session.role !== "SUPER_ADMIN") {
-    return NextResponse.redirect(new URL("/", request.url));
+  // 2. Protect /admin routes
+  if (isAdminRoute) {
+    if (pathname === "/admin/login") {
+      const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+      const session = token ? await verifySessionToken(token) : null;
+      if (session && (session.role === "ADMIN" || session.role === "SUPER_ADMIN" || session.role === "STAFF")) {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+      return NextResponse.next();
+    }
+
+    if (!sessionToken) {
+      const adminLoginUrl = new URL("/admin/login", request.url);
+      adminLoginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(adminLoginUrl);
+    }
   }
 
-  // Authorized ADMIN user -> allow access
   return NextResponse.next();
 }
 
 export default proxy;
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/account/:path*", "/admin/:path*"],
 };
