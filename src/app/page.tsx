@@ -88,7 +88,7 @@ export default function Home() {
   const [livePosters, setLivePosters] = useState<Product[]>(staticPosters);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch actual DB products on load and sort original launch posters first
+  // Fetch actual DB products on load and ensure original launch posters remain at top
   useEffect(() => {
     async function fetchLiveCatalog() {
       try {
@@ -98,28 +98,16 @@ export default function Home() {
           if (data.products && Array.isArray(data.products)) {
             const mapped = data.products.map(mapDbProductToPoster);
             
-            // Classic launch poster priority slugs
-            const launchSlugs = [
-              "manichitrathazhu",
-              "kumbalangi-nights",
-              "aavesham",
-              "thoovanathumbikal",
-              "spadikam",
-              "premam",
-              "sandesham",
-              "mathilukal",
-              "kireedam"
-            ];
+            // 1. Start with the original 9 launch posters
+            const launchSlugs = staticPosters.map((p) => p.slug.toLowerCase());
 
-            const sorted = mapped.sort((a: Product, b: Product) => {
-              const rankA = launchSlugs.indexOf(a.slug.toLowerCase());
-              const rankB = launchSlugs.indexOf(b.slug.toLowerCase());
-              const weightA = rankA !== -1 ? rankA : 999;
-              const weightB = rankB !== -1 ? rankB : 999;
-              return weightA - weightB;
-            });
+            // 2. Filter DB products that are NOT already in static launch posters
+            const extraDbProducts = mapped.filter(
+              (p) => !launchSlugs.includes(p.slug.toLowerCase())
+            );
 
-            setLivePosters(sorted);
+            // 3. Combine: Original Launch Posters FIRST, followed by extra DB posters
+            setLivePosters([...staticPosters, ...extraDbProducts]);
           }
         }
       } catch (e) {
