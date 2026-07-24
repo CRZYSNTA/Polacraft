@@ -3,11 +3,13 @@
 import React, { useContext, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { AppContext } from "../features/cart/AppContext";
-import { Search, Heart, ShoppingBag, Menu, X, User } from "lucide-react";
+import { Search, Heart, ShoppingBag, Menu, X, User, LogOut } from "lucide-react";
 
 export const Navbar = () => {
   const { cartItemCount, wishlist, setCartOpen } = useContext(AppContext);
+  const { data: session } = useSession();
   const pathname = usePathname();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -195,14 +197,60 @@ export const Navbar = () => {
             )}
           </button>
 
-          {/* User Account */}
-          <Link
-            href="/profile"
-            style={{ cursor: "pointer", color: "var(--text-dark)", padding: "4px" }}
-            aria-label="User Account"
-          >
-            <User size={18} />
-          </Link>
+          {/* User Account / Session Auth Links */}
+          {session?.user ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <Link
+                href="/account"
+                style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", textDecoration: "none" }}
+                aria-label="User Account"
+              >
+                {session.user.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name || "User"}
+                    style={{ width: "24px", height: "24px", borderRadius: "50%", border: "1px solid #D4AF37", objectFit: "cover" }}
+                  />
+                ) : (
+                  <User size={18} style={{ color: "var(--text-dark)" }} />
+                )}
+                <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#111111" }}>
+                  {session.user.name ? session.user.name.split(" ")[0] : "Account"}
+                </span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "#666", padding: "2px" }}
+                title="Sign Out"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <Link
+                href="/login"
+                style={{ fontSize: "0.82rem", fontWeight: 700, color: "#111111", textDecoration: "none" }}
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/login"
+                style={{
+                  fontSize: "0.82rem",
+                  fontWeight: 800,
+                  color: "#FFFFFF",
+                  backgroundColor: "#111111",
+                  padding: "0.35rem 0.75rem",
+                  borderRadius: "8px",
+                  textDecoration: "none"
+                }}
+              >
+                Register
+              </Link>
+            </div>
+          )}
 
           {/* Mobile Menu Toggle */}
           <button

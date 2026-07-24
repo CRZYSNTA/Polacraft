@@ -70,7 +70,7 @@ export async function GET(req: Request) {
         name: name ? name.trim() : "Google Collector",
         avatar: avatar,
         role: "CUSTOMER",
-        emailVerified: true,
+        emailVerified: new Date(),
       },
     });
 

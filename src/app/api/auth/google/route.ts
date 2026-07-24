@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         name: name ? name.trim() : "Google Collector",
         avatar: avatar || null,
         role: "CUSTOMER",
-        emailVerified: true,
+        emailVerified: new Date(),
       },
     });
 

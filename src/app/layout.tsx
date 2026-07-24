@@ -33,12 +33,15 @@ export const metadata = {
   }
 };
 
+import AuthSessionProvider from "../components/SessionProvider";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSerif.variable}`} suppressHydrationWarning>
       <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh", position: "relative" }} suppressHydrationWarning>
-        <AuthProvider>
-          <AppProvider>
+        <AuthSessionProvider>
+          <AuthProvider>
+            <AppProvider>
             {/* Dynamic Organization & SearchAction Schemas */}
             <OrganizationSchema />
             <WebSiteSearchSchema />
@@ -70,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <QuickViewModal />
           </AppProvider>
         </AuthProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

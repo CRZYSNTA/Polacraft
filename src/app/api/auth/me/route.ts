@@ -1,23 +1,31 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { getCustomerSession } from "@/lib/session/customerSession";
 
 export async function GET() {
   try {
-    const session = await getCustomerSession();
+    const nextAuthSession = await auth();
+    let targetUserId = nextAuthSession?.user?.id;
 
-    if (!session || !session.userId) {
+    if (!targetUserId) {
+      const customSession = await getCustomerSession();
+      targetUserId = customSession?.userId;
+    }
+
+    if (!targetUserId) {
       return NextResponse.json({ authenticated: false, user: null });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: session.userId },
+      where: { id: targetUserId },
       select: {
         id: true,
         email: true,
         name: true,
         phone: true,
         avatar: true,
+        image: true,
         role: true,
         loyaltyPoints: true,
         createdAt: true,
