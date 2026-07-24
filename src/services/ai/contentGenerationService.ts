@@ -262,3 +262,111 @@ Return a SINGLE, valid JSON object matching this schema EXACTLY:
 
   return fallbackData;
 }
+
+export interface BulkPosterConcept {
+  title: string;
+  slug: string;
+  film: string;
+  year: number;
+  director: string;
+  cast: string[];
+  genre: string;
+  collectionName: string;
+  tagline: string;
+  story: string;
+  designNotes: string;
+  price: number;
+  inventory: number;
+  primaryColor: string;
+  accentColor: string;
+  bgColor: string;
+  textColor: string;
+  gsm: number;
+  finish: string;
+  paperType: string;
+  imageUrl?: string;
+}
+
+export async function generateBulkCollectionDrafts(
+  query: string,
+  count: number = 5,
+  collectionName: string = "Classic Malayalam"
+): Promise<BulkPosterConcept[]> {
+  const provider = getAIProvider();
+
+  const prompt = `You are a master cinema archivist for Polacraft Studio.
+Generate a collection of ${count} distinct fine art poster product concepts for: "${query}".
+- If "${query}" is a movie name (e.g. Drishyam, Lucifer, Premam, Aavesham), generate ${count} unique poster variant designs (e.g. Minimalist Keyframe, Character Focus, Vintage Typographic Edition, Symbol/Item Focus, Dramatic Climax Art).
+- If "${query}" is an actor or director (e.g. Mohanlal, Fahadh Faasil, Mammootty, Prithviraj), generate poster concepts for ${count} of their landmark film masterpieces.
+
+For each poster concept, return a JSON object with:
+- title: string (e.g. "Drishyam - Georgekutty Minimalist Archival Print")
+- slug: string (kebab-case slug)
+- film: string (Movie name and release year, e.g. "Drishyam (2013)")
+- year: number (release year)
+- director: string (director name)
+- cast: array of strings (leading actors)
+- genre: string (e.g. "Psychological Thriller")
+- collectionName: string ("${collectionName}")
+- tagline: string (memorable dialogue or tagline)
+- story: string (2-3 sentences of atmospheric movie background)
+- designNotes: string (visual composition details of this poster)
+- price: number (integer e.g. 49, 79, or 99)
+- inventory: number (integer 20-50)
+- primaryColor: string (HEX code e.g. "#1E293B")
+- accentColor: string (HEX code e.g. "#E2E8F0")
+- bgColor: string (HEX code e.g. "#FAFAF8")
+- textColor: string (HEX code e.g. "#0F172A")
+- gsm: number (300)
+- finish: string ("Ultra-Matte Giclée")
+- paperType: string ("Fine Art Cotton Archival")
+
+Return JSON array of ${count} items.`;
+
+  if (provider.isAvailable()) {
+    try {
+      const res = await provider.generateStructuredData<{ concepts: BulkPosterConcept[] }>({
+        prompt,
+        schemaDescription: "Array of poster concepts under 'concepts' property",
+        fallback: { concepts: [] }
+      });
+
+      if (res.success && Array.isArray(res.data?.concepts) && res.data.concepts.length > 0) {
+        return res.data.concepts;
+      }
+    } catch (e) {
+      console.warn("[generateBulkCollectionDrafts error]:", e);
+    }
+  }
+
+  // Pure procedural fallback if provider fails or unavailable
+  const fallbackConcepts: BulkPosterConcept[] = [];
+  const cleanQuery = query.trim();
+  for (let i = 1; i <= count; i++) {
+    const slug = `${cleanQuery.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-edition-${i}`;
+    fallbackConcepts.push({
+      title: `${cleanQuery} - Archival Poster Edition #${i}`,
+      slug,
+      film: `${cleanQuery}`,
+      year: 2020,
+      director: "Polacraft Studio",
+      cast: [cleanQuery],
+      genre: "Cinema Art",
+      collectionName: collectionName,
+      tagline: `Immortalize the cinematic aura of ${cleanQuery}.`,
+      story: `Archival fine art print celebrating ${cleanQuery}. Museum-quality cotton paper print.`,
+      designNotes: "High-contrast vector composition on 300 GSM cotton archival paper.",
+      price: 49,
+      inventory: 25,
+      primaryColor: "#1E293B",
+      accentColor: "#E2E8F0",
+      bgColor: "#FAFAF8",
+      textColor: "#0F172A",
+      gsm: 300,
+      finish: "Ultra-Matte Giclée",
+      paperType: "Fine Art Cotton Archival",
+    });
+  }
+
+  return fallbackConcepts;
+}

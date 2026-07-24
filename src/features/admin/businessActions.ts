@@ -578,3 +578,27 @@ export async function deleteOrderAction(orderId: string) {
     return { success: false, error: error.message || "Failed to delete order." };
   }
 }
+
+export async function bulkSaveProductsAction(inputs: ProductInput[]) {
+  const session = await requireAdminSession();
+  if (!session) return { success: false, error: "Unauthorized" };
+
+  try {
+    const createdProducts = [];
+    for (const input of inputs) {
+      const res = await saveProductAction(input);
+      if (res.success && res.product) {
+        createdProducts.push(res.product);
+      }
+    }
+
+    revalidatePath("/admin/products");
+    revalidatePath("/shop");
+    revalidatePath("/");
+
+    return { success: true, count: createdProducts.length, products: createdProducts };
+  } catch (error: any) {
+    console.error("[bulkSaveProductsAction Error]:", error);
+    return { success: false, error: error.message || "Failed to bulk save products" };
+  }
+}

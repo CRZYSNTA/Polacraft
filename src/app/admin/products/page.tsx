@@ -22,8 +22,10 @@ import {
   ArrowUp,
   ArrowDown,
   Layers,
+  Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import BulkPosterModal from "@/components/admin/AIAssistant/BulkPosterModal";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -37,6 +39,7 @@ export default function AdminProductsPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
 
   // Form Fields
@@ -313,25 +316,46 @@ export default function AdminProductsPage() {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenCreate}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            backgroundColor: "#10B981",
-            color: "#FFF",
-            border: "none",
-            borderRadius: "12px",
-            padding: "0.75rem 1.25rem",
-            fontSize: "0.9rem",
-            fontWeight: "700",
-            cursor: "pointer",
-            boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
-          }}
-        >
-          <Plus size={18} /> Add New Product
-        </button>
+        <div style={{ display: "flex", gap: "0.75rem" }}>
+          <button
+            onClick={() => setIsBulkModalOpen(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              background: "linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)",
+              color: "#FFF",
+              border: "none",
+              borderRadius: "12px",
+              padding: "0.75rem 1.25rem",
+              fontSize: "0.9rem",
+              fontWeight: "800",
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(139, 92, 246, 0.35)",
+            }}
+          >
+            <Sparkles size={18} /> Bulk AI Creator
+          </button>
+          <button
+            onClick={handleOpenCreate}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              backgroundColor: "#10B981",
+              color: "#FFF",
+              border: "none",
+              borderRadius: "12px",
+              padding: "0.75rem 1.25rem",
+              fontSize: "0.9rem",
+              fontWeight: "700",
+              cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
+            }}
+          >
+            <Plus size={18} /> Add New Product
+          </button>
+        </div>
       </div>
 
       {/* Variants & Framing Banner */}
@@ -830,6 +854,13 @@ export default function AdminProductsPage() {
           </div>
         </div>
       )}
+
+      {/* ✨ BULK POSTER CREATOR & IMPORTER MODAL */}
+      <BulkPosterModal
+        isOpen={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        onSuccess={fetchProducts}
+      />
     </div>
   );
 }
