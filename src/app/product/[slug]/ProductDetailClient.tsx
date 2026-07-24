@@ -19,6 +19,16 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
   const [quantity, setQuantity] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"story" | "quality" | "care">("story");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 900);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Zoom magnifier states
   const [zoomStyle, setZoomStyle] = useState({ transform: "scale(1)", transformOrigin: "center" });
@@ -94,15 +104,15 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
   };
 
   return (
-    <div style={{ paddingTop: "140px", paddingBottom: "100px" }}>
+    <div style={{ paddingTop: isMobile ? "90px" : "140px", paddingBottom: "100px" }}>
       <div className="container">
         
         {/* TOP LAYOUT: GALLERY + STICKY INFO */}
         <div 
           style={{
             display: "grid",
-            gridTemplateColumns: "1.1fr 1fr",
-            gap: "4rem",
+            gridTemplateColumns: isMobile ? "1fr" : "1.1fr 1fr",
+            gap: isMobile ? "2rem" : "4rem",
             alignItems: "start",
             marginBottom: "5rem"
           }}
@@ -111,10 +121,10 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
           {/* LEFT: IMMERSIVE PREVIEW CARD WITH HOVER ZOOM */}
           <div 
             style={{
-              position: "sticky",
-              top: "120px",
+              position: isMobile ? "relative" : "sticky",
+              top: isMobile ? "0px" : "120px",
               backgroundColor: "var(--accent-beige)",
-              padding: "5rem 4rem",
+              padding: isMobile ? "2rem 1rem" : "5rem 4rem",
               borderRadius: "var(--radius-md)",
               display: "flex",
               alignItems: "center",
@@ -146,13 +156,13 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
             <span 
               style={{
                 position: "absolute",
-                bottom: "1.5rem",
+                bottom: "1rem",
                 left: "50%",
                 transform: "translateX(-50%)",
                 fontSize: "0.75rem",
                 color: "var(--text-muted)",
                 backgroundColor: "#FFFFFF",
-                padding: "0.5rem 1rem",
+                padding: "0.4rem 0.9rem",
                 borderRadius: "15px",
                 boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
                 fontWeight: "600",
@@ -161,7 +171,7 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
                 gap: "0.4rem"
               }}
             >
-              <ZoomIn size={12} /> Hover to zoom details
+              <ZoomIn size={12} /> {isMobile ? "Tap to inspect details" : "Hover to zoom details"}
             </span>
           </div>
 
@@ -214,7 +224,7 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
               
               <h1 
                 style={{
-                  fontSize: "3.25rem",
+                  fontSize: isMobile ? "2rem" : "3.25rem",
                   fontWeight: "800",
                   letterSpacing: "-0.03em",
                   marginTop: "0.25rem",
