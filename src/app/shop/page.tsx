@@ -5,7 +5,7 @@ import { AppContext } from "../../features/cart/AppContext";
 import PosterRenderer from "../../components/PosterRenderer";
 import { posters as staticPosters, collections as staticCollections, sizes } from "../../lib/cms/products";
 import { Product } from "../../types";
-import { Filter, Search, Heart, ShoppingBag, Eye, X, LayoutGrid, Compass, BookOpen } from "lucide-react";
+import { Filter, Search, Heart, ShoppingBag, Eye, X, LayoutGrid, Compass, BookOpen, SlidersHorizontal } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const STATIC_POSTER_MAP: Record<string, string> = {
@@ -92,7 +92,23 @@ function ShopContent() {
   const [viewMode, setViewMode] = useState("shop"); // "shop", "gallery", or "story"
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [isMobile, setIsMobile] = useState(false);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [cardSizes, setCardSizes] = useState<Record<string, string>>({});
+  const itemsPerPage = 12;
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const handleCardSizeChange = (posterId: string, sizeId: string) => {
+    setCardSizes((prev) => ({ ...prev, [posterId]: sizeId }));
+  };
 
   const [activeFilters, setActiveFilters] = useState({
     collection: initialFilter ? `${initialFilter} Malayalam` : "All Collections",
@@ -206,16 +222,16 @@ function ShopContent() {
   };
 
   return (
-    <div style={{ paddingTop: "140px", paddingBottom: "100px", minHeight: "100vh" }}>
+    <div style={{ paddingTop: isMobile ? "90px" : "140px", paddingBottom: "100px", minHeight: "100vh" }}>
       <div className="container">
         
         {/* EDITORIAL HEADER & TOGGLE */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "4rem" }} className="shop-header">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: isMobile ? "1.5rem" : "4rem" }} className="shop-header">
           <div>
             <span style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--text-muted)", fontWeight: "600" }}>
               The Catalog ({posters.length} Posters Available)
             </span>
-            <h1 style={{ fontSize: "3.5rem", fontWeight: "800", letterSpacing: "-0.04em", marginTop: "0.5rem" }}>
+            <h1 style={{ fontSize: isMobile ? "2.25rem" : "3.5rem", fontWeight: "800", letterSpacing: "-0.04em", marginTop: "0.5rem" }}>
               Fine Art Exhibition
             </h1>
           </div>
@@ -286,6 +302,129 @@ function ShopContent() {
             </button>
           </div>
         </div>
+
+        {/* MOBILE SUB-BAR: Filter and sort (Matching Reference Image 1) */}
+        {isMobile && viewMode === "shop" && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.85rem 0", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0", marginBottom: "1.5rem" }}>
+            <button
+              onClick={() => setIsFilterDrawerOpen(true)}
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "none", border: "none", fontSize: "0.95rem", fontWeight: 700, color: "#111111", cursor: "pointer" }}
+            >
+              <SlidersHorizontal size={18} /> Filter and sort
+            </button>
+
+            <span style={{ fontSize: "0.85rem", color: "#64748B", fontWeight: 600 }}>
+              {sortedPosters.length} products
+            </span>
+          </div>
+        )}
+
+        {/* MOBILE FILTER DRAWER OVERLAY */}
+        {isFilterDrawerOpen && (
+          <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.6)", zIndex: 9999, display: "flex", justifyContent: "flex-end" }} onClick={() => setIsFilterDrawerOpen(false)}>
+            <div style={{ width: "85%", maxWidth: "380px", height: "100%", backgroundColor: "#FFFFFF", padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #E2E8F0", paddingBottom: "1rem" }}>
+                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <SlidersHorizontal size={18} /> Filter and Sort
+                </h3>
+                <button onClick={() => setIsFilterDrawerOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px" }}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Search */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", color: "#64748B" }}>Search Title / Cast</label>
+                <div style={{ position: "relative" }}>
+                  <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#64748B" }} />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search posters..."
+                    style={{ width: "100%", padding: "0.6rem 0.6rem 0.6rem 2.2rem", fontSize: "0.85rem", border: "1.5px solid #CBD5E1", borderRadius: "10px" }}
+                  />
+                </div>
+              </div>
+
+              {/* Collection */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", color: "#64748B" }}>Collection</label>
+                <select
+                  value={activeFilters.collection}
+                  onChange={(e) => handleFilterChange("collection", e.target.value)}
+                  style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1.5px solid #CBD5E1", fontSize: "0.85rem", backgroundColor: "#FFF" }}
+                >
+                  {staticCollections.map((col) => (
+                    <option key={col} value={col}>{col}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Featured Cast */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", color: "#64748B" }}>Featured Cast</label>
+                <select
+                  value={activeFilters.actor}
+                  onChange={(e) => handleFilterChange("actor", e.target.value)}
+                  style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1.5px solid #CBD5E1", fontSize: "0.85rem", backgroundColor: "#FFF" }}
+                >
+                  {uniqueActors.map((act) => (
+                    <option key={act} value={act}>{act}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Director */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", color: "#64748B" }}>Director</label>
+                <select
+                  value={activeFilters.director}
+                  onChange={(e) => handleFilterChange("director", e.target.value)}
+                  style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1.5px solid #CBD5E1", fontSize: "0.85rem", backgroundColor: "#FFF" }}
+                >
+                  {uniqueDirectors.map((dir) => (
+                    <option key={dir} value={dir}>{dir}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sort By */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", color: "#64748B" }}>Sort By</label>
+                <select
+                  value={activeFilters.sort}
+                  onChange={(e) => handleFilterChange("sort", e.target.value)}
+                  style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1.5px solid #CBD5E1", fontSize: "0.85rem", backgroundColor: "#FFF" }}
+                >
+                  <option value="default">Default Curation</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="year-desc">Year: New to Old</option>
+                  <option value="year-asc">Year: Old to New</option>
+                </select>
+              </div>
+
+              {/* Drawer Footer Buttons */}
+              <div style={{ marginTop: "auto", display: "flex", gap: "0.75rem", paddingTop: "1rem", borderTop: "1px solid #E2E8F0" }}>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  style={{ flex: 1, padding: "0.75rem", borderRadius: "10px", border: "1px solid #CBD5E1", background: "#FFF", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Clear All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsFilterDrawerOpen(false)}
+                  style={{ flex: 1, padding: "0.75rem", borderRadius: "10px", border: "none", background: "#111111", color: "#FFF", fontWeight: 800, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 1. EDITORIAL STORY VIEW */}
         {viewMode === "story" ? (
@@ -420,171 +559,173 @@ function ShopContent() {
           <div 
             style={{
               display: "grid",
-              gridTemplateColumns: "260px 1fr",
-              gap: "3.5rem"
+              gridTemplateColumns: isMobile ? "1fr" : "260px 1fr",
+              gap: isMobile ? "1rem" : "3.5rem"
             }}
             className="shop-main-grid"
           >
-            {/* FILTER SIDEBAR */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }} className="shop-sidebar">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-color)", paddingBottom: "1rem" }}>
-                <h3 style={{ fontSize: "1.25rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <Filter size={18} /> Filters
-                </h3>
-                <button 
-                  onClick={handleClearFilters}
-                  style={{ fontSize: "0.8rem", color: "var(--text-muted)", cursor: "pointer" }}
-                  className="underline-hover"
-                >
-                  Clear All
-                </button>
-              </div>
+            {/* DESKTOP FILTER SIDEBAR */}
+            {!isMobile && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }} className="shop-sidebar">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-color)", paddingBottom: "1rem" }}>
+                  <h3 style={{ fontSize: "1.25rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Filter size={18} /> Filters
+                  </h3>
+                  <button 
+                    onClick={handleClearFilters}
+                    style={{ fontSize: "0.8rem", color: "var(--text-muted)", cursor: "pointer" }}
+                    className="underline-hover"
+                  >
+                    Clear All
+                  </button>
+                </div>
 
-              {/* Search */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                  Search Title / Cast
-                </span>
-                <div style={{ position: "relative" }}>
-                  <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search posters..."
+                {/* Search */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                    Search Title / Cast
+                  </span>
+                  <div style={{ position: "relative" }}>
+                    <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search posters..."
+                      style={{
+                        width: "100%",
+                        padding: "0.6rem 0.6rem 0.6rem 2.2rem",
+                        fontSize: "0.85rem",
+                        border: "1.5px solid var(--border-color)",
+                        borderRadius: "12px",
+                        backgroundColor: "#FFFFFF"
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Collection */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                    Collection
+                  </span>
+                  <select
+                    value={activeFilters.collection}
+                    onChange={(e) => handleFilterChange("collection", e.target.value)}
                     style={{
                       width: "100%",
-                      padding: "0.6rem 0.6rem 0.6rem 2.2rem",
-                      fontSize: "0.85rem",
-                      border: "1.5px solid var(--border-color)",
+                      padding: "0.75rem 1rem",
                       borderRadius: "12px",
-                      backgroundColor: "#FFFFFF"
+                      border: "1.5px solid var(--border-color)",
+                      backgroundColor: "#FFFFFF",
+                      fontSize: "0.85rem",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {staticCollections.map((col) => (
+                      <option key={col} value={col}>{col}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Actor */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                    Featured Cast
+                  </span>
+                  <select
+                    value={activeFilters.actor}
+                    onChange={(e) => handleFilterChange("actor", e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.75rem 1rem",
+                      borderRadius: "12px",
+                      border: "1.5px solid var(--border-color)",
+                      backgroundColor: "#FFFFFF",
+                      fontSize: "0.85rem",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {uniqueActors.map((act) => (
+                      <option key={act} value={act}>{act}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Director */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                    Director
+                  </span>
+                  <select
+                    value={activeFilters.director}
+                    onChange={(e) => handleFilterChange("director", e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.75rem 1rem",
+                      borderRadius: "12px",
+                      border: "1.5px solid var(--border-color)",
+                      backgroundColor: "#FFFFFF",
+                      fontSize: "0.85rem",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {uniqueDirectors.map((dir) => (
+                      <option key={dir} value={dir}>{dir}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Price range */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                      Max Price
+                    </span>
+                    <span style={{ fontSize: "0.85rem", fontWeight: "600", marginLeft: "auto" }}>₹{activeFilters.priceRange}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="30"
+                    max="500"
+                    step="10"
+                    value={activeFilters.priceRange}
+                    onChange={(e) => handleFilterChange("priceRange", Number(e.target.value))}
+                    style={{
+                      width: "100%",
+                      cursor: "pointer",
+                      accentColor: "var(--accent-charcoal)"
                     }}
                   />
                 </div>
-              </div>
 
-              {/* Collection */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                  Collection
-                </span>
-                <select
-                  value={activeFilters.collection}
-                  onChange={(e) => handleFilterChange("collection", e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem 1rem",
-                    borderRadius: "12px",
-                    border: "1.5px solid var(--border-color)",
-                    backgroundColor: "#FFFFFF",
-                    fontSize: "0.85rem",
-                    cursor: "pointer"
-                  }}
-                >
-                  {staticCollections.map((col) => (
-                    <option key={col} value={col}>{col}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Actor */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                  Featured Cast
-                </span>
-                <select
-                  value={activeFilters.actor}
-                  onChange={(e) => handleFilterChange("actor", e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem 1rem",
-                    borderRadius: "12px",
-                    border: "1.5px solid var(--border-color)",
-                    backgroundColor: "#FFFFFF",
-                    fontSize: "0.85rem",
-                    cursor: "pointer"
-                  }}
-                >
-                  {uniqueActors.map((act) => (
-                    <option key={act} value={act}>{act}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Director */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                  Director
-                </span>
-                <select
-                  value={activeFilters.director}
-                  onChange={(e) => handleFilterChange("director", e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem 1rem",
-                    borderRadius: "12px",
-                    border: "1.5px solid var(--border-color)",
-                    backgroundColor: "#FFFFFF",
-                    fontSize: "0.85rem",
-                    cursor: "pointer"
-                  }}
-                >
-                  {uniqueDirectors.map((dir) => (
-                    <option key={dir} value={dir}>{dir}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Price range */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                {/* Sorting */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                   <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                    Max Price
+                    Sort By
                   </span>
-                  <span style={{ fontSize: "0.85rem", fontWeight: "600", marginLeft: "auto" }}>₹{activeFilters.priceRange}</span>
+                  <select
+                    value={activeFilters.sort}
+                    onChange={(e) => handleFilterChange("sort", e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.75rem 1rem",
+                      borderRadius: "12px",
+                      border: "1.5px solid var(--border-color)",
+                      backgroundColor: "#FFFFFF",
+                      fontSize: "0.85rem",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <option value="default">Default Curation</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="year-desc">Year: New to Old</option>
+                    <option value="year-asc">Year: Old to New</option>
+                  </select>
                 </div>
-                <input
-                  type="range"
-                  min="30"
-                  max="500"
-                  step="10"
-                  value={activeFilters.priceRange}
-                  onChange={(e) => handleFilterChange("priceRange", Number(e.target.value))}
-                  style={{
-                    width: "100%",
-                    cursor: "pointer",
-                    accentColor: "var(--accent-charcoal)"
-                  }}
-                />
               </div>
-
-              {/* Sorting */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: "600", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                  Sort By
-                </span>
-                <select
-                  value={activeFilters.sort}
-                  onChange={(e) => handleFilterChange("sort", e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem 1rem",
-                    borderRadius: "12px",
-                    border: "1.5px solid var(--border-color)",
-                    backgroundColor: "#FFFFFF",
-                    fontSize: "0.85rem",
-                    cursor: "pointer"
-                  }}
-                >
-                  <option value="default">Default Curation</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="year-desc">Year: New to Old</option>
-                  <option value="year-asc">Year: Old to New</option>
-                </select>
-              </div>
-            </div>
+            )}
 
             {/* RESULTS CONTAINER */}
             <div style={{ display: "flex", flexDirection: "column", gap: "3.5rem" }}>
@@ -603,22 +744,24 @@ function ShopContent() {
                 <div 
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(3, 1fr)",
-                    gap: "2.5rem 2rem"
+                    gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3, 1fr)",
+                    gap: isMobile ? "1.5rem 0.85rem" : "2.5rem 2rem"
                   }}
                   className="shop-poster-grid"
                 >
                   {paginatedPosters.map((poster) => {
                     const isWish = wishlist.includes(poster.id);
+                    const selectedSize = cardSizes[poster.id] || "A4";
+
                     return (
-                      <div key={poster.id} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                      <div key={poster.id} style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
                         <div 
                           style={{
                             position: "relative",
-                            borderRadius: "20px",
+                            borderRadius: "16px",
                             overflow: "hidden",
                             backgroundColor: "var(--accent-beige)",
-                            padding: "2.5rem 1.8rem",
+                            padding: isMobile ? "1.2rem 0.6rem" : "2.5rem 1.8rem",
                             cursor: "pointer"
                           }}
                           className="shop-art-box"
@@ -631,83 +774,135 @@ function ShopContent() {
                             <PosterRenderer poster={poster} frame="unframed" />
                           </div>
 
-                          {poster.inventory > 0 && poster.inventory <= poster.lowStockThreshold && (
-                            <span style={{ position: "absolute", top: "1rem", left: "1rem", fontSize: "0.65rem", fontWeight: "700", color: "#E65100", backgroundColor: "#FFF3E0", padding: "0.25rem 0.6rem", borderRadius: "8px", zIndex: 5 }}>
-                              LOW STOCK
-                            </span>
-                          )}
-                          {poster.inventory === 0 && poster.isPreorder && (
-                            <span style={{ position: "absolute", top: "1rem", left: "1rem", fontSize: "0.65rem", fontWeight: "700", color: "#1565C0", backgroundColor: "#E3F2FD", padding: "0.25rem 0.6rem", borderRadius: "8px", zIndex: 5 }}>
-                              PRE-ORDER
-                            </span>
-                          )}
-                          {poster.inventory === 0 && !poster.isPreorder && (
-                            <span style={{ position: "absolute", top: "1rem", left: "1rem", fontSize: "0.65rem", fontWeight: "700", color: "red", backgroundColor: "#FFEBF0", padding: "0.25rem 0.6rem", borderRadius: "8px", zIndex: 5 }}>
-                              SOLD OUT
-                            </span>
-                          )}
+                          {/* Sale Badge (Matching Reference Image 1) */}
+                          <span style={{ position: "absolute", bottom: "0.75rem", left: "0.75rem", fontSize: "0.65rem", fontWeight: "800", backgroundColor: "#000000", color: "#FFFFFF", padding: "0.25rem 0.65rem", borderRadius: "20px", zIndex: 5 }}>
+                            Sale
+                          </span>
 
-                          <div 
-                            style={{
-                              position: "absolute",
-                              bottom: "1.5rem",
-                              left: "50%",
-                              transform: "translateX(-50%)",
-                              display: "flex",
-                              gap: "0.5rem",
-                              zIndex: 10
-                            }}
-                            className="shop-action-reveal"
-                          >
-                            <button
-                              onClick={() => openQuickView(poster)}
+                          {!isMobile && (
+                            <div 
                               style={{
-                                backgroundColor: "#FAFAF8",
-                                color: "var(--text-dark)",
-                                padding: "0.75rem",
-                                borderRadius: "50%",
-                                boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-                                cursor: "pointer"
+                                position: "absolute",
+                                bottom: "1.5rem",
+                                left: "50%",
+                                transform: "translateX(-50%)",
+                                display: "flex",
+                                gap: "0.5rem",
+                                zIndex: 10
                               }}
+                              className="shop-action-reveal"
                             >
-                              <Eye size={16} />
-                            </button>
-                            <button
-                              onClick={() => addToCart(poster, "A4", "unframed", 1)}
-                              style={{
-                                backgroundColor: "var(--accent-charcoal)",
-                                color: "#FAFAF8",
-                                padding: "0.75rem",
-                                borderRadius: "50%",
-                                boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-                                cursor: "pointer"
-                              }}
-                            >
-                              <ShoppingBag size={16} />
-                            </button>
-                            <button
-                              onClick={() => toggleWishlist(poster.id)}
-                              style={{
-                                backgroundColor: isWish ? "#FFF5F5" : "#FAFAF8",
-                                color: isWish ? "red" : "var(--text-dark)",
-                                padding: "0.75rem",
-                                borderRadius: "50%",
-                                boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-                                cursor: "pointer"
-                              }}
-                            >
-                              <Heart size={16} fill={isWish ? "red" : "none"} />
-                            </button>
-                          </div>
+                              <button
+                                onClick={() => openQuickView(poster)}
+                                style={{
+                                  backgroundColor: "#FAFAF8",
+                                  color: "var(--text-dark)",
+                                  padding: "0.75rem",
+                                  borderRadius: "50%",
+                                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+                                  cursor: "pointer"
+                                }}
+                              >
+                                <Eye size={16} />
+                              </button>
+                              <button
+                                onClick={() => addToCart(poster, "A4", "unframed", 1)}
+                                style={{
+                                  backgroundColor: "var(--accent-charcoal)",
+                                  color: "#FAFAF8",
+                                  padding: "0.75rem",
+                                  borderRadius: "50%",
+                                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+                                  cursor: "pointer"
+                                }}
+                              >
+                                <ShoppingBag size={16} />
+                              </button>
+                              <button
+                                onClick={() => toggleWishlist(poster.id)}
+                                style={{
+                                  backgroundColor: isWish ? "#FFF5F5" : "#FAFAF8",
+                                  color: isWish ? "red" : "var(--text-dark)",
+                                  padding: "0.75rem",
+                                  borderRadius: "50%",
+                                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+                                  cursor: "pointer"
+                                }}
+                              >
+                                <Heart size={16} fill={isWish ? "red" : "none"} />
+                              </button>
+                            </div>
+                          )}
                         </div>
 
-                        <div style={{ display: "flex", justifyContent: "space-between", padding: "0 0.5rem" }}>
-                          <div>
-                            <h4 style={{ fontSize: "1.05rem", fontWeight: "600" }}>{poster.title}</h4>
-                            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>{poster.collection}</p>
-                          </div>
-                          <span style={{ fontSize: "1.05rem", fontWeight: "700" }}>₹{poster.price.toLocaleString("en-IN")}</span>
+                        {/* Title & Description */}
+                        <h4
+                          onClick={() => router.push(`/product/${poster.slug}`)}
+                          style={{
+                            fontSize: isMobile ? "0.82rem" : "1.05rem",
+                            fontWeight: "700",
+                            lineHeight: "1.3",
+                            margin: "0.25rem 0 0 0",
+                            cursor: "pointer",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            color: "#111111"
+                          }}
+                        >
+                          {poster.title} | {poster.director} | {poster.collection}
+                        </h4>
+
+                        {/* Pricing Row (Matching Reference Image 1) */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                          <span style={{ fontSize: "0.75rem", color: "#94A3B8", textDecoration: "line-through" }}>
+                            Rs. {(poster.price * 2).toFixed(2)}
+                          </span>
+                          <span style={{ fontSize: isMobile ? "0.9rem" : "1.05rem", fontWeight: "800", color: "#111111" }}>
+                            From Rs. {poster.price.toFixed(2)}
+                          </span>
                         </div>
+
+                        {/* Size Dropdown Selector (Matching Reference Image 1) */}
+                        <select
+                          value={selectedSize}
+                          onChange={(e) => handleCardSizeChange(poster.id, e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: "0.5rem 0.6rem",
+                            borderRadius: "10px",
+                            border: "1.5px solid #CBD5E1",
+                            backgroundColor: "#FFFFFF",
+                            fontSize: "0.78rem",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            color: "#1E293B"
+                          }}
+                        >
+                          <option value="A5">A5 - Rs. {poster.price.toFixed(2)}</option>
+                          <option value="A4">A4 - Rs. {(poster.price + 30).toFixed(2)}</option>
+                          <option value="A3">A3 - Rs. {(poster.price + 70).toFixed(2)}</option>
+                        </select>
+
+                        {/* Add to Cart Full-Width Dark Button (Matching Reference Image 1) */}
+                        <button
+                          onClick={() => addToCart(poster, selectedSize, "unframed", 1)}
+                          style={{
+                            width: "100%",
+                            padding: "0.65rem",
+                            borderRadius: "10px",
+                            border: "none",
+                            backgroundColor: "#111111",
+                            color: "#FFFFFF",
+                            fontWeight: "800",
+                            fontSize: "0.85rem",
+                            cursor: "pointer",
+                            transition: "background-color 0.2s ease"
+                          }}
+                        >
+                          Add to cart
+                        </button>
                       </div>
                     );
                   })}
