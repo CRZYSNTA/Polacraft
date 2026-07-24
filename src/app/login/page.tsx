@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ShieldCheck, Mail, Lock, ArrowRight, Loader2, Apple } from "lucide-react";
 
-export default function CustomerLoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/account";
   const [loading, setLoading] = useState(false);
@@ -231,5 +231,19 @@ export default function CustomerLoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CustomerLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div style={{ minHeight: "100vh", backgroundColor: "#0B0C10", display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF" }}>
+          <Loader2 className="animate-spin" style={{ color: "#D4AF37" }} />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
