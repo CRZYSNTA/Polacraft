@@ -56,9 +56,40 @@ export interface AIProductDraftPayload {
   generatedAt: string;
 }
 
+export function extractMovieFromFilename(input: string): { movie: string | null; title: string | null } {
+  if (!input || typeof input !== "string") return { movie: null, title: null };
+
+  let clean = input.split("/").pop() || input;
+  clean = clean.split("?")[0];
+  clean = clean.replace(/\.(png|jpg|jpeg|webp|gif|svg)$/i, "");
+  
+  // Remove common random hashes / timestamps like _1782746018320 or -v1721742180
+  clean = clean.replace(/[-_]v?\d{8,}/gi, "");
+  clean = clean.replace(/[-_]\d{4,}/gi, "");
+  clean = clean.replace(/[-_](original|polacraft|poster|print|hd|4k|highres|wallpaper|artwork|min|thumb)/gi, "");
+  
+  // Replace underscores, hyphens, pluses with spaces
+  clean = clean.replace(/[-_+]/g, " ").trim();
+
+  if (clean.length >= 3 && !/^(image|file|upload|asset|photo|picture|\d+)$/i.test(clean)) {
+    const formatted = clean
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ");
+
+    return {
+      movie: formatted,
+      title: `${formatted} Premium Poster`,
+    };
+  }
+
+  return { movie: null, title: null };
+}
+
 export async function generateFullAIProductDraft(
   vision: VisionResult,
-  options?: { tone?: string; language?: string; maxLength?: number }
+  options?: { tone?: string; language?: string; maxLength?: number; originalFilename?: string; imageUrl?: string }
 ): Promise<AIProductDraftPayload> {
   // STAGE 3: Verified Metadata Lookup using vision.movie
   const movieQuery = vision.movie || "";
@@ -80,12 +111,22 @@ export async function generateFullAIProductDraft(
     }
   }
 
+  // Filename Fallback Match Strategy:
+  // If Vision + OCR didn't identify movie title directly, check original filename / image URL
+  const filenameHint = extractMovieFromFilename(options?.originalFilename || options?.imageUrl || "");
+  if (!verifiedMeta && filenameHint.movie) {
+    const filenameMatch = await getVerifiedMovieMetadata(filenameHint.movie);
+    if (filenameMatch) {
+      verifiedMeta = filenameMatch;
+    }
+  }
+
   console.log("==========================================");
   console.log("STAGE 3: METADATA", verifiedMeta);
   console.log("==========================================");
 
   // Facts Layer (Zero hardcoded "Malayalam Cinema" or "Malayalam Film Print" strings)
-  const movieName = verifiedMeta?.movie || vision.movie || null;
+  const movieName = verifiedMeta?.movie || vision.movie || filenameHint.movie || null;
   const displayMovie = movieName || "Unknown Artwork";
   const year = verifiedMeta?.year || null;
   const director = verifiedMeta?.director || null;
@@ -173,6 +214,8 @@ Return a SINGLE, valid JSON object matching this schema EXACTLY:
     language: options?.language || "English",
     title: movieName
       ? `${movieName}${charName ? ` – ${charName}` : ""} Premium Poster`
+      : filenameHint.title
+      ? filenameHint.title
       : actorName
       ? `${actorName} Archival Portrait Print`
       : "Archival Fine Art Print",
@@ -242,10 +285,17 @@ Return a SINGLE, valid JSON object matching this schema EXACTLY:
       });
 
       if (llmResult.success && llmResult.data) {
-        // Return parsed LLM output WITHOUT overwriting fields with defaults!
+        const finalMovie = movieName || llmResult.data.movie || filenameHint.movie || "Unknown Artwork";
+        const rawTitle = llmResult.data.title;
+        const isGenericTitle = !rawTitle || rawTitle.toLowerCase().includes("archival fine art print") || rawTitle.toLowerCase().includes("unknown artwork");
+        const finalTitle = isGenericTitle
+          ? (finalMovie !== "Unknown Artwork" ? `${finalMovie} Premium Poster` : filenameHint.title || "Archival Fine Art Print")
+          : rawTitle;
+
         return {
           ...llmResult.data,
-          movie: movieName || llmResult.data.movie || "Unknown Artwork",
+          movie: finalMovie,
+          title: finalTitle,
           year: llmResult.data.year ?? year,
           director: llmResult.data.director ?? director,
           cast: (llmResult.data.cast && llmResult.data.cast.length > 0) ? llmResult.data.cast : cast,

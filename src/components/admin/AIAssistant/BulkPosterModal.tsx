@@ -85,21 +85,40 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
         const secureUrl = uploadData.secure_url;
         const publicId = uploadData.public_id;
 
-        // Run full AI draft generation for this poster
+        // Clean original filename as local fallback hint (e.g. "Nipo Movie.png" -> "Nipo Movie")
+        const rawFileName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]v?\d{8,}/gi, "").replace(/[-_]/g, " ").trim();
+        const fallbackFilm = rawFileName
+          ? rawFileName.split(" ").filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ")
+          : "Archival Cinema Print";
+        const fallbackTitle = `${fallbackFilm} Premium Poster`;
+
+        // Run full AI draft generation for this poster passing originalFilename
         const aiRes = await fetch("/api/admin/ai/generate-product", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageUrl: secureUrl }),
+          body: JSON.stringify({
+            imageUrl: secureUrl,
+            originalFilename: file.name,
+            options: { originalFilename: file.name }
+          }),
         });
 
         if (aiRes.ok) {
           const aiData = await aiRes.json();
           if (aiData.success && aiData.draft) {
             const d = aiData.draft;
+            const isGenericMovie = !d.movie || d.movie === "Unknown Artwork";
+            const filmName = !isGenericMovie ? d.movie : fallbackFilm;
+
+            const isGenericTitle = !d.title || d.title.toLowerCase().includes("archival fine art print") || d.title.toLowerCase().includes("unknown artwork");
+            const finalTitle = !isGenericTitle ? d.title : fallbackTitle;
+
+            const uniqueSlug = filmName.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString(36) + "-" + i;
+
             newDrafts.push({
-              title: d.title,
-              slug: (d.movie || "poster") + "-" + Date.now().toString(36) + "-" + i,
-              film: d.movie || "Malayalam Film Print",
+              title: finalTitle,
+              slug: uniqueSlug,
+              film: filmName,
               year: d.year || 2020,
               director: d.director || "Polacraft Studio",
               cast: d.cast || [],
@@ -107,10 +126,10 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
               genre: d.genre || "Drama",
               price: 49,
               inventory: 25,
-              tagline: d.tagline || "",
+              tagline: d.tagline || `Handcrafted Archival Print celebrating ${filmName}`,
               story: d.longDescription || d.shortDescription || "",
               designNotes: d.designNotes || "",
-              images: [{ url: secureUrl, publicId, alt: d.title, type: "HERO", sortOrder: 0 }],
+              images: [{ url: secureUrl, publicId, alt: finalTitle, type: "HERO", sortOrder: 0 }],
             });
           }
         }

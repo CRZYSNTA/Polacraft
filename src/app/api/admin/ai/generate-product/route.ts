@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { imageUrl, options } = body;
+    const { imageUrl, originalFilename, options } = body;
 
     if (!imageUrl) {
       return NextResponse.json({ error: "Poster image URL is required" }, { status: 400 });
@@ -22,13 +22,20 @@ export async function POST(req: Request) {
     console.log("==========================================");
     console.log("STAGE 1: IMAGE UPLOAD");
     console.log("RAW IMAGE URL:", imageUrl);
+    console.log("ORIGINAL FILENAME:", originalFilename || options?.originalFilename || "N/A");
     console.log("==========================================");
+
+    const combinedOptions = {
+      ...options,
+      originalFilename: originalFilename || options?.originalFilename,
+      imageUrl,
+    };
 
     // Step 1: Vision AI Analysis
     const vision = await analyzePosterVision(imageUrl);
 
     // Step 2: Verified Metadata Lookup & Content Generation
-    const draftPayload = await generateFullAIProductDraft(vision, options);
+    const draftPayload = await generateFullAIProductDraft(vision, combinedOptions);
 
     console.log("==========================================");
     console.log("STAGE 7: API ROUTE OUTPUT");
