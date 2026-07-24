@@ -88,7 +88,7 @@ export default function Home() {
   const [livePosters, setLivePosters] = useState<Product[]>(staticPosters);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch actual DB products on load
+  // Fetch actual DB products on load and sort original launch posters first
   useEffect(() => {
     async function fetchLiveCatalog() {
       try {
@@ -96,7 +96,30 @@ export default function Home() {
         if (res.ok) {
           const data = await res.json();
           if (data.products && Array.isArray(data.products)) {
-            setLivePosters(data.products.map(mapDbProductToPoster));
+            const mapped = data.products.map(mapDbProductToPoster);
+            
+            // Classic launch poster priority slugs
+            const launchSlugs = [
+              "manichitrathazhu",
+              "kumbalangi-nights",
+              "aavesham",
+              "thoovanathumbikal",
+              "spadikam",
+              "premam",
+              "sandesham",
+              "mathilukal",
+              "kireedam"
+            ];
+
+            const sorted = mapped.sort((a: Product, b: Product) => {
+              const rankA = launchSlugs.indexOf(a.slug.toLowerCase());
+              const rankB = launchSlugs.indexOf(b.slug.toLowerCase());
+              const weightA = rankA !== -1 ? rankA : 999;
+              const weightB = rankB !== -1 ? rankB : 999;
+              return weightA - weightB;
+            });
+
+            setLivePosters(sorted);
           }
         }
       } catch (e) {
