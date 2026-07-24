@@ -21,64 +21,22 @@ export default function CustomerLoginPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = () => {
     setErrorMsg("");
     setSuccessMsg("");
     setIsLoading(true);
 
     try {
-      const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "1029384756102-polacraft.apps.googleusercontent.com";
+      const redirectUri = `${window.location.origin}/api/auth/google/callback`;
+      
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent("openid email profile")}&prompt=select_account`;
 
-      if ((window as any).google?.accounts?.id && googleClientId) {
-        (window as any).google.accounts.id.prompt(async (notification: any) => {
-          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            await promptGoogleAccountFallback();
-          }
-        });
-      } else {
-        await promptGoogleAccountFallback();
-      }
+      // Redirect immediately to Google's official account selector page
+      window.location.href = googleAuthUrl;
     } catch (e) {
-      console.error("[Google Auth Click Error]:", e);
-      setErrorMsg("Google Sign-In initialization failed.");
-      setIsLoading(false);
-    }
-  };
-
-  const promptGoogleAccountFallback = async () => {
-    const userEmail = prompt("Sign in with Google Account Email:", "collector@gmail.com");
-    if (!userEmail) {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gProfile: {
-            email: userEmail,
-            name: userEmail.split("@")[0],
-            picture: "https://lh3.googleusercontent.com/a/default-user"
-          }
-        })
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setSuccessMsg("Signed in with Google! Redirecting...");
-        setTimeout(() => {
-          router.push(redirectTarget);
-          router.refresh();
-        }, 800);
-      } else {
-        setErrorMsg(data.error || "Google authentication failed.");
-      }
-    } catch (err) {
-      console.error("[Google Auth Error]:", err);
-      setErrorMsg("Google authentication failed.");
-    } finally {
+      console.error("[Google Redirect Error]:", e);
+      setErrorMsg("Failed to open Google Sign-In.");
       setIsLoading(false);
     }
   };
