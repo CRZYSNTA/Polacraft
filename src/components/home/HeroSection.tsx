@@ -24,10 +24,22 @@ export default function HeroSection({
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion();
   const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const fanRotations = [-15, -8, -2, 6, 12, 18];
   const fanYPositions = [40, 15, 0, 10, 30, 50];
-  const fanXPositions = [-160, -80, 0, 80, 160, 240];
+  const fanXPositions = isMobile 
+    ? [-70, -35, 0, 35, 70, 105]
+    : [-160, -80, 0, 80, 160, 240];
 
   return (
     <section
@@ -229,7 +241,7 @@ export default function HeroSection({
                     onClick={() => router.push(`/product/${posterObj.slug}`)}
                     style={{
                       position: "absolute",
-                      width: "195px",
+                      width: isMobile ? "135px" : "195px",
                       cursor: "pointer",
                       borderRadius: "10px",
                       overflow: "hidden",

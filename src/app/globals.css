@@ -317,6 +317,98 @@ textarea:focus-visible {
   outline-offset: 4px;
 }
 
+/* ==========================================
+   MOBILE RESPONSIVE SYSTEM (Phone & Tablet)
+   ========================================== */
+
+@media (max-width: 900px) {
+  /* Shop Page Grid: Stack Sidebar & Products */
+  .shop-main-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+
+  /* Product Details Page: Stack Gallery & Info */
+  .product-split {
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+  }
+
+  .product-gallery-box {
+    position: relative !important;
+    top: 0 !important;
+    padding: 2.5rem 1.5rem !important;
+  }
+
+  /* Editorial Story Rows */
+  .editorial-story-row {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+    padding-bottom: 3rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Real Frame Padding Adjustments for Mobile */
+  .frame-real-black,
+  .frame-real-white,
+  .frame-real-wood {
+    padding: 10px !important;
+  }
+
+  .frame-matboard {
+    padding: 6px !important;
+  }
+
+  /* Gallery Mode Horizontal Row */
+  .gallery-mode-row {
+    gap: 2rem !important;
+    padding: 1.5rem 0 !important;
+  }
+
+  /* Hero Fan Container Mobile Scale */
+  .hero-fan-container {
+    height: 280px !important;
+  }
+
+  .hero-fan-card {
+    width: 130px !important;
+  }
+
+  /* Product Cards Grid: 2 Columns on Mobile */
+  .product-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  /* Admin Table Responsive Overflow */
+  .admin-table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Phone Screens (< 480px) */
+  h1 {
+    font-size: 2.2rem !important;
+  }
+
+  h2 {
+    font-size: 1.75rem !important;
+  }
+
+  .product-cards-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
+  }
+}
+
 /* Accessibility Reduced Motion adjustments */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
