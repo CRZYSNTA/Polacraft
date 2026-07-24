@@ -147,12 +147,13 @@ export default function AccountDashboardPage() {
             </button>
 
             {showCompletionForm && (
-              <form onSubmit={handleSaveProfileDetails} style={{ width: "100%", marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid rgba(212,175,55,0.2)", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                <input required value={completeStreet} onChange={(e) => setCompleteStreet(e.target.value)} placeholder="Street / Door No." style={{ padding: "0.7rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
-                <input required value={completeCity} onChange={(e) => setCompleteCity(e.target.value)} placeholder="City / District" style={{ padding: "0.7rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
-                <input required value={completeZip} onChange={(e) => setCompleteZip(e.target.value)} placeholder="PIN / ZIP Code" style={{ padding: "0.7rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
-                <button type="submit" disabled={savingProfile} style={{ gridColumn: "span 3", padding: "0.75rem", borderRadius: "10px", backgroundColor: "#10B981", color: "#FFF", fontWeight: 800, border: "none", cursor: "pointer" }}>
-                  {savingProfile ? "Saving..." : "Save Delivery Address & Complete Profile"}
+              <form onSubmit={handleSaveProfileDetails} style={{ width: "100%", marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid rgba(212,175,55,0.2)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <input required value={completePhone} onChange={(e) => setCompletePhone(e.target.value)} placeholder="WhatsApp Phone # (e.g. 9876543210)" style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
+                <input required value={completeStreet} onChange={(e) => setCompleteStreet(e.target.value)} placeholder="Street / Door No." style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
+                <input required value={completeCity} onChange={(e) => setCompleteCity(e.target.value)} placeholder="City / District" style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
+                <input required value={completeZip} onChange={(e) => setCompleteZip(e.target.value)} placeholder="PIN / ZIP Code" style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
+                <button type="submit" disabled={savingProfile} style={{ gridColumn: "span 2", padding: "0.75rem", borderRadius: "10px", backgroundColor: "#10B981", color: "#FFF", fontWeight: 800, border: "none", cursor: "pointer" }}>
+                  {savingProfile ? "Saving Profile..." : "Save WhatsApp # & Delivery Address"}
                 </button>
               </form>
             )}
