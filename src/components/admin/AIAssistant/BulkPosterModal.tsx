@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from "react";
 import { bulkSaveProductsAction, ProductInput } from "@/features/admin/businessActions";
-import { Sparkles, Layers, UploadCloud, CheckCircle2, Loader2, X, Trash2, Film, User, Tag } from "lucide-react";
+import { Sparkles, Layers, UploadCloud, CheckCircle2, Loader2, X, Trash2, Film, User, Tag, Edit } from "lucide-react";
 
 interface BulkPosterModalProps {
   isOpen: boolean;
@@ -26,7 +26,53 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
   const [uploadingFiles, setUploadingFiles] = useState<boolean>(false);
   const [batchDrafts, setBatchDrafts] = useState<any[]>([]);
 
+  // Editing State for Individual Poster Drafts
+  const [editingTarget, setEditingTarget] = useState<"COLLECTION" | "BATCH_UPLOAD">("COLLECTION");
+  const [editingDraftIndex, setEditingDraftIndex] = useState<number | null>(null);
+  const [editingDraft, setEditingDraft] = useState<any | null>(null);
+
   if (!isOpen) return null;
+
+  // Open Edit Sub-Modal for a specific draft
+  const handleOpenEditDraft = (index: number, target: "COLLECTION" | "BATCH_UPLOAD") => {
+    const sourceList = target === "COLLECTION" ? generatedDrafts : batchDrafts;
+    if (sourceList[index]) {
+      setEditingTarget(target);
+      setEditingDraftIndex(index);
+      setEditingDraft({ ...sourceList[index] });
+    }
+  };
+
+  // Save changes to state
+  const handleSaveDraftEdit = () => {
+    if (editingDraftIndex === null || !editingDraft) return;
+
+    if (editingTarget === "COLLECTION") {
+      setGeneratedDrafts((prev) => {
+        const updated = [...prev];
+        updated[editingDraftIndex] = editingDraft;
+        return updated;
+      });
+    } else {
+      setBatchDrafts((prev) => {
+        const updated = [...prev];
+        updated[editingDraftIndex] = editingDraft;
+        return updated;
+      });
+    }
+
+    setEditingDraftIndex(null);
+    setEditingDraft(null);
+  };
+
+  // Delete/discard a draft item
+  const handleDeleteDraft = (index: number, target: "COLLECTION" | "BATCH_UPLOAD") => {
+    if (target === "COLLECTION") {
+      setGeneratedDrafts((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      setBatchDrafts((prev) => prev.filter((_, i) => i !== index));
+    }
+  };
 
   // Generate Collection Suite via AI API
   const handleGenerateCollection = async (e: React.FormEvent) => {
@@ -205,7 +251,7 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
           backgroundColor: "#FFFFFF",
           borderRadius: "24px",
           width: "100%",
-          maxWidth: "960px",
+          maxWidth: "980px",
           maxHeight: "90vh",
           overflowY: "auto",
           padding: "2rem",
@@ -220,7 +266,7 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
               <Sparkles size={24} style={{ color: "#8B5CF6" }} /> AI Bulk Poster Creator & Importer
             </h2>
             <p style={{ margin: "4px 0 0 0", fontSize: "0.85rem", color: "#64748B" }}>
-              Generate complete poster suites for movies/actors or batch upload poster image files all at once.
+              Generate complete poster suites or batch upload poster images. Click ✏️ Edit on any item to customize details before publishing.
             </p>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748B" }}>
@@ -391,6 +437,7 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                         <th style={{ padding: "0.85rem 1rem" }}>Tagline</th>
                         <th style={{ padding: "0.85rem 1rem" }}>Price</th>
                         <th style={{ padding: "0.85rem 1rem" }}>Stock</th>
+                        <th style={{ padding: "0.85rem 1rem", textAlign: "right" }}>Edit Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -408,6 +455,43 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                           </td>
                           <td style={{ padding: "0.85rem 1rem", fontWeight: 800 }}>₹{d.price}</td>
                           <td style={{ padding: "0.85rem 1rem" }}>{d.inventory} pcs</td>
+                          <td style={{ padding: "0.85rem 1rem", textAlign: "right" }}>
+                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.4rem" }}>
+                              <button
+                                onClick={() => handleOpenEditDraft(idx, "COLLECTION")}
+                                style={{
+                                  border: "1px solid #CBD5E1",
+                                  backgroundColor: "#FFF",
+                                  color: "#0F172A",
+                                  padding: "0.35rem 0.65rem",
+                                  borderRadius: "8px",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                }}
+                              >
+                                <Edit size={14} /> Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteDraft(idx, "COLLECTION")}
+                                style={{
+                                  border: "1px solid #FCA5A5",
+                                  backgroundColor: "#FEF2F2",
+                                  color: "#DC2626",
+                                  padding: "0.35rem 0.65rem",
+                                  borderRadius: "8px",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -427,7 +511,7 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                 Upload Multiple Poster Image Files
               </h3>
               <p style={{ margin: "0 0 1.25rem 0", fontSize: "0.85rem", color: "#64748B" }}>
-                Select up to 10 high-resolution poster images at once. AI Vision & LLM will process each artwork automatically.
+                Select up to 10 high-resolution poster images at once. Click ✏️ Edit on any generated poster card to make quick changes.
               </p>
               <label
                 style={{
@@ -484,14 +568,55 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                   </button>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat( auto-fill, minmax(220px, 1fr) )", gap: "1rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat( auto-fill, minmax(240px, 1fr) )", gap: "1.25rem" }}>
                   {batchDrafts.map((d, idx) => (
-                    <div key={idx} style={{ border: "1px solid #E2E8F0", borderRadius: "14px", padding: "0.85rem", backgroundColor: "#FFF", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    <div key={idx} style={{ border: "1px solid #E2E8F0", borderRadius: "16px", padding: "1rem", backgroundColor: "#FFF", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative" }}>
                       {d.images?.[0]?.url && (
-                        <img src={d.images[0].url} alt={d.title} style={{ width: "100%", height: "160px", objectFit: "cover", borderRadius: "10px" }} />
+                        <div style={{ position: "relative", width: "100%", height: "170px", borderRadius: "12px", overflow: "hidden" }}>
+                          <img src={d.images[0].url} alt={d.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          <div style={{ position: "absolute", top: "8px", right: "8px", display: "flex", gap: "4px" }}>
+                            <button
+                              onClick={() => handleOpenEditDraft(idx, "BATCH_UPLOAD")}
+                              style={{ border: "none", backgroundColor: "rgba(255,255,255,0.9)", color: "#0F172A", padding: "0.35rem 0.55rem", borderRadius: "8px", fontSize: "0.75rem", fontWeight: 800, cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.15)", display: "flex", alignItems: "center", gap: "4px" }}
+                            >
+                              <Edit size={12} /> Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteDraft(idx, "BATCH_UPLOAD")}
+                              style={{ border: "none", backgroundColor: "rgba(239,68,68,0.9)", color: "#FFF", padding: "0.35rem", borderRadius: "8px", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }}
+                              title="Discard this poster"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
                       )}
-                      <strong style={{ fontSize: "0.85rem", color: "#0F172A" }}>{d.title}</strong>
-                      <span style={{ fontSize: "0.75rem", color: "#64748B" }}>{d.film} • ₹{d.price}</span>
+                      
+                      <div>
+                        <strong style={{ fontSize: "0.9rem", color: "#0F172A", display: "block", marginBottom: "2px" }}>{d.title}</strong>
+                        <span style={{ fontSize: "0.8rem", color: "#64748B" }}>{d.film} • <strong>₹{d.price}</strong></span>
+                      </div>
+
+                      <button
+                        onClick={() => handleOpenEditDraft(idx, "BATCH_UPLOAD")}
+                        style={{
+                          width: "100%",
+                          padding: "0.45rem",
+                          borderRadius: "8px",
+                          border: "1px solid #CBD5E1",
+                          backgroundColor: "#F8FAFC",
+                          color: "#1E293B",
+                          fontWeight: 700,
+                          fontSize: "0.8rem",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.4rem",
+                        }}
+                      >
+                        <Edit size={14} /> Quick Edit Details
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -500,6 +625,138 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
           </div>
         )}
       </div>
+
+      {/* QUICK EDIT DRAFT SUB-MODAL */}
+      {editingDraftIndex !== null && editingDraft && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.65)",
+            backdropFilter: "blur(4px)",
+            zIndex: 1200,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1.5rem",
+          }}
+          onClick={() => { setEditingDraftIndex(null); setEditingDraft(null); }}
+        >
+          <div
+            style={{
+              backgroundColor: "#FFF",
+              borderRadius: "20px",
+              width: "100%",
+              maxWidth: "600px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "1.75rem",
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", borderBottom: "1px solid #E2E8F0", paddingBottom: "0.75rem" }}>
+              <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#0F172A", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <Edit size={18} style={{ color: "#8B5CF6" }} /> Edit Poster Product Details
+              </h3>
+              <button onClick={() => { setEditingDraftIndex(null); setEditingDraft(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748B" }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Product Title</label>
+                <input
+                  type="text"
+                  value={editingDraft.title || ""}
+                  onChange={(e) => setEditingDraft({ ...editingDraft, title: e.target.value })}
+                  style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "0.75rem" }}>
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Film Name</label>
+                  <input
+                    type="text"
+                    value={editingDraft.film || ""}
+                    onChange={(e) => setEditingDraft({ ...editingDraft, film: e.target.value })}
+                    style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Release Year</label>
+                  <input
+                    type="number"
+                    value={editingDraft.year || 2020}
+                    onChange={(e) => setEditingDraft({ ...editingDraft, year: Number(e.target.value) })}
+                    style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "0.75rem" }}>
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Director</label>
+                  <input
+                    type="text"
+                    value={editingDraft.director || ""}
+                    onChange={(e) => setEditingDraft({ ...editingDraft, director: e.target.value })}
+                    style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Price (₹)</label>
+                  <input
+                    type="number"
+                    value={editingDraft.price || 49}
+                    onChange={(e) => setEditingDraft({ ...editingDraft, price: Number(e.target.value) })}
+                    style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Tagline</label>
+                <input
+                  type="text"
+                  value={editingDraft.tagline || ""}
+                  onChange={(e) => setEditingDraft({ ...editingDraft, tagline: e.target.value })}
+                  style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Story & Narrative Background</label>
+                <textarea
+                  rows={3}
+                  value={editingDraft.story || ""}
+                  onChange={(e) => setEditingDraft({ ...editingDraft, story: e.target.value })}
+                  style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", marginTop: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={() => { setEditingDraftIndex(null); setEditingDraft(null); }}
+                  style={{ padding: "0.6rem 1.25rem", borderRadius: "10px", border: "1px solid #CBD5E1", backgroundColor: "#FFF", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveDraftEdit}
+                  style={{ padding: "0.6rem 1.5rem", borderRadius: "10px", border: "none", backgroundColor: "#10B981", color: "#FFF", fontWeight: 800, fontSize: "0.85rem", cursor: "pointer" }}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
