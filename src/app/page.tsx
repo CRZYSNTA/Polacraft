@@ -84,11 +84,11 @@ function mapDbProductToPoster(p: any): Product {
 export default function Home() {
   const { addToCart, wishlist, toggleWishlist, openQuickView, siteSettings } = useContext(AppContext);
 
-  // Live Posters State initialized with static fallback
-  const [livePosters, setLivePosters] = useState<Product[]>(staticPosters);
+  // Live Posters State initialized empty, fetched strictly from Database (Admin Panel added posters)
+  const [livePosters, setLivePosters] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch actual DB products on load and ensure original launch posters remain at top
+  // Fetch actual DB products added through Admin Panel
   useEffect(() => {
     async function fetchLiveCatalog() {
       try {
@@ -96,18 +96,7 @@ export default function Home() {
         if (res.ok) {
           const data = await res.json();
           if (data.products && Array.isArray(data.products)) {
-            const mapped = data.products.map(mapDbProductToPoster);
-            
-            // 1. Start with the original 9 launch posters
-            const launchSlugs = staticPosters.map((p) => p.slug.toLowerCase());
-
-            // 2. Filter DB products that are NOT already in static launch posters
-            const extraDbProducts = mapped.filter(
-              (p) => !launchSlugs.includes(p.slug.toLowerCase())
-            );
-
-            // 3. Combine: Original Launch Posters FIRST, followed by extra DB posters
-            setLivePosters([...staticPosters, ...extraDbProducts]);
+            setLivePosters(data.products.map(mapDbProductToPoster));
           }
         }
       } catch (e) {

@@ -88,7 +88,7 @@ function ShopContent() {
   // Read initial filter from URL if present (e.g. ?filter=Classic)
   const initialFilter = searchParams.get("filter");
 
-  const [posters, setPosters] = useState<Product[]>(staticPosters);
+  const [posters, setPosters] = useState<Product[]>([]);
   const [viewMode, setViewMode] = useState("shop"); // "shop", "gallery", or "story"
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
