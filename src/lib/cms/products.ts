@@ -279,6 +279,7 @@ export const posters: Product[] = [
 
 export const collections = [
   "All Collections",
+  "Actor Legends",
   "Football Legends",
   "Sports Icons",
   "Classic Malayalam",

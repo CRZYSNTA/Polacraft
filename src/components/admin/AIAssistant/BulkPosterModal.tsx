@@ -379,6 +379,7 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                   onChange={(e) => setCollectionName(e.target.value)}
                   style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "10px", border: "1px solid #CBD5E1", fontSize: "0.9rem", backgroundColor: "#FFF" }}
                 >
+                  <option value="Actor Legends">🎭 Actor Legends</option>
                   <option value="Football Legends">⚽ Football Legends</option>
                   <option value="Sports Icons">🏆 Sports Icons</option>
                   <option value="Classic Malayalam">Classic Malayalam</option>
@@ -413,18 +414,26 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
             </form>
 
             {/* Quick 1-Click Preset Chips */}
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem", marginTop: "-0.5rem" }}>
-              <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#64748B" }}>⚡ 1-Click Quick Presets:</span>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.4rem", marginTop: "-0.5rem" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#64748B" }}>⚡ 1-Click Presets:</span>
               {[
-                { label: "⚽ Lionel Messi", query: "Lionel Messi", collection: "Football Legends" },
-                { label: "⚽ Cristiano Ronaldo", query: "Cristiano Ronaldo", collection: "Football Legends" },
-                { label: "⚽ Neymar Jr", query: "Neymar Jr", collection: "Football Legends" },
+                // Actors
+                { label: "🎭 Mohanlal", query: "Mohanlal", collection: "Actor Legends" },
+                { label: "🎭 Mammootty", query: "Mammootty", collection: "Actor Legends" },
+                { label: "🎭 Rajinikanth", query: "Rajinikanth", collection: "Actor Legends" },
+                { label: "🎭 Kamal Haasan", query: "Kamal Haasan", collection: "Actor Legends" },
+                { label: "🎭 Fahadh Faasil", query: "Fahadh Faasil", collection: "Actor Legends" },
+                { label: "🎭 Dulquer Salmaan", query: "Dulquer Salmaan", collection: "Actor Legends" },
+                { label: "🎭 Thalapathy Vijay", query: "Vijay", collection: "Actor Legends" },
+                { label: "🎭 Suriya", query: "Suriya", collection: "Actor Legends" },
+                { label: "🎭 Prithviraj", query: "Prithviraj Sukumaran", collection: "Actor Legends" },
+                { label: "🎭 Shah Rukh Khan", query: "Shah Rukh Khan", collection: "Actor Legends" },
+                // Football
+                { label: "⚽ Messi", query: "Lionel Messi", collection: "Football Legends" },
+                { label: "⚽ Ronaldo", query: "Cristiano Ronaldo", collection: "Football Legends" },
+                { label: "⚽ Neymar", query: "Neymar Jr", collection: "Football Legends" },
                 { label: "⚽ Mbappé", query: "Kylian Mbappe", collection: "Football Legends" },
                 { label: "⚽ Haaland", query: "Erling Haaland", collection: "Football Legends" },
-                { label: "⚽ Maradona", query: "Diego Maradona", collection: "Football Legends" },
-                { label: "⚽ Pelé", query: "Pelé", collection: "Football Legends" },
-                { label: "🎬 Mohanlal", query: "Mohanlal", collection: "Classic Malayalam" },
-                { label: "🎬 Rajinikanth", query: "Rajinikanth", collection: "Tamil Cinema" },
               ].map((chip) => (
                 <button
                   key={chip.label}
@@ -438,7 +447,7 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                     color: query === chip.query ? "#FFFFFF" : "#1D4ED8",
                     border: query === chip.query ? "none" : "1px solid #BFDBFE",
                     borderRadius: "20px",
-                    padding: "0.3rem 0.75rem",
+                    padding: "0.25rem 0.65rem",
                     fontSize: "0.75rem",
                     fontWeight: 700,
                     cursor: "pointer",
