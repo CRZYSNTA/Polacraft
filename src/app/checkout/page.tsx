@@ -27,6 +27,35 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<any | null>(null);
 
+  // Auto-fill logged in customer profile details
+  React.useEffect(() => {
+    async function loadCustomerData() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated && data.user) {
+            const u = data.user;
+            if (u.name) setShippingName(u.name);
+            if (u.email) setEmail(u.email);
+            if (u.phone) setPhone(u.phone);
+
+            const defaultAddr = u.addresses?.find((a: any) => a.isDefault) || u.addresses?.[0];
+            if (defaultAddr) {
+              setShippingStreet(defaultAddr.street || "");
+              setShippingCity(defaultAddr.city || "");
+              setShippingState(defaultAddr.state || "");
+              setShippingZip(defaultAddr.zip || "");
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[Checkout Profile Auto-Fill Warning]:", e);
+      }
+    }
+    loadCustomerData();
+  }, []);
+
   // Financial Calculations
   const discount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const subtotalAfterDiscount = Math.max(0, cartSubtotal - discount);

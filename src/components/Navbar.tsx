@@ -4,7 +4,7 @@ import React, { useContext, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppContext } from "../features/cart/AppContext";
-import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 
 export const Navbar = () => {
   const { cartItemCount, wishlist, setCartOpen } = useContext(AppContext);
@@ -194,6 +194,15 @@ export const Navbar = () => {
               </span>
             )}
           </button>
+
+          {/* User Account */}
+          <Link
+            href="/profile"
+            style={{ cursor: "pointer", color: "var(--text-dark)", padding: "4px" }}
+            aria-label="User Account"
+          >
+            <User size={18} />
+          </Link>
 
           {/* Mobile Menu Toggle */}
           <button
