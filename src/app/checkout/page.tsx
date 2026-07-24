@@ -164,21 +164,21 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div style={{ maxWidth: "1100px", margin: "2rem auto", padding: "0 1.5rem" }}>
-      <Link href="/shop" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", color: "#64748B", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, marginBottom: "2rem" }}>
+    <div className="checkout-container" style={{ maxWidth: "1100px", margin: "0 auto", padding: "110px 1.5rem 80px 1.5rem" }}>
+      <Link href="/shop" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", color: "#64748B", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, marginBottom: "1.5rem" }}>
         <ArrowLeft size={16} /> Return to Storefront
       </Link>
 
-      <h1 style={{ fontSize: "2.25rem", fontWeight: "900", margin: "0 0 2rem 0", letterSpacing: "-0.03em" }}>
+      <h1 style={{ fontSize: "2.25rem", fontWeight: "900", margin: "0 0 1.5rem 0", letterSpacing: "-0.03em" }}>
         Express WhatsApp Checkout
       </h1>
 
-      <form onSubmit={handlePlaceOrderWhatsApp} style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: "2.5rem" }}>
+      <form onSubmit={handlePlaceOrderWhatsApp} className="checkout-grid" style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: "2.5rem" }}>
         {/* Shipping & Contact Information */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <div style={{ backgroundColor: "#FFF", borderRadius: "20px", padding: "2rem", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+          <div style={{ backgroundColor: "#FFF", borderRadius: "20px", padding: "1.75rem", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
             <h3 style={{ margin: "0 0 1.25rem 0", fontSize: "1.1rem", fontWeight: "800" }}>1. Customer & Contact Info</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <div className="checkout-inputs-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               <div>
                 <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Full Name *</label>
                 <input type="text" required value={shippingName} onChange={(e) => setShippingName(e.target.value)} placeholder="Enter Full Name" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
@@ -194,7 +194,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <div style={{ backgroundColor: "#FFF", borderRadius: "20px", padding: "2rem", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+          <div style={{ backgroundColor: "#FFF", borderRadius: "20px", padding: "1.75rem", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
             <h3 style={{ margin: "0 0 1.25rem 0", fontSize: "1.1rem", fontWeight: "800" }}>2. Delivery Address</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div>
@@ -202,18 +202,18 @@ export default function CheckoutPage() {
                 <input type="text" required value={shippingStreet} onChange={(e) => setShippingStreet(e.target.value)} placeholder="House No., Street Name, Area" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+              <div className="checkout-inputs-3col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>City *</label>
-                  <input type="text" required value={shippingCity} onChange={(e) => setShippingCity(e.target.value)} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                  <input type="text" required value={shippingCity} onChange={(e) => setShippingCity(e.target.value)} placeholder="City" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
                 </div>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>State *</label>
-                  <input type="text" required value={shippingState} onChange={(e) => setShippingState(e.target.value)} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                  <input type="text" required value={shippingState} onChange={(e) => setShippingState(e.target.value)} placeholder="State" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
                 </div>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Pincode *</label>
-                  <input type="text" required value={shippingZip} onChange={(e) => setShippingZip(e.target.value)} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                  <input type="text" required value={shippingZip} onChange={(e) => setShippingZip(e.target.value)} placeholder="Pincode" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
                 </div>
               </div>
             </div>
