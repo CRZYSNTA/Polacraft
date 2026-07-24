@@ -3,14 +3,24 @@
 import React, { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { ShieldCheck, Mail, Lock, ArrowRight, Loader2, Apple } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Mail, Lock, User, Phone, ArrowRight, Loader2, Apple, ChevronDown, ChevronUp } from "lucide-react";
 
 function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/account";
+
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showManualForm, setShowManualForm] = useState(false);
+
+  // Manual form state
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -20,6 +30,36 @@ function LoginForm() {
     } catch (e) {
       console.error("[Google Auth Error]:", e);
       setErrorMsg("Failed to initialize Google Sign-In.");
+      setLoading(false);
+    }
+  };
+
+  const handleManualSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg("");
+
+    const endpoint = isRegisterMode ? "/api/auth/register" : "/api/auth/login";
+    const payload = isRegisterMode ? { email, password, name, phone } : { email, password };
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok && (data.success || data.authenticated || data.user)) {
+        router.push(callbackUrl);
+        router.refresh();
+      } else {
+        setErrorMsg(data.error || "Authentication failed.");
+      }
+    } catch (err) {
+      console.error("[Manual Auth Error]:", err);
+      setErrorMsg("Authentication failed. Please try again.");
+    } finally {
       setLoading(false);
     }
   };
@@ -56,6 +96,7 @@ function LoginForm() {
       />
 
       <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", position: "relative", zIndex: 10 }}>
+        
         {/* BRANDING HEADER */}
         <div style={{ textAlign: "center", marginBottom: "2.25rem" }}>
           <span
@@ -79,10 +120,10 @@ function LoginForm() {
               color: "#FFFFFF",
             }}
           >
-            Welcome Back
+            Collector Account
           </h1>
           <p style={{ fontSize: "0.9rem", color: "#9CA3AF", marginTop: "0.5rem" }}>
-            Sign in to access your archival print orders & reward points.
+            Join the archival fine art cinema poster community.
           </p>
         </div>
 
@@ -114,26 +155,26 @@ function LoginForm() {
             </div>
           )}
 
-          {/* CONTINUE WITH GOOGLE BUTTON */}
+          {/* 1. PRIMARY LOW-FRICTION ACTION: CONTINUE WITH GOOGLE */}
           <button
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
             style={{
               width: "100%",
-              padding: "0.85rem 1rem",
+              padding: "0.9rem 1rem",
               borderRadius: "14px",
               border: "1px solid rgba(255, 255, 255, 0.15)",
               backgroundColor: "#FFFFFF",
               color: "#111827",
               fontWeight: 800,
-              fontSize: "0.95rem",
+              fontSize: "0.98rem",
               cursor: loading ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: "0.75rem",
-              boxShadow: "0 4px 14px rgba(0, 0, 0, 0.2)",
+              boxShadow: "0 4px 14px rgba(0, 0, 0, 0.25)",
               transition: "all 0.2s ease",
             }}
           >
@@ -150,65 +191,141 @@ function LoginForm() {
             Continue with Google
           </button>
 
-          {/* DIVIDER */}
+          {/* 2. DIVIDER */}
           <div style={{ display: "flex", alignItems: "center", margin: "1.75rem 0", color: "#6B7280" }}>
             <div style={{ flex: 1, borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}></div>
             <span style={{ padding: "0 0.85rem", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-              OR
+              ──────── OR ────────
             </span>
             <div style={{ flex: 1, borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}></div>
           </div>
 
-          {/* FUTURE PLACEHOLDERS */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+          {/* 3. EXPANDABLE MANUAL ACCOUNT CREATION */}
+          {!showManualForm ? (
             <button
               type="button"
-              disabled
-              title="Apple Sign-In Coming Soon"
+              onClick={() => setShowManualForm(true)}
               style={{
                 width: "100%",
                 padding: "0.8rem",
                 borderRadius: "14px",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                backgroundColor: "rgba(255, 255, 255, 0.03)",
-                color: "#9CA3AF",
-                fontWeight: 600,
+                border: "1px solid rgba(212, 175, 55, 0.3)",
+                backgroundColor: "rgba(212, 175, 55, 0.05)",
+                color: "#D4AF37",
+                fontWeight: 800,
                 fontSize: "0.9rem",
-                cursor: "not-allowed",
+                cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "0.65rem",
-                opacity: 0.6,
+                gap: "0.5rem",
+                transition: "all 0.2s ease",
               }}
             >
-              <Apple size={18} /> Continue with Apple (Coming Soon)
+              Create account manually <ChevronDown size={16} />
             </button>
+          ) : (
+            <form onSubmit={handleManualSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <div style={{ display: "flex", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: "10px", padding: "4px", marginBottom: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={() => setIsRegisterMode(false)}
+                  style={{
+                    flex: 1,
+                    padding: "0.5rem",
+                    borderRadius: "8px",
+                    border: "none",
+                    backgroundColor: !isRegisterMode ? "#D4AF37" : "transparent",
+                    color: !isRegisterMode ? "#111" : "#AAA",
+                    fontWeight: 800,
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  Log In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsRegisterMode(true)}
+                  style={{
+                    flex: 1,
+                    padding: "0.5rem",
+                    borderRadius: "8px",
+                    border: "none",
+                    backgroundColor: isRegisterMode ? "#D4AF37" : "transparent",
+                    color: isRegisterMode ? "#111" : "#AAA",
+                    fontWeight: 800,
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  Sign Up
+                </button>
+              </div>
 
-            <button
-              type="button"
-              disabled
-              title="Email Login Coming Soon"
-              style={{
-                width: "100%",
-                padding: "0.8rem",
-                borderRadius: "14px",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                backgroundColor: "rgba(255, 255, 255, 0.03)",
-                color: "#9CA3AF",
-                fontWeight: 600,
-                fontSize: "0.9rem",
-                cursor: "not-allowed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.65rem",
-                opacity: 0.6,
-              }}
-            >
-              <Mail size={18} /> Continue with Magic Link Email
-            </button>
-          </div>
+              {isRegisterMode && (
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9CA3AF", marginBottom: "0.3rem" }}>Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name"
+                    style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }}
+                  />
+                </div>
+              )}
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9CA3AF", marginBottom: "0.3rem" }}>Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@example.com"
+                  style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9CA3AF", marginBottom: "0.3rem" }}>Password</label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: "100%",
+                  padding: "0.8rem",
+                  borderRadius: "10px",
+                  border: "none",
+                  backgroundColor: "#D4AF37",
+                  color: "#111111",
+                  fontWeight: 800,
+                  fontSize: "0.9rem",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  marginTop: "0.5rem",
+                }}
+              >
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
+                {isRegisterMode ? "Create Account" : "Log In"}
+              </button>
+            </form>
+          )}
 
           {/* PRIVACY NOTICE */}
           <p style={{ fontSize: "0.75rem", color: "#6B7280", textAlign: "center", marginTop: "1.75rem", lineHeight: 1.5 }}>

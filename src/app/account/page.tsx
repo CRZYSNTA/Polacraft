@@ -62,9 +62,102 @@ export default function AccountDashboardPage() {
 
   const user = session?.user;
 
+  const [showCompletionForm, setShowCompletionForm] = useState(false);
+  const [completePhone, setCompletePhone] = useState("");
+  const [completeStreet, setCompleteStreet] = useState("");
+  const [completeCity, setCompleteCity] = useState("");
+  const [completeZip, setCompleteZip] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const handleSaveProfileDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingProfile(true);
+    try {
+      if (completeStreet && completeCity && completeZip) {
+        await fetch("/api/auth/address", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: session?.user?.name || "Collector",
+            street: completeStreet,
+            city: completeCity,
+            state: "Kerala",
+            zip: completeZip,
+          }),
+        });
+      }
+      setShowCompletionForm(false);
+      const res = await fetch("/api/auth/me?t=" + Date.now(), { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          setAddressesCount(data.user.addresses?.length || 0);
+        }
+      }
+    } catch (e) {
+      console.error("[Save Profile Details Error]:", e);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#0B0C10", color: "#F3F4F6", paddingTop: "120px", paddingBottom: "100px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem" }}>
+        
+        {/* POST-LOGIN LOW-FRICTION PROFILE COMPLETION BANNER */}
+        {addressesCount === 0 && (
+          <div
+            style={{
+              backgroundColor: "rgba(212, 175, 55, 0.08)",
+              border: "1px solid rgba(212, 175, 55, 0.3)",
+              borderRadius: "20px",
+              padding: "1.5rem 1.75rem",
+              marginBottom: "2rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "1rem",
+            }}
+          >
+            <div>
+              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#D4AF37", marginBottom: "0.2rem" }}>
+                ⚡ Quick Step: Add Your Delivery Address
+              </div>
+              <div style={{ fontSize: "0.85rem", color: "#9CA3AF" }}>
+                Complete your profile once to enable 1-click Express WhatsApp checkout & automatic address filling.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCompletionForm(!showCompletionForm)}
+              style={{
+                padding: "0.65rem 1.25rem",
+                borderRadius: "12px",
+                border: "none",
+                backgroundColor: "#D4AF37",
+                color: "#111111",
+                fontWeight: 800,
+                fontSize: "0.85rem",
+                cursor: "pointer",
+              }}
+            >
+              {showCompletionForm ? "Hide Form" : "Add Address Now"}
+            </button>
+
+            {showCompletionForm && (
+              <form onSubmit={handleSaveProfileDetails} style={{ width: "100%", marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid rgba(212,175,55,0.2)", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                <input required value={completeStreet} onChange={(e) => setCompleteStreet(e.target.value)} placeholder="Street / Door No." style={{ padding: "0.7rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
+                <input required value={completeCity} onChange={(e) => setCompleteCity(e.target.value)} placeholder="City / District" style={{ padding: "0.7rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
+                <input required value={completeZip} onChange={(e) => setCompleteZip(e.target.value)} placeholder="PIN / ZIP Code" style={{ padding: "0.7rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
+                <button type="submit" disabled={savingProfile} style={{ gridColumn: "span 3", padding: "0.75rem", borderRadius: "10px", backgroundColor: "#10B981", color: "#FFF", fontWeight: 800, border: "none", cursor: "pointer" }}>
+                  {savingProfile ? "Saving..." : "Save Delivery Address & Complete Profile"}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
         
         {/* HEADER DASHBOARD BANNER */}
         <div
