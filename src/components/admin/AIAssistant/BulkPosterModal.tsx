@@ -189,44 +189,54 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
     }
   };
 
-  // One-Click Bulk Save to Database
+  // One-Click Bulk Save to Database via dedicated HTTP API Route
   const handlePublishAll = (draftList: any[]) => {
     if (draftList.length === 0) return;
 
     startTransition(async () => {
-      const inputs: ProductInput[] = draftList.map((d) => ({
-        title: d.title,
-        slug: d.slug || d.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-        film: d.film,
-        year: d.year || 2020,
-        director: d.director || "Polacraft Studio",
-        collectionName: d.collectionName || "Classic Malayalam",
-        genre: d.genre || "Drama",
-        price: d.price || 49,
-        inventory: d.inventory || 25,
-        tagline: d.tagline || "",
-        story: d.story || "",
-        designNotes: d.designNotes || "",
-        primaryColor: d.primaryColor || "#1E293B",
-        accentColor: d.accentColor || "#E2E8F0",
-        bgColor: d.bgColor || "#FAFAF8",
-        textColor: d.textColor || "#0F172A",
-        gsm: d.gsm || 300,
-        finish: d.finish || "Ultra-Matte Giclée",
-        paperType: d.paperType || "Fine Art Cotton Archival",
-        images: d.images || [],
-      }));
+      try {
+        const inputs = draftList.map((d) => ({
+          title: d.title,
+          slug: d.slug || d.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          film: d.film,
+          year: d.year || 2020,
+          director: d.director || "Polacraft Studio",
+          collectionName: d.collectionName || "Classic Malayalam",
+          genre: d.genre || "Drama",
+          price: d.price || 49,
+          inventory: d.inventory || 25,
+          tagline: d.tagline || "",
+          story: d.story || "",
+          designNotes: d.designNotes || "",
+          primaryColor: d.primaryColor || "#1E293B",
+          accentColor: d.accentColor || "#E2E8F0",
+          bgColor: d.bgColor || "#FAFAF8",
+          textColor: d.textColor || "#0F172A",
+          gsm: d.gsm || 300,
+          finish: d.finish || "Ultra-Matte Giclée",
+          paperType: d.paperType || "Fine Art Cotton Archival",
+          images: d.images || [],
+        }));
 
-      const res = await bulkSaveProductsAction(inputs);
+        const response = await fetch("/api/admin/products/bulk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ products: inputs }),
+        });
 
-      if (res.success && res.count > 0) {
-        alert(`Success! Successfully created and published ${res.count} poster products.`);
-        setGeneratedDrafts([]);
-        setBatchDrafts([]);
-        onSuccess();
-        onClose();
-      } else {
-        alert("Bulk Publish Error: " + (res.error || "0 products were saved. Please check poster details and try again."));
+        const data = await response.json();
+
+        if (response.ok && data.success && data.count > 0) {
+          alert(`🎉 Success! Created and published ${data.count} poster products to your store.`);
+          setGeneratedDrafts([]);
+          setBatchDrafts([]);
+          onSuccess();
+          onClose();
+        } else {
+          alert("Bulk Publish Error: " + (data.error || "Failed to publish products to database."));
+        }
+      } catch (err: any) {
+        alert("Bulk Publish Network Error: " + (err.message || "Failed to communicate with server."));
       }
     });
   };
