@@ -1,11 +1,22 @@
-import { getPosterBySlug } from "../../../lib/cms";
+import { getPosterBySlug, getPosters } from "../../../lib/cms";
 import ProductDetailClient from "./ProductDetailClient";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Enable 60-second Incremental Static Regeneration (ISR) for instant 0-lag loads
+export const revalidate = 60;
 
-// Dynamic SEO metadata generator for film posters (Point 1 & 8)
+export async function generateStaticParams() {
+  try {
+    const posters = await getPosters();
+    return posters.map((p) => ({
+      slug: p.slug,
+    }));
+  } catch (e) {
+    return [];
+  }
+}
+
+// Dynamic SEO metadata generator for film posters
 export async function generateMetadata({ params }: any) {
   const { slug } = await params;
   const poster = await getPosterBySlug(slug);
@@ -13,7 +24,7 @@ export async function generateMetadata({ params }: any) {
   if (!poster) {
     return {
       title: "Artwork Not Found | Polacraft",
-      description: "The requested Malayalam film poster could not be found in our digital gallery catalog."
+      description: "The requested Malayalam film poster could not be found in our digital gallery catalog.",
     };
   }
 
@@ -34,21 +45,21 @@ export async function generateMetadata({ params }: any) {
           url: poster.galleryImages?.[0] || "",
           width: 800,
           height: 1130,
-          alt: poster.title
-        }
+          alt: poster.title,
+        },
       ],
-      type: "website"
+      type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: poster.seoTitle,
       description: poster.seoDescription,
-      images: [poster.galleryImages?.[0] || ""]
+      images: [poster.galleryImages?.[0] || ""],
     },
     robots: {
       index: true,
-      follow: true
-    }
+      follow: true,
+    },
   };
 }
 

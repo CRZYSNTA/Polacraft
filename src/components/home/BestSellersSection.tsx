@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { Eye, Heart, ShoppingBag, ArrowLeft, ArrowRight } from "lucide-react";
@@ -142,13 +143,14 @@ export default function BestSellersSection({
                   }}
                   className="best-seller-art-wrapper"
                 >
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.35 }}
-                    onClick={() => router.push(`/product/${poster.slug}`)}
-                  >
-                    <PosterRenderer poster={poster} frame="unframed" />
-                  </motion.div>
+                  <Link href={`/product/${poster.slug}`} prefetch={true} style={{ display: "block", textDecoration: "none" }}>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.35 }}
+                    >
+                      <PosterRenderer poster={poster} frame="unframed" />
+                    </motion.div>
+                  </Link>
 
                   {/* Hover Buttons */}
                   <div

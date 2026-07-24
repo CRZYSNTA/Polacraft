@@ -66,7 +66,9 @@ export function mapDbProductToPoster(p: any): Product {
   };
 }
 
-export async function getPosters(): Promise<Product[]> {
+import { cache } from "react";
+
+export const getPosters = cache(async (): Promise<Product[]> => {
   try {
     const dbProducts = await prisma.product.findMany({
       include: {
@@ -80,14 +82,14 @@ export async function getPosters(): Promise<Product[]> {
       return dbProducts.map(mapDbProductToPoster);
     }
   } catch (e) {
-    console.warn("Database lookup failed in getPosters, falling back to static:", e);
-    return staticPosters;
+    console.warn("Database lookup failed in getPosters:", e);
+    return [];
   }
 
   return [];
-}
+});
 
-export async function getPosterBySlug(slug: string): Promise<Product | null> {
+export const getPosterBySlug = cache(async (slug: string): Promise<Product | null> => {
   try {
     const normalizedSlug = slug.toLowerCase().trim();
 
@@ -106,10 +108,10 @@ export async function getPosterBySlug(slug: string): Promise<Product | null> {
 
     return dbProduct ? mapDbProductToPoster(dbProduct) : null;
   } catch (e) {
-    console.warn("Database lookup failed in getPosterBySlug, falling back to static:", e);
-    return staticPosters.find((p) => p.slug === slug || p.slug === slug.toLowerCase().replace(/[^a-z0-9]+/g, "-")) || null;
+    console.warn("Database lookup failed in getPosterBySlug:", e);
+    return null;
   }
-}
+});
 
 export async function getFeaturedPosters(): Promise<Product[]> {
   const all = await getPosters();

@@ -101,17 +101,11 @@ export default function Home() {
         }
       } catch (e) {
         console.warn("[Home Live Catalog Load Error]:", e);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchLiveCatalog();
-  }, []);
-
-  // Loading intro sequence (800ms fade sequence)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
   }, []);
 
   const heroFanCards = livePosters.slice(0, 6);

@@ -238,7 +238,6 @@ export default function HeroSection({
                       stiffness: 130,
                       damping: 18
                     }}
-                    onClick={() => router.push(`/product/${posterObj.slug}`)}
                     style={{
                       position: "absolute",
                       width: isMobile ? "135px" : "195px",
@@ -250,7 +249,9 @@ export default function HeroSection({
                         : "0 12px 30px rgba(0,0,0,0.08)"
                     }}
                   >
-                    <PosterRenderer poster={posterObj} frame="unframed" />
+                    <Link href={`/product/${posterObj.slug}`} prefetch={true} style={{ display: "block", textDecoration: "none" }}>
+                      <PosterRenderer poster={posterObj} frame="unframed" />
+                    </Link>
                   </motion.div>
                 );
               })}
