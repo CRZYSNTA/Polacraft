@@ -5,6 +5,7 @@ import {
   updateOrderStatusAction,
   verifyAndApprovePaymentAction,
   rejectPaymentAction,
+  deleteOrderAction,
 } from "@/features/admin/businessActions";
 import ImageUploader from "@/components/admin/ImageUploader";
 import {
@@ -27,6 +28,7 @@ import {
   Ban,
   AlertOctagon,
   Image as ImageIcon,
+  Trash2,
 } from "lucide-react";
 
 export default function AdminOrdersPage() {
@@ -35,6 +37,28 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [isPending, startTransition] = useTransition();
+
+  const handleDeleteOrder = (orderId: string, orderNumber: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete Order #${orderNumber}? This action cannot be undone.`)) {
+      return;
+    }
+
+    startTransition(async () => {
+      const res = await deleteOrderAction(orderId);
+      if (res.success) {
+        setOrders((prev) => prev.filter((o) => o.id !== orderId));
+        if (selectedOrder?.id === orderId) {
+          setSelectedOrder(null);
+        }
+        if (invoiceOrder?.id === orderId) {
+          setInvoiceOrder(null);
+        }
+        alert(`Order #${orderNumber} successfully deleted.`);
+      } else {
+        alert("Delete Failed: " + (res.error || "Unknown error"));
+      }
+    });
+  };
 
   // Selected order for Detail & Timeline modal
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
@@ -394,6 +418,26 @@ export default function AdminOrdersPage() {
                         >
                           <Printer size={14} /> Invoice
                         </button>
+                        <button
+                          onClick={() => handleDeleteOrder(order.id, order.orderNumber)}
+                          disabled={isPending}
+                          style={{
+                            border: "1px solid #FCA5A5",
+                            background: "#FEF2F2",
+                            color: "#DC2626",
+                            borderRadius: "8px",
+                            padding: "0.4rem 0.6rem",
+                            cursor: isPending ? "not-allowed" : "pointer",
+                            fontSize: "0.75rem",
+                            fontWeight: "700",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                          title="Delete order permanently"
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -443,9 +487,32 @@ export default function AdminOrdersPage() {
                   Placed on {new Date(selectedOrder.createdAt).toLocaleString("en-IN")}
                 </p>
               </div>
-              <button onClick={() => setSelectedOrder(null)} style={{ background: "none", border: "none", cursor: "pointer" }}>
-                <X size={24} />
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteOrder(selectedOrder.id, selectedOrder.orderNumber)}
+                  disabled={isPending}
+                  style={{
+                    backgroundColor: "#FEF2F2",
+                    color: "#DC2626",
+                    border: "1px solid #FCA5A5",
+                    padding: "0.45rem 0.85rem",
+                    borderRadius: "8px",
+                    fontSize: "0.8rem",
+                    fontWeight: 700,
+                    cursor: isPending ? "not-allowed" : "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                  }}
+                  title="Delete order permanently"
+                >
+                  <Trash2 size={14} /> Delete Order
+                </button>
+                <button onClick={() => setSelectedOrder(null)} style={{ background: "none", border: "none", cursor: "pointer" }}>
+                  <X size={24} />
+                </button>
+              </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "2rem" }}>

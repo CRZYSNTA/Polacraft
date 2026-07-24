@@ -21,3 +21,30 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  const authError = await protectAdminApiRoute(req);
+  if (authError) return authError;
+
+  try {
+    const { searchParams } = new URL(req.url);
+    let orderId = searchParams.get("id");
+
+    if (!orderId) {
+      const body = await req.json().catch(() => ({}));
+      orderId = body.id;
+    }
+
+    if (!orderId) {
+      return NextResponse.json({ error: "Order ID is required" }, { status: 400 });
+    }
+
+    await prisma.order.delete({
+      where: { id: orderId },
+    });
+
+    return NextResponse.json({ success: true, deletedId: orderId });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Failed to delete order" }, { status: 500 });
+  }
+}

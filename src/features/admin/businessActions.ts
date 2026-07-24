@@ -550,3 +550,31 @@ export async function saveSiteSettingsAction(input: SiteSettingsInput) {
     return { success: false, error: error.message || "Failed to save site settings" };
   }
 }
+
+export async function deleteOrderAction(orderId: string) {
+  const session = await requireAdminSession();
+  if (!session) return { success: false, error: "Unauthorized" };
+
+  try {
+    const existing = await prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!existing) {
+      return { success: false, error: "Order not found" };
+    }
+
+    await prisma.order.delete({
+      where: { id: orderId },
+    });
+
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin/analytics");
+    revalidatePath("/admin/customers");
+
+    return { success: true, deletedId: orderId };
+  } catch (error: any) {
+    console.error("[deleteOrderAction Error]:", error);
+    return { success: false, error: error.message || "Failed to delete order." };
+  }
+}
