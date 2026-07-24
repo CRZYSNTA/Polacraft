@@ -342,11 +342,11 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
             <form onSubmit={handleGenerateCollection} style={{ backgroundColor: "#F8FAFC", padding: "1.5rem", borderRadius: "16px", border: "1px solid #E2E8F0", display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: "1rem", alignItems: "end" }}>
               <div>
                 <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1E293B", display: "block", marginBottom: "0.35rem" }}>
-                  Movie Name or Actor / Director
+                  Movie, Player, or Actor / Director Name
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Drishyam, Mohanlal, Lucifer, Premam, Fahadh Faasil"
+                  placeholder="e.g. Lionel Messi, Cristiano Ronaldo, Neymar, Drishyam, Mohanlal"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "10px", border: "1px solid #CBD5E1", fontSize: "0.9rem" }}
@@ -379,8 +379,11 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                   onChange={(e) => setCollectionName(e.target.value)}
                   style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "10px", border: "1px solid #CBD5E1", fontSize: "0.9rem", backgroundColor: "#FFF" }}
                 >
+                  <option value="Football Legends">⚽ Football Legends</option>
+                  <option value="Sports Icons">🏆 Sports Icons</option>
                   <option value="Classic Malayalam">Classic Malayalam</option>
                   <option value="Modern Malayalam">Modern Malayalam</option>
+                  <option value="Tamil Cinema">Tamil Cinema</option>
                   <option value="Cult Classics">Cult Classics</option>
                   <option value="Limited Edition">Limited Edition</option>
                 </select>
@@ -408,6 +411,44 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                 Generate Suite
               </button>
             </form>
+
+            {/* Quick 1-Click Preset Chips */}
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem", marginTop: "-0.5rem" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#64748B" }}>⚡ 1-Click Quick Presets:</span>
+              {[
+                { label: "⚽ Lionel Messi", query: "Lionel Messi", collection: "Football Legends" },
+                { label: "⚽ Cristiano Ronaldo", query: "Cristiano Ronaldo", collection: "Football Legends" },
+                { label: "⚽ Neymar Jr", query: "Neymar Jr", collection: "Football Legends" },
+                { label: "⚽ Mbappé", query: "Kylian Mbappe", collection: "Football Legends" },
+                { label: "⚽ Haaland", query: "Erling Haaland", collection: "Football Legends" },
+                { label: "⚽ Maradona", query: "Diego Maradona", collection: "Football Legends" },
+                { label: "⚽ Pelé", query: "Pelé", collection: "Football Legends" },
+                { label: "🎬 Mohanlal", query: "Mohanlal", collection: "Classic Malayalam" },
+                { label: "🎬 Rajinikanth", query: "Rajinikanth", collection: "Tamil Cinema" },
+              ].map((chip) => (
+                <button
+                  key={chip.label}
+                  type="button"
+                  onClick={() => {
+                    setQuery(chip.query);
+                    setCollectionName(chip.collection);
+                  }}
+                  style={{
+                    backgroundColor: query === chip.query ? "#8B5CF6" : "#EFF6FF",
+                    color: query === chip.query ? "#FFFFFF" : "#1D4ED8",
+                    border: query === chip.query ? "none" : "1px solid #BFDBFE",
+                    borderRadius: "20px",
+                    padding: "0.3rem 0.75rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
 
             {/* Generated Suite Preview Table */}
             {generatedDrafts.length > 0 && (
