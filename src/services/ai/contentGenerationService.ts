@@ -181,14 +181,8 @@ export async function generateFullAIProductDraft(
 
   const year = verifiedMeta?.year || procedural.year;
   const director = verifiedMeta?.director || procedural.director;
-  const taglineText = movieName
-    ? (verifiedMeta ? `Handcrafted Archival Print celebrating ${verifiedMeta.movie}` : procedural.tagline)
-    : "Archival Fine Art Collectible Print.";
-  const storyText = movieName
-    ? (verifiedMeta
-        ? `Immortalize the cinematic art of ${verifiedMeta.movie} (${verifiedMeta.year}, Dir. ${verifiedMeta.director}). Designed for cinephiles and interior curators, this fine art print captures the visual tone of the film in a clean minimalist aesthetic. Printed on 300 GSM heavy-weight matte paper with archival pigment inks for deep contrast and zero glare.`
-        : procedural.story)
-    : "Collectible 300 GSM archival fine art print. Designed for film enthusiasts and interior curators.";
+  const taglineText = verifiedMeta?.tagline || (movieName ? procedural.tagline : "Archival Fine Art Collectible Print.");
+  const storyText = verifiedMeta?.story || (movieName ? procedural.story : "Collectible 300 GSM archival fine art print. Designed for film enthusiasts and interior curators.");
 
   const cast = verifiedMeta?.cast || (vision.actor ? [vision.actor] : []);
   const genre = verifiedMeta?.genre || null;
