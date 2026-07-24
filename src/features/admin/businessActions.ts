@@ -49,9 +49,29 @@ export async function saveProductAction(input: ProductInput) {
     const lowStockThreshold = input.lowStockThreshold ?? 5;
     const isSoldOut = input.inventory === 0 && !input.isPreorder;
 
+    let baseSlug = input.slug
+      ? input.slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+      : input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+    if (!baseSlug) {
+      baseSlug = "poster-" + Date.now().toString(36);
+    }
+
+    // Guarantee Unique Slug in PostgreSQL
+    let finalSlug = baseSlug;
+    if (!isEdit) {
+      let existing = await prisma.product.findUnique({ where: { slug: finalSlug } });
+      let counter = 1;
+      while (existing) {
+        finalSlug = `${baseSlug}-${counter}-${Math.random().toString(36).substring(2, 6)}`;
+        existing = await prisma.product.findUnique({ where: { slug: finalSlug } });
+        counter++;
+      }
+    }
+
     const dataPayload = {
       title: input.title,
-      slug: input.slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+      slug: finalSlug,
       film: input.film,
       year: Number(input.year),
       director: input.director,
@@ -70,7 +90,7 @@ export async function saveProductAction(input: ProductInput) {
       accentColor: input.accentColor || "#10B981",
       bgColor: input.bgColor || "#FAFAF8",
       textColor: input.textColor || "#1E1E1E",
-      gsm: input.gsm ? Number(input.gsm) : 250,
+      gsm: input.gsm ? Number(input.gsm) : 300,
       finish: input.finish || "Ultra-Matte Giclée",
       paperType: input.paperType || "Fine Art Cotton Archival",
       tagline: input.tagline || "",
