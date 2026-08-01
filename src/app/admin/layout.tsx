@@ -1,6 +1,5 @@
 import React from "react";
-import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
+import { getAdminSession } from "@/lib/auth/guards";
 import Sidebar from "@/components/admin/Sidebar";
 import Topbar from "@/components/admin/Topbar";
 
@@ -14,19 +13,12 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Server-side verification of admin session
-  const session = await getSession();
+  // Unified Admin Session check (Auth.js Google OAuth + Legacy Session)
+  const session = await getAdminSession();
 
-  // If user is accessing login page, render children directly without dashboard chrome
-  // Note: Middleware already redirects authenticated ADMINs away from /admin/login to /admin
-  // But layout check ensures isolated layout rendering for /admin/login
+  // If no admin session active, render standalone page (e.g. /admin/login page component)
   if (!session) {
     return <>{children}</>;
-  }
-
-  // If session exists but role is not ADMIN or SUPER_ADMIN, deny access and redirect to storefront
-  if (session.role !== "ADMIN" && session.role !== "SUPER_ADMIN") {
-    redirect("/");
   }
 
   return (
