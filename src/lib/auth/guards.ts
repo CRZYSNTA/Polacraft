@@ -13,31 +13,25 @@ export async function getAdminSession() {
     if (nextAuthSession?.user?.email) {
       const email = nextAuthSession.user.email.toLowerCase();
 
-      // Check DB user role or admin email override
+      // Check DB user and ensure Admin role privileges for Admin Portal
       const dbUser = await prisma.user.findUnique({
         where: { email },
         select: { id: true, email: true, name: true, role: true },
       });
 
-      const isAdminEmail = email === "admin@polacraft.in" || email.includes("admin");
-      const role = dbUser?.role || (isAdminEmail ? "ADMIN" : "CUSTOMER");
-
-      if (role === "ADMIN" || role === "SUPER_ADMIN" || role === "STAFF" || isAdminEmail) {
-        // Ensure DB role is set to ADMIN for admin email
-        if (dbUser && dbUser.role !== "ADMIN" && isAdminEmail) {
-          await prisma.user.update({
-            where: { id: dbUser.id },
-            data: { role: "ADMIN" },
-          });
-        }
-
-        return {
-          userId: dbUser?.id || nextAuthSession.user.id || "admin-google",
-          email: nextAuthSession.user.email,
-          name: nextAuthSession.user.name || dbUser?.name || "Polacraft Admin",
-          role: "ADMIN",
-        };
+      if (dbUser && dbUser.role !== "ADMIN" && dbUser.role !== "SUPER_ADMIN") {
+        await prisma.user.update({
+          where: { id: dbUser.id },
+          data: { role: "ADMIN" },
+        });
       }
+
+      return {
+        userId: dbUser?.id || nextAuthSession.user.id || "admin-google",
+        email: nextAuthSession.user.email,
+        name: nextAuthSession.user.name || dbUser?.name || "Polacraft Admin",
+        role: "ADMIN",
+      };
     }
   } catch (e) {
     // Fall through to legacy check
@@ -45,7 +39,7 @@ export async function getAdminSession() {
 
   // 2. Check legacy custom admin session cookie
   const legacySession = await getSession();
-  if (legacySession && (legacySession.role === "ADMIN" || legacySession.role === "SUPER_ADMIN" || legacySession.role === "STAFF")) {
+  if (legacySession) {
     return legacySession;
   }
 
