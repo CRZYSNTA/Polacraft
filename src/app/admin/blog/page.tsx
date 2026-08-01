@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
+import Image from "next/image";
 import { saveBlogPostAction, deleteBlogPostAction } from "@/features/admin/businessActions";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { BookOpen, Plus, Edit, Trash2, Loader2, X, Image as ImageIcon } from "lucide-react";
@@ -169,7 +170,16 @@ export default function AdminBlogPage() {
                 <tr key={post.id} style={{ borderBottom: "1px solid #F3F4F6" }}>
                   <td style={{ padding: "1rem", display: "flex", gap: "1rem", alignItems: "center" }}>
                     <div style={{ width: "50px", height: "35px", borderRadius: "6px", overflow: "hidden", backgroundColor: "#F3F4F6", flexShrink: 0 }}>
-                      {post.img && <img src={post.img} alt={post.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+                      {post.img && (
+                        <Image
+                          src={post.img}
+                          alt={post.title}
+                          width={50}
+                          height={35}
+                          unoptimized={post.img.startsWith("http")}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      )}
                     </div>
                     <div>
                       <strong style={{ fontSize: "0.95rem", color: "#111" }}>{post.title}</strong>

@@ -2,6 +2,7 @@
 
 import React, { useContext, useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { AppContext } from "../features/cart/AppContext";
@@ -211,10 +212,13 @@ export const Navbar = () => {
                 aria-label="User Account"
               >
                 {session.user.image ? (
-                  <img
+                  <Image
                     src={session.user.image}
                     alt={session.user.name || "User"}
-                    style={{ width: "24px", height: "24px", borderRadius: "50%", border: "1px solid #D4AF37", objectFit: "cover" }}
+                    width={24}
+                    height={24}
+                    unoptimized={session.user.image.startsWith("http")}
+                    style={{ borderRadius: "50%", border: "1px solid #D4AF37", objectFit: "cover" }}
                   />
                 ) : (
                   <User size={18} style={{ color: "var(--text-dark)" }} />

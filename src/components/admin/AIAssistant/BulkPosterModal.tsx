@@ -633,7 +633,7 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
                     <div key={idx} style={{ border: "1px solid #E2E8F0", borderRadius: "16px", padding: "1rem", backgroundColor: "#FFF", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative" }}>
                       {d.images?.[0]?.url && (
                         <div style={{ position: "relative", width: "100%", height: "170px", borderRadius: "12px", overflow: "hidden" }}>
-                          <img src={d.images[0].url} alt={d.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          <img src={d.images[0].url} alt={d.title} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           <div style={{ position: "absolute", top: "8px", right: "8px", display: "flex", gap: "4px" }}>
                             <button
                               onClick={() => handleOpenEditDraft(idx, "BATCH_UPLOAD")}

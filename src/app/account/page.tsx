@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   User,
@@ -180,10 +181,13 @@ export default function AccountDashboardPage() {
         >
           <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
             {user?.image ? (
-              <img
+              <Image
                 src={user.image}
                 alt={user.name || "Customer"}
-                style={{ width: "72px", height: "72px", borderRadius: "50%", objectFit: "cover", border: "2px solid #D4AF37" }}
+                width={72}
+                height={72}
+                unoptimized={user.image.startsWith("http")}
+                style={{ borderRadius: "50%", objectFit: "cover", border: "2px solid #D4AF37" }}
               />
             ) : (
               <div

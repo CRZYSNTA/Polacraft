@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
+import Image from "next/image";
 import {
   saveProductAction,
   deleteProductAction,
@@ -435,7 +436,14 @@ export default function AdminProductsPage() {
                         }}
                       >
                         {heroImg ? (
-                          <img src={heroImg} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          <Image
+                            src={heroImg}
+                            alt={p.title}
+                            width={40}
+                            height={52}
+                            unoptimized={heroImg.startsWith("http")}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
                         ) : (
                           <span style={{ fontSize: "0.5rem", color: "#FFF", fontWeight: 800 }}>
                             {p.title.substring(0, 3).toUpperCase()}

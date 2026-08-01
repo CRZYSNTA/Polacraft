@@ -34,10 +34,10 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
   const [zoomStyle, setZoomStyle] = useState({ transform: "scale(1)", transformOrigin: "center" });
 
   useEffect(() => {
-    if (poster) {
+    if (poster && poster.id) {
       addRecentlyViewed(poster);
     }
-  }, [poster]);
+  }, [poster?.id, addRecentlyViewed]);
 
   // Reset quantity to 1 when size changes
   useEffect(() => {

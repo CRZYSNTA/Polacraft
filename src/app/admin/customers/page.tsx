@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { Users, Mail, Phone, MapPin, Award, Search, MessageSquare, ShieldCheck, Loader2 } from "lucide-react";
 
 export default function AdminCustomersPage() {
@@ -124,7 +125,14 @@ export default function AdminCustomersPage() {
                       <td style={{ padding: "1rem" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                           {c.avatar ? (
-                            <img src={c.avatar} alt={c.name} style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover" }} />
+                            <Image
+                              src={c.avatar}
+                              alt={c.name || "Customer"}
+                              width={40}
+                              height={40}
+                              unoptimized={c.avatar.startsWith("http")}
+                              style={{ borderRadius: "50%", objectFit: "cover" }}
+                            />
                           ) : (
                             <div style={{ width: "40px", height: "40px", borderRadius: "50%", backgroundColor: "rgba(212,175,55,0.15)", color: "#D4AF37", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "1rem" }}>
                               {c.name ? c.name[0].toUpperCase() : "C"}

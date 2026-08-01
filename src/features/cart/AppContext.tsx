@@ -116,6 +116,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [selectedRewards, mounted]);
 
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("polacraft_recently", JSON.stringify(recentlyViewed));
+    }
+  }, [recentlyViewed, mounted]);
+
   // Cart operations
   const addToCart = (poster: Product, sizeId: string = "A4", frameId: string = "unframed", quantity: number = 1) => {
     const sizeObj = sizes.find((s) => s.id === sizeId);
@@ -185,14 +191,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addRecentlyViewed = (poster: Product) => {
-    if (!poster) return;
+    if (!poster || !poster.id) return;
     setRecentlyViewed((prev) => {
       const filtered = prev.filter((p) => p.id !== poster.id);
-      const updated = [poster, ...filtered].slice(0, 4);
-      if (mounted) {
-        localStorage.setItem("polacraft_recently", JSON.stringify(updated));
-      }
-      return updated;
+      return [poster, ...filtered].slice(0, 6);
     });
   };
 

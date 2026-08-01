@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Search, Sun, User, ArrowRight, Sparkles, BookOpen, Layers } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import PosterRenderer from "../../components/PosterRenderer";
 import { posters } from "../../lib/cms/products";
@@ -179,7 +180,14 @@ export default function PosterPlaceHero() {
             <button aria-label="Search" style={{ cursor: "pointer", color: "#6B7280", background: "none", border: "none", padding: "4px" }} className="hover-dark-btn"><Search size={16} /></button>
             <button aria-label="Theme" style={{ cursor: "pointer", color: "#6B7280", background: "none", border: "none", padding: "4px" }} className="hover-dark-btn"><Sun size={16} /></button>
             <div style={{ width: "26px", height: "26px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(0,0,0,0.08)", cursor: "pointer" }}>
-              <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80" alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <Image
+                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80"
+                alt="Profile"
+                width={26}
+                height={26}
+                unoptimized
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
             </div>
           </div>
         </motion.nav>
