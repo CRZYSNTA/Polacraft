@@ -28,6 +28,14 @@ export default function AccountDashboardPage() {
   const [loyaltyPoints, setLoyaltyPoints] = useState(50);
   const [loadingData, setLoadingData] = useState(true);
 
+  // Profile completion state declared unconditionally at top level
+  const [showCompletionForm, setShowCompletionForm] = useState(false);
+  const [completePhone, setCompletePhone] = useState("");
+  const [completeStreet, setCompleteStreet] = useState("");
+  const [completeCity, setCompleteCity] = useState("");
+  const [completeZip, setCompleteZip] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
   useEffect(() => {
     async function fetchAccountOverview() {
       try {
@@ -61,13 +69,6 @@ export default function AccountDashboardPage() {
   }
 
   const user = session?.user;
-
-  const [showCompletionForm, setShowCompletionForm] = useState(false);
-  const [completePhone, setCompletePhone] = useState("");
-  const [completeStreet, setCompleteStreet] = useState("");
-  const [completeCity, setCompleteCity] = useState("");
-  const [completeZip, setCompleteZip] = useState("");
-  const [savingProfile, setSavingProfile] = useState(false);
 
   const handleSaveProfileDetails = async (e: React.FormEvent) => {
     e.preventDefault();
