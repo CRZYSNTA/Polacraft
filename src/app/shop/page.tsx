@@ -1,4 +1,4 @@
-import { getPosters } from "@/lib/cms";
+import { getPosters, getStoreCollections } from "@/lib/cms";
 import ShopClient from "./ShopClient";
 import { Suspense } from "react";
 
@@ -7,6 +7,7 @@ export const revalidate = 10;
 
 export default async function Shop() {
   const initialPosters = await getPosters();
+  const initialCollections = await getStoreCollections();
 
   return (
     <Suspense
@@ -16,7 +17,7 @@ export default async function Shop() {
         </div>
       }
     >
-      <ShopClient initialPosters={initialPosters} />
+      <ShopClient initialPosters={initialPosters} initialCollections={initialCollections} />
     </Suspense>
   );
 }

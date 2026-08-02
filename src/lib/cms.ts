@@ -128,3 +128,31 @@ export async function getPostersByCollection(collection: string): Promise<Produc
   if (collection === "All Collections") return all;
   return all.filter((p) => p.collection.toLowerCase().includes(collection.split(" ")[0].toLowerCase()));
 }
+
+export interface StoreCollectionItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  parentId?: string | null;
+  parent?: { id: string; name: string } | null;
+  subCollections?: { id: string; name: string }[];
+}
+
+export const getStoreCollections = cache(async (): Promise<StoreCollectionItem[]> => {
+  try {
+    const collections = await prisma.collection.findMany({
+      include: {
+        parent: { select: { id: true, name: true } },
+        subCollections: {
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
+        },
+      },
+      orderBy: { name: "asc" },
+    });
+    return collections || [];
+  } catch (e) {
+    console.warn("Database lookup failed in getStoreCollections:", e);
+    return [];
+  }
+});
