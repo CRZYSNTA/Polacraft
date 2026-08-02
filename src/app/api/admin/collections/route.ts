@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { protectAdminApiRoute } from "@/lib/auth/guards";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   const authError = await protectAdminApiRoute(req);
   if (authError) return authError;
@@ -10,6 +12,14 @@ export async function GET(req: Request) {
     const collections = await prisma.collection.findMany({
       include: {
         _count: { select: { products: true } },
+        products: {
+          select: {
+            id: true,
+            title: true,
+            film: true,
+            images: { select: { url: true }, take: 1, orderBy: { sortOrder: "asc" } },
+          },
+        },
       },
       orderBy: { name: "asc" },
     });

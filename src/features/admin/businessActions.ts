@@ -395,7 +395,12 @@ export async function updateOrderStatusAction(
 // 3. COLLECTION MANAGEMENT SERVER ACTIONS
 // ==========================================
 
-export async function saveCollectionAction(name: string, description?: string, id?: string) {
+export async function saveCollectionAction(
+  name: string,
+  description?: string,
+  id?: string,
+  productIds?: string[]
+) {
   const session = await requireAdminSession();
   if (!session) return { success: false, error: "Unauthorized" };
 
@@ -412,7 +417,30 @@ export async function saveCollectionAction(name: string, description?: string, i
       });
     }
 
+    // Assign / Unassign posters to this collection
+    if (Array.isArray(productIds)) {
+      // 1. Unassign products currently in this collection that were unchecked
+      await prisma.product.updateMany({
+        where: {
+          collectionId: collection.id,
+          id: { notIn: productIds },
+        },
+        data: { collectionId: null },
+      });
+
+      // 2. Assign checked products to this collection
+      if (productIds.length > 0) {
+        await prisma.product.updateMany({
+          where: { id: { in: productIds } },
+          data: { collectionId: collection.id },
+        });
+      }
+    }
+
     revalidatePath("/admin/collections");
+    revalidatePath("/admin/products");
+    revalidatePath("/shop");
+    revalidatePath("/");
     return { success: true, collection };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to save collection" };
