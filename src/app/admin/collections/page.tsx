@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useTransition, useMemo } from "react";
 import Image from "next/image";
 import { saveCollectionAction, deleteCollectionAction } from "@/features/admin/businessActions";
-import { FolderKanban, Plus, Edit, Trash2, Loader2, X, Package, Search, CheckSquare, Square } from "lucide-react";
+import { FolderKanban, Plus, Edit, Trash2, Loader2, X, Package, Search, CheckSquare, Square, Filter, Tag } from "lucide-react";
 
 export default function AdminCollectionsPage() {
   const [collections, setCollections] = useState<any[]>([]);
@@ -19,6 +19,7 @@ export default function AdminCollectionsPage() {
   const [description, setDescription] = useState("");
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [posterSearch, setPosterSearch] = useState("");
+  const [filterTab, setFilterTab] = useState<"ALL" | "THIS" | "OTHER" | "UNASSIGNED">("ALL");
 
   const fetchCollections = async () => {
     try {
@@ -61,6 +62,7 @@ export default function AdminCollectionsPage() {
     setDescription("");
     setSelectedProductIds([]);
     setPosterSearch("");
+    setFilterTab("ALL");
     setIsModalOpen(true);
   };
 
@@ -71,6 +73,7 @@ export default function AdminCollectionsPage() {
     const currentProductIds = col.products?.map((p: any) => p.id) || [];
     setSelectedProductIds(currentProductIds);
     setPosterSearch("");
+    setFilterTab("ALL");
     setIsModalOpen(true);
   };
 
@@ -81,15 +84,39 @@ export default function AdminCollectionsPage() {
   };
 
   const filteredProducts = useMemo(() => {
-    if (!posterSearch.trim()) return allProducts;
-    const q = posterSearch.toLowerCase();
-    return allProducts.filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.film?.toLowerCase().includes(q) ||
-        p.director?.toLowerCase().includes(q)
-    );
-  }, [allProducts, posterSearch]);
+    let result = allProducts;
+
+    // Filter by tab
+    if (filterTab === "THIS") {
+      result = result.filter((p) => selectedProductIds.includes(p.id));
+    } else if (filterTab === "OTHER") {
+      result = result.filter((p) => {
+        const cName = p.collectionName || p.collection?.name;
+        const isThis = editingCollection && cName === editingCollection.name;
+        const isGeneral = !cName || cName === "General Art Prints" || cName === "Uncategorized";
+        return !isThis && !isGeneral;
+      });
+    } else if (filterTab === "UNASSIGNED") {
+      result = result.filter((p) => {
+        const cName = p.collectionName || p.collection?.name;
+        return !cName || cName === "General Art Prints" || cName === "Uncategorized";
+      });
+    }
+
+    // Filter by text search
+    if (posterSearch.trim()) {
+      const q = posterSearch.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.film?.toLowerCase().includes(q) ||
+          p.director?.toLowerCase().includes(q) ||
+          (p.collectionName && p.collectionName.toLowerCase().includes(q))
+      );
+    }
+
+    return result;
+  }, [allProducts, posterSearch, filterTab, selectedProductIds, editingCollection]);
 
   const handleSelectAllFiltered = () => {
     const filteredIds = filteredProducts.map((p) => p.id);
@@ -116,6 +143,7 @@ export default function AdminCollectionsPage() {
       if (res.success) {
         setIsModalOpen(false);
         fetchCollections();
+        fetchProducts(); // Refresh product collection assignments
       } else {
         alert("Error saving collection: " + res.error);
       }
@@ -129,6 +157,7 @@ export default function AdminCollectionsPage() {
       const res = await deleteCollectionAction(id);
       if (res.success) {
         setCollections((prev) => prev.filter((c) => c.id !== id));
+        fetchProducts();
       } else {
         alert("Error deleting collection: " + res.error);
       }
@@ -324,8 +353,8 @@ export default function AdminCollectionsPage() {
               backgroundColor: "#FFF",
               borderRadius: "24px",
               width: "100%",
-              maxWidth: "680px",
-              maxHeight: "90vh",
+              maxWidth: "720px",
+              maxHeight: "92vh",
               display: "flex",
               flexDirection: "column",
               boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
@@ -334,13 +363,13 @@ export default function AdminCollectionsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div style={{ padding: "1.5rem 2rem", borderBottom: "1px solid #F1F5F9", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ padding: "1.25rem 1.75rem", borderBottom: "1px solid #F1F5F9", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: "800" }}>
+                <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: "800" }}>
                   {editingCollection ? `Edit Collection: ${editingCollection.name}` : "Create New Collection"}
                 </h2>
                 <p style={{ margin: "2px 0 0 0", fontSize: "0.8rem", color: "#64748B" }}>
-                  Set collection metadata and select posters to include.
+                  Set collection metadata and assign posters with live existing collection badges.
                 </p>
               </div>
               <button onClick={() => setIsModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748B" }}>
@@ -349,7 +378,7 @@ export default function AdminCollectionsPage() {
             </div>
 
             {/* Form Body */}
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flexGrow: 1, overflowY: "auto", padding: "1.5rem 2rem", gap: "1.5rem" }}>
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flexGrow: 1, overflowY: "auto", padding: "1.25rem 1.75rem", gap: "1.25rem" }}>
               {/* Basic Fields */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div>
@@ -362,7 +391,7 @@ export default function AdminCollectionsPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Classic Malayalam Cinema"
-                    style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }}
+                    style={{ width: "100%", padding: "0.65rem 0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.85rem" }}
                   />
                 </div>
 
@@ -375,7 +404,7 @@ export default function AdminCollectionsPage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Curated vintage film poster art..."
-                    style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }}
+                    style={{ width: "100%", padding: "0.65rem 0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.85rem" }}
                   />
                 </div>
               </div>
@@ -396,36 +425,68 @@ export default function AdminCollectionsPage() {
                     <button
                       type="button"
                       onClick={handleSelectAllFiltered}
-                      style={{ fontSize: "0.75rem", fontWeight: 700, color: "#10B981", background: "#ECFDF5", border: "none", borderRadius: "6px", padding: "0.35rem 0.6rem", cursor: "pointer" }}
+                      style={{ fontSize: "0.75rem", fontWeight: 700, color: "#10B981", background: "#ECFDF5", border: "none", borderRadius: "6px", padding: "0.3rem 0.6rem", cursor: "pointer" }}
                     >
                       Select All
                     </button>
                     <button
                       type="button"
                       onClick={handleDeselectAllFiltered}
-                      style={{ fontSize: "0.75rem", fontWeight: 700, color: "#EF4444", background: "#FEF2F2", border: "none", borderRadius: "6px", padding: "0.35rem 0.6rem", cursor: "pointer" }}
+                      style={{ fontSize: "0.75rem", fontWeight: 700, color: "#EF4444", background: "#FEF2F2", border: "none", borderRadius: "6px", padding: "0.3rem 0.6rem", cursor: "pointer" }}
                     >
                       Deselect All
                     </button>
                   </div>
                 </div>
 
-                {/* Poster Search Bar */}
-                <div style={{ position: "relative" }}>
-                  <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#94A3B8" }} />
-                  <input
-                    type="text"
-                    value={posterSearch}
-                    onChange={(e) => setPosterSearch(e.target.value)}
-                    placeholder="Search posters by title, film, director..."
-                    style={{ width: "100%", padding: "0.55rem 0.75rem 0.55rem 2rem", borderRadius: "8px", border: "1px solid #E2E8F0", fontSize: "0.8rem", backgroundColor: "#F8FAFC" }}
-                  />
+                {/* Filter Tabs & Search Bar */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {/* Category Tabs */}
+                  <div style={{ display: "flex", gap: "0.35rem", overflowX: "auto", paddingBottom: "2px" }}>
+                    {[
+                      { id: "ALL", label: `All (${allProducts.length})` },
+                      { id: "THIS", label: `Selected (${selectedProductIds.length})` },
+                      { id: "OTHER", label: "In Other Collections" },
+                      { id: "UNASSIGNED", label: "Unassigned" },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setFilterTab(tab.id as any)}
+                        style={{
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          padding: "0.3rem 0.65rem",
+                          borderRadius: "8px",
+                          border: filterTab === tab.id ? "1px solid #10B981" : "1px solid #E2E8F0",
+                          backgroundColor: filterTab === tab.id ? "#10B981" : "#F8FAFC",
+                          color: filterTab === tab.id ? "#FFF" : "#475569",
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Search Bar */}
+                  <div style={{ position: "relative" }}>
+                    <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#94A3B8" }} />
+                    <input
+                      type="text"
+                      value={posterSearch}
+                      onChange={(e) => setPosterSearch(e.target.value)}
+                      placeholder="Search posters by title, film, or current collection..."
+                      style={{ width: "100%", padding: "0.5rem 0.75rem 0.5rem 2rem", borderRadius: "8px", border: "1px solid #E2E8F0", fontSize: "0.8rem", backgroundColor: "#F8FAFC" }}
+                    />
+                  </div>
                 </div>
 
-                {/* Scrollable Poster Checklist */}
+                {/* Scrollable Poster Checklist with Current Collection Badges */}
                 <div
                   style={{
-                    maxHeight: "260px",
+                    maxHeight: "280px",
                     overflowY: "auto",
                     border: "1px solid #E2E8F0",
                     borderRadius: "12px",
@@ -442,12 +503,15 @@ export default function AdminCollectionsPage() {
                     </div>
                   ) : filteredProducts.length === 0 ? (
                     <div style={{ padding: "1.5rem", textAlign: "center", color: "#94A3B8", fontSize: "0.85rem" }}>
-                      No posters match "{posterSearch}"
+                      No posters match filters
                     </div>
                   ) : (
                     filteredProducts.map((p) => {
                       const isSelected = selectedProductIds.includes(p.id);
                       const imgUrl = p.images?.[0]?.url;
+                      const currentCollectionName = p.collectionName || p.collection?.name;
+                      const isAssignedToThis = editingCollection && currentCollectionName === editingCollection.name;
+                      const isAssignedToOther = currentCollectionName && (!editingCollection || currentCollectionName !== editingCollection.name) && currentCollectionName !== "General Art Prints" && currentCollectionName !== "Uncategorized";
 
                       return (
                         <div
@@ -465,10 +529,12 @@ export default function AdminCollectionsPage() {
                             transition: "all 0.15s ease",
                           }}
                         >
+                          {/* Checkbox */}
                           <div style={{ color: isSelected ? "#10B981" : "#94A3B8", display: "flex", alignItems: "center" }}>
                             {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
                           </div>
 
+                          {/* Poster Image Thumbnail */}
                           <div
                             style={{
                               width: "32px",
@@ -495,6 +561,7 @@ export default function AdminCollectionsPage() {
                             )}
                           </div>
 
+                          {/* Title & Film Details */}
                           <div style={{ flexGrow: 1, minWidth: 0 }}>
                             <div style={{ fontSize: "0.85rem", fontWeight: 700, color: isSelected ? "#065F46" : "#0F172A", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
                               {p.title}
@@ -502,6 +569,57 @@ export default function AdminCollectionsPage() {
                             <div style={{ fontSize: "0.75rem", color: "#64748B", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
                               {p.film ? `${p.film} (${p.year || ""})` : `₹${p.price}`}
                             </div>
+                          </div>
+
+                          {/* LIVE EXISTING COLLECTION BADGE */}
+                          <div style={{ flexShrink: 0 }}>
+                            {isSelected ? (
+                              <span
+                                style={{
+                                  fontSize: "0.7rem",
+                                  backgroundColor: "#D1FAE5",
+                                  color: "#065F46",
+                                  fontWeight: 800,
+                                  padding: "0.2rem 0.55rem",
+                                  borderRadius: "6px",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "3px",
+                                }}
+                              >
+                                <Tag size={10} /> Selected
+                              </span>
+                            ) : isAssignedToOther ? (
+                              <span
+                                style={{
+                                  fontSize: "0.7rem",
+                                  backgroundColor: "#E0F2FE",
+                                  color: "#0369A1",
+                                  fontWeight: 700,
+                                  padding: "0.2rem 0.55rem",
+                                  borderRadius: "6px",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "3px",
+                                }}
+                                title={`Currently assigned to ${currentCollectionName}`}
+                              >
+                                <Tag size={10} /> In: {currentCollectionName}
+                              </span>
+                            ) : (
+                              <span
+                                style={{
+                                  fontSize: "0.7rem",
+                                  backgroundColor: "#F1F5F9",
+                                  color: "#64748B",
+                                  fontWeight: 600,
+                                  padding: "0.2rem 0.55rem",
+                                  borderRadius: "6px",
+                                }}
+                              >
+                                Unassigned
+                              </span>
+                            )}
                           </div>
                         </div>
                       );
@@ -515,7 +633,7 @@ export default function AdminCollectionsPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  style={{ padding: "0.75rem 1.25rem", borderRadius: "10px", border: "1px solid #E2E8F0", background: "#FFF", fontWeight: 700, cursor: "pointer", fontSize: "0.85rem" }}
+                  style={{ padding: "0.65rem 1.25rem", borderRadius: "10px", border: "1px solid #E2E8F0", background: "#FFF", fontWeight: 700, cursor: "pointer", fontSize: "0.85rem" }}
                 >
                   Cancel
                 </button>
@@ -523,7 +641,7 @@ export default function AdminCollectionsPage() {
                   type="submit"
                   disabled={isPending}
                   style={{
-                    padding: "0.75rem 1.75rem",
+                    padding: "0.65rem 1.75rem",
                     borderRadius: "10px",
                     border: "none",
                     background: "#10B981",
