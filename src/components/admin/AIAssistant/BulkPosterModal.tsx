@@ -115,9 +115,31 @@ export default function BulkPosterModal({
     const draft = drafts.find((d) => d.id === id);
     if (!draft) return;
 
+    updateDraftField(id, "status", "UPLOADING");
+    updateDraftField(id, "statusText", "Uploading to Cloudinary...");
+    updateDraftField(id, "progress", 30);
+
+    // Step 1: Upload to Cloudinary first (so we always have a real URL)
+    let uploadedUrl = draft.uploadedUrl;
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", draft.file);
+      const uploadRes = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: uploadFormData,
+      });
+      if (uploadRes.ok) {
+        const uploadData = await uploadRes.json();
+        uploadedUrl = uploadData.url || uploadedUrl;
+        updateDraftField(id, "uploadedUrl", uploadedUrl);
+      }
+    } catch (e) {
+      console.warn("[Single Item Upload Warning]:", e);
+    }
+
     updateDraftField(id, "status", "ANALYZING");
     updateDraftField(id, "statusText", "Analyzing poster artwork with Gemini Vision AI...");
-    updateDraftField(id, "progress", 50);
+    updateDraftField(id, "progress", 65);
 
     try {
       const aiFormData = new FormData();
@@ -128,11 +150,11 @@ export default function BulkPosterModal({
         body: aiFormData,
       });
 
-      if (!aiRes.ok && draft.uploadedUrl && !draft.uploadedUrl.startsWith("blob:")) {
+      if (!aiRes.ok && uploadedUrl && !uploadedUrl.startsWith("blob:")) {
         aiRes = await fetch("/api/admin/ai/vision-analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageUrl: draft.uploadedUrl }),
+          body: JSON.stringify({ imageUrl: uploadedUrl }),
         });
       }
 
@@ -148,6 +170,7 @@ export default function BulkPosterModal({
                 status: "READY",
                 statusText: "Vision AI Ready",
                 progress: 100,
+                uploadedUrl: uploadedUrl || d.uploadedUrl,
                 title: analysis.title || d.title,
                 film: analysis.film || d.film,
                 year: analysis.year || d.year,
@@ -285,6 +308,33 @@ export default function BulkPosterModal({
     setIsProcessing(true);
 
     for (const draft of readyDrafts) {
+      // Safety net: if image is still a blob URL, upload to Cloudinary first
+      let finalImageUrl = draft.uploadedUrl;
+      if (!finalImageUrl || finalImageUrl.startsWith("blob:")) {
+        try {
+          updateDraftField(draft.id, "statusText", "Uploading image to cloud...");
+          const uploadFormData = new FormData();
+          uploadFormData.append("file", draft.file);
+          const uploadRes = await fetch("/api/admin/upload", {
+            method: "POST",
+            body: uploadFormData,
+          });
+          if (uploadRes.ok) {
+            const uploadData = await uploadRes.json();
+            finalImageUrl = uploadData.url;
+            updateDraftField(draft.id, "uploadedUrl", finalImageUrl);
+          }
+        } catch (e) {
+          console.warn("[Save Upload Fallback Warning]:", e);
+        }
+      }
+
+      if (!finalImageUrl || finalImageUrl.startsWith("blob:")) {
+        updateDraftField(draft.id, "status", "ERROR");
+        updateDraftField(draft.id, "statusText", "Image upload failed — cannot save");
+        continue;
+      }
+
       const payload: ProductInput = {
         title: draft.title,
         slug: draft.film.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
@@ -300,7 +350,7 @@ export default function BulkPosterModal({
         story: draft.story,
         images: [
           {
-            url: draft.uploadedUrl || draft.previewUrl,
+            url: finalImageUrl,
             alt: draft.title,
             type: "HERO",
             sortOrder: 0,
@@ -312,6 +362,9 @@ export default function BulkPosterModal({
       if (res.success) {
         updateDraftField(draft.id, "status", "SAVED");
         updateDraftField(draft.id, "statusText", "Saved to Catalog");
+      } else {
+        updateDraftField(draft.id, "status", "ERROR");
+        updateDraftField(draft.id, "statusText", "Save failed");
       }
     }
 
