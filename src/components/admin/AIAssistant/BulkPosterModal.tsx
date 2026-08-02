@@ -130,7 +130,7 @@ export default function BulkPosterModal({
       });
       if (uploadRes.ok) {
         const uploadData = await uploadRes.json();
-        uploadedUrl = uploadData.url || uploadedUrl;
+        uploadedUrl = uploadData.secure_url || uploadedUrl;
         updateDraftField(id, "uploadedUrl", uploadedUrl);
       }
     } catch (e) {
@@ -225,7 +225,7 @@ export default function BulkPosterModal({
 
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json();
-          uploadedUrl = uploadData.url || uploadedUrl;
+          uploadedUrl = uploadData.secure_url || uploadedUrl;
           updateDraftField(draft.id, "uploadedUrl", uploadedUrl);
         }
       } catch (e) {
@@ -321,7 +321,7 @@ export default function BulkPosterModal({
           });
           if (uploadRes.ok) {
             const uploadData = await uploadRes.json();
-            finalImageUrl = uploadData.url;
+            finalImageUrl = uploadData.secure_url;
             updateDraftField(draft.id, "uploadedUrl", finalImageUrl);
           }
         } catch (e) {
