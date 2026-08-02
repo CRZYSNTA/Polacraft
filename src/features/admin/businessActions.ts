@@ -399,21 +399,36 @@ export async function saveCollectionAction(
   name: string,
   description?: string,
   id?: string,
-  productIds?: string[]
+  productIds?: string[],
+  parentId?: string | null
 ) {
   const session = await requireAdminSession();
   if (!session) return { success: false, error: "Unauthorized" };
 
   try {
     let collection;
+    const cleanParentId = parentId && parentId !== "" ? parentId : null;
+
+    if (id && cleanParentId === id) {
+      return { success: false, error: "A collection cannot be set as its own parent." };
+    }
+
     if (id) {
       collection = await prisma.collection.update({
         where: { id },
-        data: { name, description },
+        data: {
+          name,
+          description,
+          parentId: cleanParentId,
+        },
       });
     } else {
       collection = await prisma.collection.create({
-        data: { name, description },
+        data: {
+          name,
+          description,
+          parentId: cleanParentId,
+        },
       });
     }
 

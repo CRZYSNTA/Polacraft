@@ -207,11 +207,14 @@ enum ImageType {
 }
 
 model Collection {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  description String?
-  products    Product[]
-  createdAt   DateTime  @default(now())
+  id             String       @id @default(uuid())
+  name           String       @unique
+  description    String?
+  parentId       String?
+  parent         Collection?  @relation("SubCollections", fields: [parentId], references: [id], onDelete: SetNull)
+  subCollections Collection[] @relation("SubCollections")
+  products       Product[]
+  createdAt      DateTime     @default(now())
 
   @@map("collections")
 }

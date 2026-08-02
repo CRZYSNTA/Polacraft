@@ -11,6 +11,14 @@ export async function GET(req: Request) {
   try {
     const collections = await prisma.collection.findMany({
       include: {
+        parent: { select: { id: true, name: true } },
+        subCollections: {
+          select: {
+            id: true,
+            name: true,
+            _count: { select: { products: true } },
+          },
+        },
         _count: { select: { products: true } },
         products: {
           select: {
