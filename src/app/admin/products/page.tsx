@@ -10,6 +10,7 @@ import {
 } from "@/features/admin/businessActions";
 import ImageUploader from "@/components/admin/ImageUploader";
 import AIAssistantModule from "@/components/admin/AIAssistant/AIAssistantModule";
+import BulkPosterModal from "@/components/admin/AIAssistant/BulkPosterModal";
 import {
   Package,
   Plus,
@@ -24,9 +25,10 @@ import {
   ArrowDown,
   Layers,
   Sparkles,
+  CheckCircle2,
+  Eye,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import BulkPosterModal from "@/components/admin/AIAssistant/BulkPosterModal";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -102,6 +104,61 @@ export default function AdminProductsPage() {
   const [images, setImages] = useState<
     { url: string; publicId?: string; alt: string; type: any; sortOrder: number }[]
   >([]);
+
+  // AI Vision & Ingestion State
+  const [isAnalyzingAi, setIsAnalyzingAi] = useState(false);
+  const [aiConfidenceScores, setAiConfidenceScores] = useState<Record<string, number> | null>(null);
+  const [aiDuplicateWarning, setAiDuplicateWarning] = useState<string | null>(null);
+
+  const handleAiVisionAutoFill = async (overrideUrl?: string) => {
+    const targetUrl = overrideUrl || images[0]?.url;
+    if (!targetUrl) {
+      alert("Please upload at least one poster image first to analyze with AI Vision.");
+      return;
+    }
+
+    setIsAnalyzingAi(true);
+    setAiDuplicateWarning(null);
+
+    try {
+      const res = await fetch("/api/admin/ai/vision-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: targetUrl }),
+      });
+
+      if (res.ok) {
+        const { analysis } = await res.json();
+        if (analysis) {
+          setTitle(analysis.title || title);
+          setFilm(analysis.film || film);
+          setYear(analysis.year || year);
+          setDirector(analysis.director || director);
+          if (analysis.collectionName) setCollectionName(analysis.collectionName);
+          if (analysis.subCollectionId) setSubCollectionId(analysis.subCollectionId);
+          setGenre(analysis.genre || genre);
+          setStory(analysis.story || story);
+          setTagline(analysis.tagline || tagline);
+          if (analysis.colors?.primary) setPrimaryColor(analysis.colors.primary);
+          if (analysis.colors?.accent) setAccentColor(analysis.colors.accent);
+          if (analysis.colors?.bg) setBgColor(analysis.colors.bg);
+          if (analysis.colors?.text) setTextColor(analysis.colors.text);
+          setAiConfidenceScores(analysis.confidenceScores || null);
+
+          if (analysis.isDuplicate) {
+            setAiDuplicateWarning(analysis.duplicateWarning);
+          }
+        }
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to analyze poster image with AI.");
+      }
+    } catch (e: any) {
+      alert("Error analyzing poster: " + e.message);
+    } finally {
+      setIsAnalyzingAi(false);
+    }
+  };
 
   const router = useRouter();
 
@@ -619,10 +676,72 @@ export default function AdminProductsPage() {
 
             {/* Modal Form */}
             <form onSubmit={handleSubmitProduct} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {/* AI VISION AUTO-FILL TOOLBAR & WARNINGS */}
+              <div style={{ backgroundColor: "#F0FDF4", border: "1px solid #A7F3D0", borderRadius: "16px", padding: "1rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Sparkles size={18} style={{ color: "#10B981" }} />
+                    <span style={{ fontSize: "0.9rem", fontWeight: 800, color: "#065F46" }}>
+                      AI Vision & OCR Auto-Fill Assistant
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAiVisionAutoFill()}
+                    disabled={isAnalyzingAi}
+                    style={{
+                      padding: "0.5rem 1rem",
+                      borderRadius: "100px",
+                      border: "none",
+                      backgroundColor: "#10B981",
+                      color: "#FFF",
+                      fontWeight: "800",
+                      fontSize: "0.8rem",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)",
+                    }}
+                  >
+                    {isAnalyzingAi ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Auto-Fill Fields with AI
+                  </button>
+                </div>
+
+                {/* Duplicate Warning */}
+                {aiDuplicateWarning && (
+                  <div style={{ backgroundColor: "#FEF2F2", border: "1px solid #FEE2E2", color: "#DC2626", borderRadius: "8px", padding: "0.6rem 0.85rem", fontSize: "0.8rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                    <AlertTriangle size={16} /> {aiDuplicateWarning}
+                  </div>
+                )}
+
+                {/* Confidence Score Pill Indicators */}
+                {aiConfidenceScores && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#047857" }}>AI Confidence Scores:</span>
+                    {Object.entries(aiConfidenceScores).map(([key, score]) => (
+                      <span
+                        key={key}
+                        style={{
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          padding: "0.15rem 0.5rem",
+                          borderRadius: "6px",
+                          backgroundColor: score >= 0.9 ? "#D1FAE5" : score >= 0.7 ? "#FEF3C7" : "#FEE2E2",
+                          color: score >= 0.9 ? "#065F46" : score >= 0.7 ? "#92400E" : "#991B1B",
+                        }}
+                      >
+                        {key}: {Math.round(score * 100)}%
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Single Source of Truth for Hero Poster Image URL */}
               {(() => {
                 const heroImageUrl = images.find((img) => img.type === "HERO")?.url || images[0]?.url || "";
-                console.log("[FLOW AUDIT 2: Single Source of Truth Hero Image URL]", heroImageUrl);
                 return (
                   <AIAssistantModule
                     imageUrl={heroImageUrl}
@@ -916,7 +1035,8 @@ export default function AdminProductsPage() {
       <BulkPosterModal
         isOpen={isBulkModalOpen}
         onClose={() => setIsBulkModalOpen(false)}
-        onSuccess={fetchProducts}
+        collections={rawCollections}
+        onComplete={fetchProducts}
       />
     </div>
   );

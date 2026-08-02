@@ -1,244 +1,242 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
-import { bulkSaveProductsAction, ProductInput } from "@/features/admin/businessActions";
-import { Sparkles, Layers, UploadCloud, CheckCircle2, Loader2, X, Trash2, Film, User, Tag, Edit } from "lucide-react";
+import React, { useState } from "react";
+import Image from "next/image";
+import { saveProductAction, ProductInput } from "@/features/admin/businessActions";
+import {
+  Sparkles,
+  Upload,
+  X,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  FileImage,
+  Package,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
-interface BulkPosterModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+export interface BulkItemDraft {
+  id: string;
+  file: File;
+  previewUrl: string;
+  uploadedUrl?: string;
+  status: "PENDING" | "UPLOADING" | "ANALYZING" | "READY" | "SAVED" | "ERROR";
+  statusText: string;
+  progress: number;
+  analysis?: any;
+
+  // Editable Form Fields
+  title: string;
+  film: string;
+  year: number;
+  director: string;
+  cast: string[];
+  collectionName: string;
+  subCollectionId?: string;
+  genre: string;
+  price: number;
+  inventory: number;
+  story: string;
+  tagline: string;
+  seoTitle: string;
+  seoDescription: string;
+  isDuplicate?: boolean;
+  duplicateWarning?: string;
+  qualityWarnings?: string[];
+  isExpanded?: boolean;
 }
 
-export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPosterModalProps) {
-  const [activeTab, setActiveTab] = useState<"COLLECTION" | "BATCH_UPLOAD">("COLLECTION");
-  const [isPending, startTransition] = useTransition();
-
-  // Mode 1: Collection Suite Generator State
-  const [query, setQuery] = useState("");
-  const [count, setCount] = useState(5);
-  const [collectionName, setCollectionName] = useState("Classic Malayalam");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedDrafts, setGeneratedDrafts] = useState<any[]>([]);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // Mode 2: Batch File Upload State
-  const [uploadingFiles, setUploadingFiles] = useState<boolean>(false);
-  const [batchDrafts, setBatchDrafts] = useState<any[]>([]);
-
-  // Editing State for Individual Poster Drafts
-  const [editingTarget, setEditingTarget] = useState<"COLLECTION" | "BATCH_UPLOAD">("COLLECTION");
-  const [editingDraftIndex, setEditingDraftIndex] = useState<number | null>(null);
-  const [editingDraft, setEditingDraft] = useState<any | null>(null);
+export default function BulkPosterModal({
+  isOpen,
+  onClose,
+  collections = [],
+  onComplete,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  collections: any[];
+  onComplete: () => void;
+}) {
+  const [drafts, setDrafts] = useState<BulkItemDraft[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   if (!isOpen) return null;
 
-  // Open Edit Sub-Modal for a specific draft
-  const handleOpenEditDraft = (index: number, target: "COLLECTION" | "BATCH_UPLOAD") => {
-    const sourceList = target === "COLLECTION" ? generatedDrafts : batchDrafts;
-    if (sourceList[index]) {
-      setEditingTarget(target);
-      setEditingDraftIndex(index);
-      setEditingDraft({ ...sourceList[index] });
-    }
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const newDrafts: BulkItemDraft[] = files.map((file) => ({
+      id: Math.random().toString(36).substring(2, 9),
+      file,
+      previewUrl: URL.createObjectURL(file),
+      status: "PENDING",
+      statusText: "Queued for analysis",
+      progress: 0,
+      title: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " "),
+      film: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " "),
+      year: 2024,
+      director: "Polacraft Studio",
+      cast: ["Mohanlal"],
+      collectionName: collections[0]?.name || "Classic Malayalam",
+      genre: "Drama",
+      price: 49,
+      inventory: 25,
+      story: "Archival fine art poster print.",
+      tagline: "Handcrafted Archival Cinema Print",
+      seoTitle: "",
+      seoDescription: "",
+      isExpanded: false,
+    }));
+
+    setDrafts((prev) => [...prev, ...newDrafts]);
   };
 
-  // Save changes to state
-  const handleSaveDraftEdit = () => {
-    if (editingDraftIndex === null || !editingDraft) return;
-
-    if (editingTarget === "COLLECTION") {
-      setGeneratedDrafts((prev) => {
-        const updated = [...prev];
-        updated[editingDraftIndex] = editingDraft;
-        return updated;
-      });
-    } else {
-      setBatchDrafts((prev) => {
-        const updated = [...prev];
-        updated[editingDraftIndex] = editingDraft;
-        return updated;
-      });
-    }
-
-    setEditingDraftIndex(null);
-    setEditingDraft(null);
+  const removeDraft = (id: string) => {
+    setDrafts((prev) => prev.filter((d) => d.id !== id));
   };
 
-  // Delete/discard a draft item
-  const handleDeleteDraft = (index: number, target: "COLLECTION" | "BATCH_UPLOAD") => {
-    if (target === "COLLECTION") {
-      setGeneratedDrafts((prev) => prev.filter((_, i) => i !== index));
-    } else {
-      setBatchDrafts((prev) => prev.filter((_, i) => i !== index));
-    }
+  const toggleExpand = (id: string) => {
+    setDrafts((prev) =>
+      prev.map((d) => (d.id === id ? { ...d, isExpanded: !d.isExpanded } : d))
+    );
   };
 
-  // Generate Collection Suite via AI API
-  const handleGenerateCollection = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) {
-      setErrorMessage("Please enter a movie or actor name.");
-      return;
-    }
-
-    setIsGenerating(true);
-    setErrorMessage(null);
-
-    try {
-      const res = await fetch("/api/admin/ai/bulk-generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: query.trim(), count, collectionName }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success && data.drafts) {
-        setGeneratedDrafts(data.drafts);
-      } else {
-        setErrorMessage(data.error || "Failed to generate collection suite.");
-      }
-    } catch (err: any) {
-      setErrorMessage("Failed to execute bulk AI generation.");
-    } finally {
-      setIsGenerating(false);
-    }
+  const updateDraftField = (id: string, field: string, val: any) => {
+    setDrafts((prev) =>
+      prev.map((d) => (d.id === id ? { ...d, [field]: val } : d))
+    );
   };
 
-  // Handle Batch File Upload to Cloudinary & Vision API
-  const handleBatchImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  const processBatchAIAnalysis = async () => {
+    setIsProcessing(true);
 
-    setUploadingFiles(true);
-    setErrorMessage(null);
+    for (let i = 0; i < drafts.length; i++) {
+      const draft = drafts[i];
+      if (draft.status === "READY" || draft.status === "SAVED") continue;
 
-    const newDrafts: any[] = [];
+      // Step 1: Upload image
+      updateDraftField(draft.id, "status", "UPLOADING");
+      updateDraftField(draft.id, "statusText", "Uploading poster image...");
+      updateDraftField(draft.id, "progress", 25);
 
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      let uploadedUrl = draft.previewUrl;
+      try {
         const formData = new FormData();
-        formData.append("file", file);
-
+        formData.append("file", draft.file);
         const uploadRes = await fetch("/api/admin/upload", {
           method: "POST",
           body: formData,
         });
 
-        if (!uploadRes.ok) continue;
-        const uploadData = await uploadRes.json();
-        const secureUrl = uploadData.secure_url;
-        const publicId = uploadData.public_id;
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          uploadedUrl = uploadData.url || uploadedUrl;
+          updateDraftField(draft.id, "uploadedUrl", uploadedUrl);
+        }
+      } catch (e) {
+        console.warn("[Bulk Upload Warning]:", e);
+      }
 
-        // Clean original filename as local fallback hint (e.g. "Nipo Movie.png" -> "Nipo Movie")
-        const rawFileName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]v?\d{8,}/gi, "").replace(/[-_]/g, " ").trim();
-        const fallbackFilm = rawFileName
-          ? rawFileName.split(" ").filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ")
-          : "Archival Cinema Print";
-        const fallbackTitle = `${fallbackFilm} Premium Poster`;
+      // Step 2: Vision AI Analysis
+      updateDraftField(draft.id, "status", "ANALYZING");
+      updateDraftField(draft.id, "statusText", "Analyzing with Vision AI & OCR...");
+      updateDraftField(draft.id, "progress", 65);
 
-        // Run full AI draft generation for this poster passing originalFilename
-        const aiRes = await fetch("/api/admin/ai/generate-product", {
+      try {
+        const aiRes = await fetch("/api/admin/ai/vision-analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            imageUrl: secureUrl,
-            originalFilename: file.name,
-            options: { originalFilename: file.name }
-          }),
+          body: JSON.stringify({ imageUrl: uploadedUrl }),
         });
 
         if (aiRes.ok) {
-          const aiData = await aiRes.json();
-          if (aiData.success && aiData.draft) {
-            const d = aiData.draft;
-            const isGenericMovie = !d.movie || d.movie === "Unknown Artwork";
-            const filmName = !isGenericMovie ? d.movie : fallbackFilm;
-
-            const isGenericTitle = !d.title || d.title.toLowerCase().includes("archival fine art print") || d.title.toLowerCase().includes("unknown artwork");
-            const finalTitle = !isGenericTitle ? d.title : fallbackTitle;
-
-            const uniqueSlug = filmName.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString(36) + "-" + i;
-
-            newDrafts.push({
-              title: finalTitle,
-              slug: uniqueSlug,
-              film: filmName,
-              year: d.year,
-              director: d.director,
-              cast: d.cast || [],
-              collectionName: d.suggestedCollections?.[0] || "Classic Malayalam",
-              genre: d.genre || "Drama",
-              price: 49,
-              inventory: 25,
-              tagline: d.tagline,
-              story: d.longDescription || d.shortDescription || "",
-              designNotes: d.designNotes || "",
-              images: [{ url: secureUrl, publicId, alt: finalTitle, type: "HERO", sortOrder: 0 }],
-            });
+          const { analysis } = await aiRes.json();
+          if (analysis) {
+            setDrafts((prev) =>
+              prev.map((d) => {
+                if (d.id !== draft.id) return d;
+                return {
+                  ...d,
+                  analysis,
+                  status: "READY",
+                  statusText: "Analysis Complete",
+                  progress: 100,
+                  title: analysis.title || d.title,
+                  film: analysis.film || d.film,
+                  year: analysis.year || d.year,
+                  director: analysis.director || d.director,
+                  cast: analysis.cast || d.cast,
+                  collectionName: analysis.collectionName || d.collectionName,
+                  subCollectionId: analysis.subCollectionId,
+                  genre: analysis.genre || d.genre,
+                  story: analysis.story || d.story,
+                  tagline: analysis.tagline || d.tagline,
+                  seoTitle: analysis.seoTitle || "",
+                  seoDescription: analysis.seoDescription || "",
+                  isDuplicate: analysis.isDuplicate,
+                  duplicateWarning: analysis.duplicateWarning,
+                  qualityWarnings: analysis.quality?.warnings,
+                };
+              })
+            );
           }
+        } else {
+          updateDraftField(draft.id, "status", "READY");
+          updateDraftField(draft.id, "statusText", "Basic Ingestion Ready");
+          updateDraftField(draft.id, "progress", 100);
         }
+      } catch (err) {
+        updateDraftField(draft.id, "status", "READY");
+        updateDraftField(draft.id, "statusText", "Ready for Approval");
+        updateDraftField(draft.id, "progress", 100);
       }
-
-      setBatchDrafts((prev) => [...prev, ...newDrafts]);
-    } catch (err: any) {
-      setErrorMessage("Batch image processing encountered an error.");
-    } finally {
-      setUploadingFiles(false);
     }
+
+    setIsProcessing(false);
   };
 
-  // One-Click Bulk Save to Database via dedicated HTTP API Route
-  const handlePublishAll = (draftList: any[]) => {
-    if (draftList.length === 0) return;
+  const handleSaveAllReady = async () => {
+    const readyDrafts = drafts.filter((d) => d.status === "READY");
+    if (readyDrafts.length === 0) return;
 
-    startTransition(async () => {
-      try {
-        const inputs = draftList.map((d) => ({
-          title: d.title,
-          slug: d.slug || d.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-          film: d.film,
-          year: d.year || 2020,
-          director: d.director || "Polacraft Studio",
-          collectionName: d.collectionName || "Classic Malayalam",
-          genre: d.genre || "Drama",
-          price: d.price || 49,
-          inventory: d.inventory || 25,
-          tagline: d.tagline || "",
-          story: d.story || "",
-          designNotes: d.designNotes || "",
-          primaryColor: d.primaryColor || "#1E293B",
-          accentColor: d.accentColor || "#E2E8F0",
-          bgColor: d.bgColor || "#FAFAF8",
-          textColor: d.textColor || "#0F172A",
-          gsm: d.gsm || 300,
-          finish: d.finish || "Ultra-Matte Giclée",
-          paperType: d.paperType || "Fine Art Cotton Archival",
-          images: d.images || [],
-        }));
+    setIsProcessing(true);
 
-        const response = await fetch("/api/admin/products/bulk", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ products: inputs }),
-        });
+    for (const draft of readyDrafts) {
+      const payload: ProductInput = {
+        title: draft.title,
+        slug: draft.film.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        film: draft.film,
+        year: draft.year,
+        director: draft.director,
+        collectionName: draft.collectionName,
+        subCollectionId: draft.subCollectionId || null,
+        genre: draft.genre,
+        price: draft.price,
+        inventory: draft.inventory,
+        tagline: draft.tagline,
+        story: draft.story,
+        images: [
+          {
+            url: draft.uploadedUrl || draft.previewUrl,
+            alt: draft.title,
+            type: "HERO",
+            sortOrder: 0,
+          },
+        ],
+      };
 
-        const data = await response.json();
-
-        if (response.ok && data.success && data.count > 0) {
-          alert(`🎉 Success! Created and published ${data.count} poster products to your store.`);
-          setGeneratedDrafts([]);
-          setBatchDrafts([]);
-          onSuccess();
-          onClose();
-        } else {
-          alert("Bulk Publish Error: " + (data.error || "Failed to publish products to database."));
-        }
-      } catch (err: any) {
-        alert("Bulk Publish Network Error: " + (err.message || "Failed to communicate with server."));
+      const res = await saveProductAction(payload);
+      if (res.success) {
+        updateDraftField(draft.id, "status", "SAVED");
+        updateDraftField(draft.id, "statusText", "Saved to Catalog");
       }
-    });
+    }
+
+    setIsProcessing(false);
+    onComplete();
   };
 
   return (
@@ -246,7 +244,7 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
+        backgroundColor: "rgba(0,0,0,0.75)",
         backdropFilter: "blur(6px)",
         zIndex: 1100,
         display: "flex",
@@ -258,566 +256,278 @@ export default function BulkPosterModal({ isOpen, onClose, onSuccess }: BulkPost
     >
       <div
         style={{
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#FFF",
           borderRadius: "24px",
           width: "100%",
-          maxWidth: "980px",
-          maxHeight: "90vh",
-          overflowY: "auto",
-          padding: "2rem",
-          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35)",
+          maxWidth: "960px",
+          maxHeight: "92vh",
+          display: "flex",
+          flexDirection: "column",
+          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.3)",
+          overflow: "hidden",
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", borderBottom: "1px solid #E2E8F0", paddingBottom: "1rem" }}>
-          <div>
-            <h2 style={{ margin: 0, fontSize: "1.6rem", fontWeight: 900, color: "#0F172A", display: "flex", alignItems: "center", gap: "0.6rem" }}>
-              <Sparkles size={24} style={{ color: "#8B5CF6" }} /> AI Bulk Poster Creator & Importer
-            </h2>
-            <p style={{ margin: "4px 0 0 0", fontSize: "0.85rem", color: "#64748B" }}>
-              Generate complete poster suites or batch upload poster images. Click ✏️ Edit on any item to customize details before publishing.
-            </p>
-          </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748B" }}>
-            <X size={24} />
-          </button>
-        </div>
-
-        {/* Mode Selector Tabs */}
-        <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.5rem", backgroundColor: "#F1F5F9", padding: "4px", borderRadius: "12px" }}>
-          <button
-            onClick={() => setActiveTab("COLLECTION")}
-            style={{
-              flex: 1,
-              padding: "0.75rem",
-              borderRadius: "10px",
-              border: "none",
-              backgroundColor: activeTab === "COLLECTION" ? "#FFFFFF" : "transparent",
-              color: activeTab === "COLLECTION" ? "#0F172A" : "#64748B",
-              fontWeight: 800,
-              fontSize: "0.9rem",
-              cursor: "pointer",
-              boxShadow: activeTab === "COLLECTION" ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <Film size={18} /> Movie / Actor Collection Suite Generator
-          </button>
-          <button
-            onClick={() => setActiveTab("BATCH_UPLOAD")}
-            style={{
-              flex: 1,
-              padding: "0.75rem",
-              borderRadius: "10px",
-              border: "none",
-              backgroundColor: activeTab === "BATCH_UPLOAD" ? "#FFFFFF" : "transparent",
-              color: activeTab === "BATCH_UPLOAD" ? "#0F172A" : "#64748B",
-              fontWeight: 800,
-              fontSize: "0.9rem",
-              cursor: "pointer",
-              boxShadow: activeTab === "BATCH_UPLOAD" ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <UploadCloud size={18} /> Batch Poster Image File Importer
-          </button>
-        </div>
-
-        {errorMessage && (
-          <div style={{ backgroundColor: "#FEF2F2", border: "1px solid #FCA5A5", color: "#991B1B", padding: "0.75rem 1rem", borderRadius: "12px", fontSize: "0.85rem", marginBottom: "1.25rem" }}>
-            ⚠️ {errorMessage}
-          </div>
-        )}
-
-        {/* TAB 1: COLLECTION SUITE GENERATOR */}
-        {activeTab === "COLLECTION" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <form onSubmit={handleGenerateCollection} style={{ backgroundColor: "#F8FAFC", padding: "1.5rem", borderRadius: "16px", border: "1px solid #E2E8F0", display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: "1rem", alignItems: "end" }}>
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1E293B", display: "block", marginBottom: "0.35rem" }}>
-                  Movie, Player, or Actor / Director Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Lionel Messi, Cristiano Ronaldo, Neymar, Drishyam, Mohanlal"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "10px", border: "1px solid #CBD5E1", fontSize: "0.9rem" }}
-                  required
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1E293B", display: "block", marginBottom: "0.35rem" }}>
-                  Poster Variants Count
-                </label>
-                <select
-                  value={count}
-                  onChange={(e) => setCount(Number(e.target.value))}
-                  style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "10px", border: "1px solid #CBD5E1", fontSize: "0.9rem", backgroundColor: "#FFF" }}
-                >
-                  <option value={3}>3 Poster Concepts</option>
-                  <option value={5}>5 Poster Concepts</option>
-                  <option value={8}>8 Poster Concepts</option>
-                  <option value={10}>10 Poster Concepts</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1E293B", display: "block", marginBottom: "0.35rem" }}>
-                  Collection Tag
-                </label>
-                <select
-                  value={collectionName}
-                  onChange={(e) => setCollectionName(e.target.value)}
-                  style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "10px", border: "1px solid #CBD5E1", fontSize: "0.9rem", backgroundColor: "#FFF" }}
-                >
-                  <option value="Actor Legends">🎭 Actor Legends</option>
-                  <option value="Football Legends">⚽ Football Legends</option>
-                  <option value="Sports Icons">🏆 Sports Icons</option>
-                  <option value="Classic Malayalam">Classic Malayalam</option>
-                  <option value="Modern Malayalam">Modern Malayalam</option>
-                  <option value="Tamil Cinema">Tamil Cinema</option>
-                  <option value="Cult Classics">Cult Classics</option>
-                  <option value="Limited Edition">Limited Edition</option>
-                </select>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isGenerating}
-                style={{
-                  padding: "0.65rem 1.25rem",
-                  borderRadius: "10px",
-                  border: "none",
-                  backgroundColor: "#8B5CF6",
-                  color: "#FFF",
-                  fontWeight: 800,
-                  fontSize: "0.9rem",
-                  cursor: isGenerating ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                Generate Suite
-              </button>
-            </form>
-
-            {/* Quick 1-Click Preset Chips */}
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.4rem", marginTop: "-0.5rem" }}>
-              <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#64748B" }}>⚡ 1-Click Presets:</span>
-              {[
-                // Actors
-                { label: "🎭 Mohanlal", query: "Mohanlal", collection: "Actor Legends" },
-                { label: "🎭 Mammootty", query: "Mammootty", collection: "Actor Legends" },
-                { label: "🎭 Rajinikanth", query: "Rajinikanth", collection: "Actor Legends" },
-                { label: "🎭 Kamal Haasan", query: "Kamal Haasan", collection: "Actor Legends" },
-                { label: "🎭 Fahadh Faasil", query: "Fahadh Faasil", collection: "Actor Legends" },
-                { label: "🎭 Dulquer Salmaan", query: "Dulquer Salmaan", collection: "Actor Legends" },
-                { label: "🎭 Thalapathy Vijay", query: "Vijay", collection: "Actor Legends" },
-                { label: "🎭 Suriya", query: "Suriya", collection: "Actor Legends" },
-                { label: "🎭 Prithviraj", query: "Prithviraj Sukumaran", collection: "Actor Legends" },
-                { label: "🎭 Shah Rukh Khan", query: "Shah Rukh Khan", collection: "Actor Legends" },
-                // Football
-                { label: "⚽ Messi", query: "Lionel Messi", collection: "Football Legends" },
-                { label: "⚽ Ronaldo", query: "Cristiano Ronaldo", collection: "Football Legends" },
-                { label: "⚽ Neymar", query: "Neymar Jr", collection: "Football Legends" },
-                { label: "⚽ Mbappé", query: "Kylian Mbappe", collection: "Football Legends" },
-                { label: "⚽ Haaland", query: "Erling Haaland", collection: "Football Legends" },
-              ].map((chip) => (
-                <button
-                  key={chip.label}
-                  type="button"
-                  onClick={() => {
-                    setQuery(chip.query);
-                    setCollectionName(chip.collection);
-                  }}
-                  style={{
-                    backgroundColor: query === chip.query ? "#8B5CF6" : "#EFF6FF",
-                    color: query === chip.query ? "#FFFFFF" : "#1D4ED8",
-                    border: query === chip.query ? "none" : "1px solid #BFDBFE",
-                    borderRadius: "20px",
-                    padding: "0.25rem 0.65rem",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                  }}
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Generated Suite Preview Table */}
-            {generatedDrafts.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0F172A" }}>
-                    Generated Poster Suite ({generatedDrafts.length} Products Ready)
-                  </h3>
-                  <button
-                    onClick={() => handlePublishAll(generatedDrafts)}
-                    disabled={isPending}
-                    style={{
-                      padding: "0.75rem 1.5rem",
-                      borderRadius: "12px",
-                      border: "none",
-                      backgroundColor: "#10B981",
-                      color: "#FFF",
-                      fontWeight: 800,
-                      fontSize: "0.9rem",
-                      cursor: isPending ? "not-allowed" : "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                    }}
-                  >
-                    {isPending ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={18} />}
-                    Publish All {generatedDrafts.length} Posters to Store
-                  </button>
-                </div>
-
-                <div style={{ border: "1px solid #E2E8F0", borderRadius: "16px", overflow: "hidden" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
-                    <thead>
-                      <tr style={{ backgroundColor: "#F8FAFC", color: "#475569", fontWeight: 800, borderBottom: "1px solid #E2E8F0" }}>
-                        <th style={{ padding: "0.85rem 1rem" }}>Poster Product Title</th>
-                        <th style={{ padding: "0.85rem 1rem" }}>Film & Director</th>
-                        <th style={{ padding: "0.85rem 1rem" }}>Tagline</th>
-                        <th style={{ padding: "0.85rem 1rem" }}>Price</th>
-                        <th style={{ padding: "0.85rem 1rem" }}>Stock</th>
-                        <th style={{ padding: "0.85rem 1rem", textAlign: "right" }}>Edit Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {generatedDrafts.map((d, idx) => (
-                        <tr key={idx} style={{ borderBottom: "1px solid #F1F5F9" }}>
-                          <td style={{ padding: "0.85rem 1rem", fontWeight: 800, color: "#0F172A" }}>
-                            {d.title}
-                          </td>
-                          <td style={{ padding: "0.85rem 1rem" }}>
-                            {d.film} ({d.year})
-                            <div style={{ fontSize: "0.75rem", color: "#64748B" }}>Dir. {d.director}</div>
-                          </td>
-                          <td style={{ padding: "0.85rem 1rem", fontStyle: "italic", color: "#475569" }}>
-                            "{d.tagline}"
-                          </td>
-                          <td style={{ padding: "0.85rem 1rem", fontWeight: 800 }}>₹{d.price}</td>
-                          <td style={{ padding: "0.85rem 1rem" }}>{d.inventory} pcs</td>
-                          <td style={{ padding: "0.85rem 1rem", textAlign: "right" }}>
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.4rem" }}>
-                              <button
-                                onClick={() => handleOpenEditDraft(idx, "COLLECTION")}
-                                style={{
-                                  border: "none",
-                                  backgroundColor: "#3B82F6",
-                                  color: "#FFF",
-                                  padding: "0.4rem 0.75rem",
-                                  borderRadius: "8px",
-                                  fontSize: "0.75rem",
-                                  fontWeight: 800,
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "4px",
-                                }}
-                              >
-                                <Edit size={14} /> Edit
-                              </button>
-                              <button
-                                onClick={() => handleDeleteDraft(idx, "COLLECTION")}
-                                style={{
-                                  border: "1px solid #FCA5A5",
-                                  backgroundColor: "#FEF2F2",
-                                  color: "#DC2626",
-                                  padding: "0.35rem 0.65rem",
-                                  borderRadius: "8px",
-                                  fontSize: "0.75rem",
-                                  fontWeight: 700,
-                                  cursor: "pointer",
-                                }}
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* TAB 2: BATCH IMAGE UPLOADER */}
-        {activeTab === "BATCH_UPLOAD" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <div style={{ backgroundColor: "#F8FAFC", border: "2px dashed #CBD5E1", borderRadius: "20px", padding: "2.5rem 1.5rem", textAlign: "center" }}>
-              <UploadCloud size={44} style={{ color: "#8B5CF6", marginBottom: "0.75rem" }} />
-              <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1.2rem", fontWeight: 800, color: "#0F172A" }}>
-                Upload Multiple Poster Image Files
-              </h3>
-              <p style={{ margin: "0 0 1.25rem 0", fontSize: "0.85rem", color: "#64748B" }}>
-                Select up to 10 high-resolution poster images at once. Click ✏️ Edit on any generated poster card to make quick changes.
-              </p>
-              <label
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  backgroundColor: "#0F172A",
-                  color: "#FFF",
-                  padding: "0.75rem 1.5rem",
-                  borderRadius: "12px",
-                  fontWeight: 800,
-                  fontSize: "0.9rem",
-                  cursor: uploadingFiles ? "not-allowed" : "pointer",
-                }}
-              >
-                {uploadingFiles ? <Loader2 size={18} className="animate-spin" /> : <UploadCloud size={18} />}
-                {uploadingFiles ? "Analyzing Posters..." : "Select Poster Images..."}
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  disabled={uploadingFiles}
-                  onChange={handleBatchImageUpload}
-                  style={{ display: "none" }}
-                />
-              </label>
-            </div>
-
-            {batchDrafts.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#0F172A" }}>
-                    Batch Uploaded Posters ({batchDrafts.length} Analyzed)
-                  </h3>
-                  <button
-                    onClick={() => handlePublishAll(batchDrafts)}
-                    disabled={isPending}
-                    style={{
-                      padding: "0.75rem 1.5rem",
-                      borderRadius: "12px",
-                      border: "none",
-                      backgroundColor: "#10B981",
-                      color: "#FFF",
-                      fontWeight: 800,
-                      fontSize: "0.9rem",
-                      cursor: isPending ? "not-allowed" : "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                    }}
-                  >
-                    {isPending ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={18} />}
-                    Publish All {batchDrafts.length} Posters to Store
-                  </button>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "repeat( auto-fill, minmax(240px, 1fr) )", gap: "1.25rem" }}>
-                  {batchDrafts.map((d, idx) => (
-                    <div key={idx} style={{ border: "1px solid #E2E8F0", borderRadius: "16px", padding: "1rem", backgroundColor: "#FFF", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative" }}>
-                      {d.images?.[0]?.url && (
-                        <div style={{ position: "relative", width: "100%", height: "170px", borderRadius: "12px", overflow: "hidden" }}>
-                          <img src={d.images[0].url} alt={d.title} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          <div style={{ position: "absolute", top: "8px", right: "8px", display: "flex", gap: "4px" }}>
-                            <button
-                              onClick={() => handleOpenEditDraft(idx, "BATCH_UPLOAD")}
-                              style={{ border: "none", backgroundColor: "rgba(255,255,255,0.9)", color: "#0F172A", padding: "0.35rem 0.55rem", borderRadius: "8px", fontSize: "0.75rem", fontWeight: 800, cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.15)", display: "flex", alignItems: "center", gap: "4px" }}
-                            >
-                              <Edit size={12} /> Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteDraft(idx, "BATCH_UPLOAD")}
-                              style={{ border: "none", backgroundColor: "rgba(239,68,68,0.9)", color: "#FFF", padding: "0.35rem", borderRadius: "8px", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }}
-                              title="Discard this poster"
-                            >
-                              <Trash2 size={12} />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      <div>
-                        <strong style={{ fontSize: "0.9rem", color: "#0F172A", display: "block", marginBottom: "2px" }}>{d.title}</strong>
-                        <span style={{ fontSize: "0.8rem", color: "#64748B" }}>{d.film} • <strong>₹{d.price}</strong></span>
-                      </div>
-
-                      <button
-                        onClick={() => handleOpenEditDraft(idx, "BATCH_UPLOAD")}
-                        style={{
-                          width: "100%",
-                          padding: "0.55rem",
-                          borderRadius: "10px",
-                          border: "none",
-                          backgroundColor: "#2563EB",
-                          color: "#FFFFFF",
-                          fontWeight: 800,
-                          fontSize: "0.85rem",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "0.4rem",
-                          boxShadow: "0 2px 8px rgba(37, 99, 235, 0.25)",
-                        }}
-                      >
-                        <Edit size={14} /> Quick Edit Details
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* QUICK EDIT DRAFT SUB-MODAL */}
-      {editingDraftIndex !== null && editingDraft && (
         <div
           style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.65)",
-            backdropFilter: "blur(4px)",
-            zIndex: 1200,
+            padding: "1.25rem 1.75rem",
+            borderBottom: "1px solid #F1F5F9",
             display: "flex",
+            justifyContent: "space-between",
             alignItems: "center",
-            justifyContent: "center",
-            padding: "1.5rem",
+            backgroundColor: "#0F172A",
+            color: "#FFF",
           }}
-          onClick={() => { setEditingDraftIndex(null); setEditingDraft(null); }}
         >
-          <div
-            style={{
-              backgroundColor: "#FFF",
-              borderRadius: "20px",
-              width: "100%",
-              maxWidth: "600px",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              padding: "1.75rem",
-              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", borderBottom: "1px solid #E2E8F0", paddingBottom: "0.75rem" }}>
-              <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#0F172A", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Edit size={18} style={{ color: "#8B5CF6" }} /> Edit Poster Product Details
-              </h3>
-              <button onClick={() => { setEditingDraftIndex(null); setEditingDraft(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748B" }}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Product Title</label>
-                <input
-                  type="text"
-                  value={editingDraft.title || ""}
-                  onChange={(e) => setEditingDraft({ ...editingDraft, title: e.target.value })}
-                  style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "0.75rem" }}>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Film Name</label>
-                  <input
-                    type="text"
-                    value={editingDraft.film || ""}
-                    onChange={(e) => setEditingDraft({ ...editingDraft, film: e.target.value })}
-                    style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Release Year</label>
-                  <input
-                    type="number"
-                    value={editingDraft.year || 2020}
-                    onChange={(e) => setEditingDraft({ ...editingDraft, year: Number(e.target.value) })}
-                    style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "0.75rem" }}>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Director</label>
-                  <input
-                    type="text"
-                    value={editingDraft.director || ""}
-                    onChange={(e) => setEditingDraft({ ...editingDraft, director: e.target.value })}
-                    style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Price (₹)</label>
-                  <input
-                    type="number"
-                    value={editingDraft.price || 49}
-                    onChange={(e) => setEditingDraft({ ...editingDraft, price: Number(e.target.value) })}
-                    style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Tagline</label>
-                <input
-                  type="text"
-                  value={editingDraft.tagline || ""}
-                  onChange={(e) => setEditingDraft({ ...editingDraft, tagline: e.target.value })}
-                  style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 800, color: "#333", display: "block", marginBottom: "4px" }}>Story & Narrative Background</label>
-                <textarea
-                  rows={3}
-                  value={editingDraft.story || ""}
-                  onChange={(e) => setEditingDraft({ ...editingDraft, story: e.target.value })}
-                  style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
-                />
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", marginTop: "0.5rem" }}>
-                <button
-                  type="button"
-                  onClick={() => { setEditingDraftIndex(null); setEditingDraft(null); }}
-                  style={{ padding: "0.6rem 1.25rem", borderRadius: "10px", border: "1px solid #CBD5E1", backgroundColor: "#FFF", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveDraftEdit}
-                  style={{ padding: "0.6rem 1.5rem", borderRadius: "10px", border: "none", backgroundColor: "#10B981", color: "#FFF", fontWeight: 800, fontSize: "0.85rem", cursor: "pointer" }}
-                >
-                  Save Changes
-                </button>
-              </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <Sparkles size={22} style={{ color: "#10B981" }} />
+            <div>
+              <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: "900" }}>
+                AI-Powered Bulk Poster Ingestion
+              </h2>
+              <p style={{ margin: "2px 0 0 0", fontSize: "0.75rem", color: "#94A3B8" }}>
+                Upload multiple posters. Vision AI extracts metadata, auto-fills fields, & flags duplicates.
+              </p>
             </div>
           </div>
+
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#94A3B8" }}>
+            <X size={20} />
+          </button>
         </div>
-      )}
+
+        {/* Modal Content Body */}
+        <div style={{ padding: "1.5rem", overflowY: "auto", flexGrow: 1, display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          {/* File Upload Trigger Dropzone */}
+          <div
+            style={{
+              border: "2px dashed #CBD5E1",
+              borderRadius: "16px",
+              padding: "2rem",
+              textAlign: "center",
+              backgroundColor: "#F8FAFC",
+              cursor: "pointer",
+            }}
+            onClick={() => document.getElementById("bulk-file-input")?.click()}
+          >
+            <Upload size={32} style={{ color: "#10B981", marginBottom: "0.5rem" }} />
+            <h3 style={{ fontSize: "1rem", fontWeight: 800, margin: "0 0 0.25rem 0", color: "#0F172A" }}>
+              Drop poster files here or click to select
+            </h3>
+            <p style={{ fontSize: "0.8rem", color: "#64748B", margin: 0 }}>
+              Supports JPG, PNG, WEBP files up to 20MB each.
+            </p>
+            <input
+              id="bulk-file-input"
+              type="file"
+              multiple
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleFileSelect}
+            />
+          </div>
+
+          {/* Action Toolbar */}
+          {drafts.length > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#ECFDF5", padding: "0.85rem 1.25rem", borderRadius: "12px", border: "1px solid #A7F3D0" }}>
+              <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#065F46" }}>
+                {drafts.length} Posters Queued ({drafts.filter((d) => d.status === "READY").length} Ready for Approval)
+              </div>
+
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={processBatchAIAnalysis}
+                  disabled={isProcessing}
+                  style={{
+                    fontSize: "0.8rem",
+                    fontWeight: 800,
+                    padding: "0.55rem 1.1rem",
+                    borderRadius: "100px",
+                    border: "none",
+                    backgroundColor: "#10B981",
+                    color: "#FFF",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  {isProcessing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Analyze All with Vision AI
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSaveAllReady}
+                  disabled={isProcessing || drafts.filter((d) => d.status === "READY").length === 0}
+                  style={{
+                    fontSize: "0.8rem",
+                    fontWeight: 800,
+                    padding: "0.55rem 1.1rem",
+                    borderRadius: "100px",
+                    border: "none",
+                    backgroundColor: "#0F172A",
+                    color: "#FFF",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  <CheckCircle2 size={14} style={{ color: "#10B981" }} /> Approve & Save All
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Drafts List */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {drafts.map((draft) => (
+              <div
+                key={draft.id}
+                style={{
+                  backgroundColor: "#FFF",
+                  borderRadius: "16px",
+                  border: draft.isDuplicate ? "1.5px solid #F87171" : "1px solid #E2E8F0",
+                  overflow: "hidden",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                }}
+              >
+                {/* Accordion Item Header */}
+                <div style={{ padding: "1rem 1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexGrow: 1, minWidth: 0 }}>
+                    <div style={{ width: "44px", height: "56px", borderRadius: "8px", overflow: "hidden", backgroundColor: "#F1F5F9", flexShrink: 0, position: "relative" }}>
+                      <Image src={draft.previewUrl} alt={draft.title} width={44} height={56} unoptimized style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+
+                    <div style={{ flexGrow: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <h4 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 800, color: "#0F172A", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                          {draft.title}
+                        </h4>
+                        {draft.status === "READY" && (
+                          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#059669", backgroundColor: "#D1FAE5", padding: "0.15rem 0.5rem", borderRadius: "100px" }}>
+                            Vision AI Ready
+                          </span>
+                        )}
+                        {draft.status === "SAVED" && (
+                          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#2563EB", backgroundColor: "#DBEAFE", padding: "0.15rem 0.5rem", borderRadius: "100px" }}>
+                            Saved
+                          </span>
+                        )}
+                      </div>
+
+                      <span style={{ fontSize: "0.75rem", color: "#64748B", display: "block", marginTop: "2px" }}>
+                        {draft.film} ({draft.year}) • {draft.collectionName} • Status: {draft.statusText}
+                      </span>
+
+                      {/* Duplicate Warning */}
+                      {draft.isDuplicate && (
+                        <div style={{ fontSize: "0.75rem", color: "#DC2626", fontWeight: 700, marginTop: "2px", display: "flex", alignItems: "center", gap: "4px" }}>
+                          <AlertTriangle size={12} /> {draft.duplicateWarning}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(draft.id)}
+                      style={{ border: "1px solid #E2E8F0", background: "#FFF", borderRadius: "8px", padding: "0.35rem 0.6rem", cursor: "pointer", fontSize: "0.75rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px" }}
+                    >
+                      {draft.isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />} Edit Fields
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => removeDraft(draft.id)}
+                      style={{ border: "none", background: "none", color: "#EF4444", cursor: "pointer", padding: "0.35rem" }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Expanded Editable Fields Panel */}
+                {draft.isExpanded && (
+                  <div style={{ padding: "1.25rem", backgroundColor: "#F8FAFC", borderTop: "1px solid #E2E8F0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>Title</label>
+                      <input
+                        type="text"
+                        value={draft.title}
+                        onChange={(e) => updateDraftField(draft.id, "title", e.target.value)}
+                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid #E2E8F0", fontSize: "0.85rem" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>Movie / Series</label>
+                      <input
+                        type="text"
+                        value={draft.film}
+                        onChange={(e) => updateDraftField(draft.id, "film", e.target.value)}
+                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid #E2E8F0", fontSize: "0.85rem" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>Release Year</label>
+                      <input
+                        type="number"
+                        value={draft.year}
+                        onChange={(e) => updateDraftField(draft.id, "year", Number(e.target.value))}
+                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid #E2E8F0", fontSize: "0.85rem" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>Director</label>
+                      <input
+                        type="text"
+                        value={draft.director}
+                        onChange={(e) => updateDraftField(draft.id, "director", e.target.value)}
+                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid #E2E8F0", fontSize: "0.85rem" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>Collection</label>
+                      <select
+                        value={draft.collectionName}
+                        onChange={(e) => updateDraftField(draft.id, "collectionName", e.target.value)}
+                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid #E2E8F0", fontSize: "0.85rem" }}
+                      >
+                        {collections.map((c) => (
+                          <option key={c.id || c.name} value={c.name}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>Price (₹)</label>
+                      <input
+                        type="number"
+                        value={draft.price}
+                        onChange={(e) => updateDraftField(draft.id, "price", Number(e.target.value))}
+                        style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid #E2E8F0", fontSize: "0.85rem" }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Modal Footer */}
+        <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid #F1F5F9", display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ padding: "0.65rem 1.25rem", borderRadius: "10px", border: "1px solid #E2E8F0", background: "#FFF", fontWeight: 700, cursor: "pointer", fontSize: "0.85rem" }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

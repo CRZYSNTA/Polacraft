@@ -168,6 +168,14 @@ model Product {
   aiGenerated         Boolean?       @default(false)
   aiGeneratedAt       DateTime?
   aiReviewedByAdmin   Boolean?       @default(false)
+  aiConfidence        Float?
+  aiKeywords          String[]
+  imageHash           String?
+  orientation         String?
+  aspectRatio         Float?
+  copyrightType       String?
+  isPrintSuitable     Boolean?       @default(true)
+  qualityWarnings     String[]
   subCollectionId     String?
   subCollection       SubCollection? @relation(fields: [subCollectionId], references: [id], onDelete: SetNull)
 
