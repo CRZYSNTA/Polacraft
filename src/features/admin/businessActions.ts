@@ -422,17 +422,17 @@ export async function saveCollectionAction(
       // 1. Unassign products currently in this collection that were unchecked
       await prisma.product.updateMany({
         where: {
-          collectionId: collection.id,
+          collectionName: collection.name,
           id: { notIn: productIds },
         },
-        data: { collectionId: null },
+        data: { collectionName: "General Art Prints" },
       });
 
       // 2. Assign checked products to this collection
       if (productIds.length > 0) {
         await prisma.product.updateMany({
           where: { id: { in: productIds } },
-          data: { collectionId: collection.id },
+          data: { collectionName: collection.name },
         });
       }
     }
