@@ -159,8 +159,7 @@ export async function generateFullAIProductDraft(
     paperSpecs: "300 GSM Heavyweight Premium Matte Paper, Archival Giclée Pigment Inks, Rigid Backing Protection"
   };
 
-  // Resolve Active Provider
-  let activeProviderName: AIProviderName = "openai";
+  let activeProviderName: AIProviderName = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) ? "gemini" : "openai";
   try {
     const settings = await prisma.siteSettings.findFirst();
     if (settings?.aiProvider) {

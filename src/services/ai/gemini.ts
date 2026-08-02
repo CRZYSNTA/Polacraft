@@ -122,6 +122,41 @@ export class GeminiProvider implements IAIProvider {
 
   async generateStructuredData<T>(options: StructuredDataOptions<T>): Promise<GenerationResult<T>> {
     const startTime = Date.now();
+    if (this.apiKey) {
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${this.apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: `${options.prompt}\n\nSchema Description:\n${options.schemaDescription}\n\nReturn ONLY a valid JSON object matching the requested schema.` }]
+            }],
+            generationConfig: {
+              responseMimeType: "application/json",
+              temperature: 0.2
+            }
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          let raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (raw) {
+            raw = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+            const parsed = JSON.parse(raw) as T;
+            return {
+              success: true,
+              provider: this.name,
+              data: parsed,
+              executionTimeMs: Date.now() - startTime
+            };
+          }
+        }
+      } catch (e) {
+        console.warn("[Gemini generateStructuredData Error]:", e);
+      }
+    }
+
     return {
       success: true,
       provider: this.name,
