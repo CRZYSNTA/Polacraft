@@ -18,6 +18,7 @@ export interface ProductInput {
   year: number;
   director: string;
   collectionName: string;
+  subCollectionId?: string | null;
   genre: string;
   price: number;
   inventory: number;
@@ -84,6 +85,7 @@ export async function saveProductAction(input: ProductInput) {
       year: Number(input.year),
       director: input.director,
       collectionName: targetCollectionName,
+      subCollectionId: input.subCollectionId && input.subCollectionId !== "" ? input.subCollectionId : null,
       genre: input.genre,
       price: Number(input.price),
       inventory: Number(input.inventory),

@@ -168,6 +168,8 @@ model Product {
   aiGenerated         Boolean?       @default(false)
   aiGeneratedAt       DateTime?
   aiReviewedByAdmin   Boolean?       @default(false)
+  subCollectionId     String?
+  subCollection       SubCollection? @relation(fields: [subCollectionId], references: [id], onDelete: SetNull)
 
   images              ProductImage[]
   reviews             Review[]
@@ -179,6 +181,7 @@ model Product {
   publishedAt         DateTime?
 
   @@index([collectionName])
+  @@index([subCollectionId])
   @@index([createdAt])
   @@index([featured])
   @@map("products")
@@ -207,16 +210,38 @@ enum ImageType {
 }
 
 model Collection {
-  id             String       @id @default(uuid())
-  name           String       @unique
-  description    String?
+  id             String          @id @default(uuid())
+  name           String          @unique
+  slug           String?
+  description    String?         @db.Text
+  coverImage     String?
   parentId       String?
-  parent         Collection?  @relation("SubCollections", fields: [parentId], references: [id], onDelete: SetNull)
-  subCollections Collection[] @relation("SubCollections")
+  parent         Collection?     @relation("LegacySubCollections", fields: [parentId], references: [id], onDelete: SetNull)
+  legacySubCols  Collection[]    @relation("LegacySubCollections")
+  subCollections SubCollection[]
   products       Product[]
-  createdAt      DateTime     @default(now())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now()) @updatedAt
 
   @@map("collections")
+}
+
+model SubCollection {
+  id           String     @id @default(uuid())
+  name         String
+  slug         String     @unique
+  description  String?    @db.Text
+  coverImage   String?
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  products     Product[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([collectionId, name])
+  @@index([collectionId])
+  @@index([slug])
+  @@map("sub_collections")
 }
 
 model Wishlist {

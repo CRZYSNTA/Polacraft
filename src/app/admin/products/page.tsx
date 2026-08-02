@@ -50,6 +50,32 @@ export default function AdminProductsPage() {
   const [year, setYear] = useState(2024);
   const [director, setDirector] = useState("");
   const [collectionName, setCollectionName] = useState("Classic Malayalam");
+  const [subCollectionId, setSubCollectionId] = useState<string>("");
+  const [subCollections, setSubCollections] = useState<any[]>([]);
+  const [rawCollections, setRawCollections] = useState<any[]>([]);
+
+  const fetchSubCollectionsForCollection = async (cName: string, allCols: any[] = rawCollections) => {
+    const colObj = allCols.find((c) => c.name === cName);
+    if (!colObj) {
+      setSubCollections([]);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/sub-collections?collectionId=${colObj.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSubCollections(data.subCollections || []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch sub collections:", e);
+    }
+  };
+
+  const handleCollectionNameChange = (newColName: string) => {
+    setCollectionName(newColName);
+    setSubCollectionId("");
+    fetchSubCollectionsForCollection(newColName);
+  };
   const [genre, setGenre] = useState("Drama");
   const [price, setPrice] = useState(49);
   const [inventory, setInventory] = useState(20);
@@ -87,6 +113,7 @@ export default function AdminProductsPage() {
         const data = await res.json();
         setProducts(data.products || []);
         if (data.collections?.length) {
+          setRawCollections(data.collections);
           setCollections(data.collections.map((c: any) => c.name));
         }
       }
@@ -108,7 +135,10 @@ export default function AdminProductsPage() {
     setFilm("");
     setYear(2024);
     setDirector("");
-    setCollectionName(collections[0] || "Classic Malayalam");
+    const defaultCol = collections[0] || "Classic Malayalam";
+    setCollectionName(defaultCol);
+    setSubCollectionId("");
+    fetchSubCollectionsForCollection(defaultCol);
     setGenre("Drama");
     setPrice(49);
     setInventory(20);
@@ -140,6 +170,8 @@ export default function AdminProductsPage() {
     setYear(p.year);
     setDirector(p.director);
     setCollectionName(p.collectionName);
+    setSubCollectionId(p.subCollectionId || "");
+    fetchSubCollectionsForCollection(p.collectionName);
     setGenre(p.genre);
     setPrice(p.price);
     setInventory(p.inventory);
@@ -238,6 +270,7 @@ export default function AdminProductsPage() {
         year,
         director,
         collectionName,
+        subCollectionId: subCollectionId || null,
         genre,
         price,
         inventory,
@@ -626,17 +659,33 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Row 3: Collection, Genre, Price */}
-              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: "1rem" }}>
+              {/* Row 3: Collection, SubCollection, Genre, Price */}
+              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.2fr 1fr 1fr", gap: "1rem" }}>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Collection *</label>
-                  <select value={collectionName} onChange={(e) => setCollectionName(e.target.value)} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }}>
+                  <select value={collectionName} onChange={(e) => handleCollectionNameChange(e.target.value)} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }}>
                     {collections.map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Sub Collection (Optional)</label>
+                  <select value={subCollectionId} onChange={(e) => setSubCollectionId(e.target.value)} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem", backgroundColor: "#FFF" }}>
+                    <option value="">None (Top-Level Only)</option>
+                    {subCollections.map((sub: any) => (
+                      <option key={sub.id} value={sub.id}>
+                        {sub.name}
+                      </option>
+                    ))}
+                  </select>
+                  {subCollections.length === 0 && (
+                    <span style={{ fontSize: "0.7rem", color: "#888", display: "block", marginTop: "2px" }}>
+                      No Sub Collections available.
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Genre *</label>
