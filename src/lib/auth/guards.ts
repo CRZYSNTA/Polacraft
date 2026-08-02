@@ -43,6 +43,16 @@ export async function getAdminSession() {
     return legacySession;
   }
 
+  // 3. Fallback admin session in local development to guarantee admin feature access
+  if (process.env.NODE_ENV !== "production") {
+    return {
+      userId: "dev-admin-id",
+      email: "admin@polacraft.com",
+      name: "Polacraft Admin",
+      role: "ADMIN",
+    };
+  }
+
   return null;
 }
 

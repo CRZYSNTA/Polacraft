@@ -233,42 +233,56 @@ Return ONLY a valid JSON object matching this schema:
 }
 `;
 
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    { text: promptText },
+        const modelsToTry = [
+          "gemini-2.0-flash",
+          "gemini-1.5-flash",
+          "gemini-1.5-pro",
+        ];
+
+        for (const modelName of modelsToTry) {
+          try {
+            const res = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  contents: [
                     {
-                      inlineData: {
-                        mimeType: mimeType || "image/jpeg",
-                        data: base64Image,
-                      },
+                      parts: [
+                        { text: promptText },
+                        {
+                          inlineData: {
+                            mimeType: mimeType || "image/jpeg",
+                            data: base64Image,
+                          },
+                        },
+                      ],
                     },
                   ],
-                },
-              ],
-              generationConfig: {
-                responseMimeType: "application/json",
-                temperature: 0.1,
-              },
-            }),
-          }
-        );
+                  generationConfig: {
+                    responseMimeType: "application/json",
+                    temperature: 0.1,
+                  },
+                }),
+              }
+            );
 
-        if (res.ok) {
-          const resData = await res.json();
-          const rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (rawText) {
-            aiRawJson = JSON.parse(rawText);
+            if (res.ok) {
+              const resData = await res.json();
+              let rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (rawText) {
+                rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+                aiRawJson = JSON.parse(rawText);
+                if (aiRawJson) break;
+              }
+            }
+          } catch (err) {
+            console.warn(`[Gemini Model ${modelName} Warning]:`, err);
           }
         }
       } catch (err) {
-        console.warn("[Gemini Vision AI Fallback Warning]:", err);
+        console.warn("[Gemini Vision AI Outer Warning]:", err);
       }
     }
 
