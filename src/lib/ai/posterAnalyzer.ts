@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 
+export type PosterCategoryType = "CINEMA" | "SPORTS" | "ANIME" | "MUSIC" | "FINE_ART";
+
 export interface PosterAnalysis {
+  categoryType: PosterCategoryType;
   title: string;
   film: string;
   year?: number;
@@ -178,35 +181,44 @@ export class GeminiPosterAnalyzerProvider implements PosterAnalyzerProvider {
     if (apiKey) {
       try {
         const promptText = `
-You are a senior cinema archivist, OCR expert, and fine art poster analyzer for Polacraft Studio.
-Analyze the attached movie poster image and extract accurate, structured JSON metadata.
+You are a senior archivist, OCR expert, and fine art poster analyzer for Polacraft Studio.
+Analyze the attached poster image and extract accurate, structured JSON metadata.
 
-INSTRUCTIONS:
-1. Extract visible OCR text on the poster (Title, Tagline, Actor names, Director, Release Year).
-2. Identify the Movie/Series title, Primary Lead Actor, Filmmaker/Director, Release Year, and Language (Malayalam, Tamil, Telugu, Hindi, English, Anime, etc.).
-3. If language or subject is uncertain, set confidence score lower and do NOT hallucinate fictional facts.
-4. Extract 4 harmonious hex colors: primary, accent, bg, text.
-5. Generate an SEO title (under 60 chars) and an SEO description (under 150 chars).
-6. Infer orientation ("PORTRAIT", "LANDSCAPE", or "SQUARE") and quality/print suitability.
+IMPORTANT CATEGORY INSTRUCTIONS:
+1. Classify categoryType as one of: "SPORTS", "ANIME", "MUSIC", "FINE_ART", or "CINEMA".
+2. If the poster is related to SPORTS (Football, Soccer, Messi, Ronaldo, Neymar, Barcelona, Real Madrid, Premier League, World Cup, Basketball, F1, Cricket, etc.):
+   - DO NOT fabricate movie names or film directors.
+   - Set "film" to the Athlete or Team Name (e.g. "Lionel Messi - Argentina" or "Real Madrid").
+   - Set "director" to the Tournament / League / Event (e.g. "FIFA World Cup Qatar" or "UEFA Champions League").
+   - Set "year" to the Event/Season Year (e.g. 2022).
+   - Set "genre" to the Sport / Style (e.g. "Football Fine Art" or "Sports Typography").
+   - Set "cast" to [Primary Athlete / Player Name].
+3. If the poster is related to FINE_ART or MINIMALIST:
+   - Set "film" to the Art Movement or Subject (e.g. "Bauhaus Geometric Art").
+   - Set "director" to the Studio / Artist (e.g. "Polacraft Fine Art").
+   - Set "genre" to the Art Style (e.g. "Minimalist Vector").
+4. If the poster is related to CINEMA / MOVIES / SERIES:
+   - Identify the Movie/Series title, Primary Lead Actor, Filmmaker/Director, and Release Year.
 
 Return ONLY a valid JSON object matching this schema:
 {
-  "title": "Clean Poster Title (e.g. Lucifer Poster)",
-  "film": "Lucifer",
-  "year": 2019,
-  "director": "Prithviraj Sukumaran",
-  "cast": ["Mohanlal", "Manju Warrier", "Vivek Oberoi"],
-  "language": "Malayalam",
-  "genre": "Action Drama",
-  "tagline": "Empirror of Malayalam Cinema",
-  "story": "Cinematic art print celebrating the legendary film Lucifer.",
+  "categoryType": "SPORTS",
+  "title": "Lionel Messi World Cup Victory Poster",
+  "film": "Lionel Messi - Argentina",
+  "year": 2022,
+  "director": "FIFA World Cup Qatar",
+  "cast": ["Lionel Messi"],
+  "language": "English",
+  "genre": "Football Fine Art",
+  "tagline": "The Greatest of All Time",
+  "story": "Iconic archival fine art poster print commemorating Lionel Messi's historic World Cup triumph.",
   "designNotes": "Archival Giclée print on 250 GSM cotton fine art paper.",
-  "seoTitle": "Lucifer Movie Poster | Polacraft",
-  "seoDescription": "Handcrafted Lucifer movie poster starring Mohanlal printed on fine art paper.",
-  "keywords": ["Lucifer", "Mohanlal", "Malayalam Cinema", "Polacraft", "Movie Poster"],
+  "seoTitle": "Lionel Messi World Cup Poster | Polacraft",
+  "seoDescription": "Handcrafted Lionel Messi World Cup victory art print on premium fine art paper.",
+  "keywords": ["Lionel Messi", "Football Poster", "Argentina", "World Cup", "Polacraft"],
   "colors": {
-    "primary": "#802720",
-    "accent": "#E6C15C",
+    "primary": "#75AADB",
+    "accent": "#F4C430",
     "bg": "#FAFAF8",
     "text": "#1A1A1A"
   },
@@ -229,7 +241,7 @@ Return ONLY a valid JSON object matching this schema:
     "cast": 0.95,
     "overall": 0.96
   },
-  "ocrText": "LUCIFER MOHANLAL PRITHVIRAJ SUKUMARAN"
+  "ocrText": "MESSI ARGENTINA 10 WORLD CUP CHAMPIONS"
 }
 `;
 
@@ -289,10 +301,15 @@ Return ONLY a valid JSON object matching this schema:
 
     // Heuristic Fallback if Gemini unavailable or returned partial
     const cleanFilename = filename ? filename.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ") : "Cinema Poster";
+    const filenameLower = (filename || "").toLowerCase();
+    const isSports = aiRawJson?.categoryType === "SPORTS" || /football|soccer|messi|ronaldo|cricket|f1|nba|basketball|sports|stadium|maradona/i.test(filenameLower + " " + (aiRawJson?.genre || ""));
+    const isFineArt = aiRawJson?.categoryType === "FINE_ART" || /bauhaus|japandi|minimalist|abstract|architecture|art/i.test(filenameLower);
+    const categoryType: PosterCategoryType = aiRawJson?.categoryType || (isSports ? "SPORTS" : isFineArt ? "FINE_ART" : "CINEMA");
+
     const filmName = aiRawJson?.film || cleanFilename;
     const titleName = aiRawJson?.title || `${filmName} Poster`;
-    const language = aiRawJson?.language || "Malayalam";
-    const cast = Array.isArray(aiRawJson?.cast) && aiRawJson.cast.length > 0 ? aiRawJson.cast : ["Mohanlal"];
+    const language = aiRawJson?.language || (isSports ? "English" : "Malayalam");
+    const cast = Array.isArray(aiRawJson?.cast) && aiRawJson.cast.length > 0 ? aiRawJson.cast : [isSports ? "Athlete" : "Mohanlal"];
 
     const slug = (aiRawJson?.film || cleanFilename)
       .toLowerCase()
@@ -302,32 +319,34 @@ Return ONLY a valid JSON object matching this schema:
 
     // Collection & SubCollection Auto-Match
     const collectionMatch = await matchCollectionAndSubCollection(language, cast, filmName);
+    const targetCollection = isSports ? "Sports & Fine Art" : collectionMatch.collectionName;
 
     // Duplicate Check
     const dupCheck = await checkPosterDuplicates(imageHash, titleName, filmName, cast);
 
     return {
+      categoryType,
       title: titleName,
       film: filmName,
       year: aiRawJson?.year || 2024,
-      director: aiRawJson?.director || "Polacraft Studio",
+      director: aiRawJson?.director || (isSports ? "Sports Edition" : "Polacraft Studio"),
       cast: cast,
       language: language,
-      collectionName: collectionMatch.collectionName,
+      collectionName: targetCollection,
       subCollectionId: collectionMatch.subCollectionId,
       suggestedSubCollectionName: collectionMatch.suggestedSubCollectionName,
-      genre: aiRawJson?.genre || "Drama",
-      tagline: aiRawJson?.tagline || "Handcrafted Archival Cinema Print",
+      genre: aiRawJson?.genre || (isSports ? "Sports Fine Art" : "Drama"),
+      tagline: aiRawJson?.tagline || (isSports ? "Iconic Sports Archival Print" : "Handcrafted Archival Cinema Print"),
       story:
         aiRawJson?.story ||
         `Museum-quality fine art print of ${filmName}, printed on 250 GSM ultra-matte cotton paper.`,
       designNotes: aiRawJson?.designNotes || "High contrast archival Giclée print.",
-      seoTitle: aiRawJson?.seoTitle || `${filmName} Movie Poster | Polacraft Studio`,
+      seoTitle: aiRawJson?.seoTitle || `${filmName} ${isSports ? "Sports Poster" : "Movie Poster"} | Polacraft Studio`,
       seoDescription:
         aiRawJson?.seoDescription ||
-        `Buy authentic museum-grade ${filmName} fine art movie poster print online at Polacraft.`,
+        `Buy authentic museum-grade ${filmName} fine art poster print online at Polacraft.`,
       slug,
-      keywords: aiRawJson?.keywords || [filmName, ...cast, language, "Movie Poster", "Polacraft"],
+      keywords: aiRawJson?.keywords || [filmName, ...cast, language, "Poster", "Polacraft"],
       colors: aiRawJson?.colors || {
         primary: "#1E1E1E",
         accent: "#10B981",
@@ -349,9 +368,9 @@ Return ONLY a valid JSON object matching this schema:
       confidenceScores: aiRawJson?.confidenceScores || {
         title: 0.95,
         film: 0.95,
-        language: 0.9,
-        cast: 0.9,
-        overall: 0.92,
+        language: 0.95,
+        cast: 0.95,
+        overall: 0.95,
       },
       ocrText: aiRawJson?.ocrText || "",
       isDuplicate: dupCheck.isDuplicate,

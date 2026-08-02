@@ -46,6 +46,7 @@ export interface BulkItemDraft {
   duplicateWarning?: string;
   qualityWarnings?: string[];
   isExpanded?: boolean;
+  categoryType?: string;
 }
 
 export default function BulkPosterModal({
@@ -162,6 +163,7 @@ export default function BulkPosterModal({
                 isDuplicate: analysis.isDuplicate,
                 duplicateWarning: analysis.duplicateWarning,
                 qualityWarnings: analysis.quality?.warnings,
+                categoryType: analysis.categoryType || "CINEMA",
               };
             })
           );
@@ -256,6 +258,7 @@ export default function BulkPosterModal({
                   isDuplicate: analysis.isDuplicate,
                   duplicateWarning: analysis.duplicateWarning,
                   qualityWarnings: analysis.quality?.warnings,
+                  categoryType: analysis.categoryType || "CINEMA",
                 };
               })
             );
@@ -549,7 +552,9 @@ export default function BulkPosterModal({
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>Movie / Series</label>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>
+                        {draft.categoryType === "SPORTS" ? "Athlete / Team" : draft.categoryType === "FINE_ART" ? "Art Subject / Movement" : "Movie / Series"}
+                      </label>
                       <input
                         type="text"
                         value={draft.film}
@@ -558,7 +563,9 @@ export default function BulkPosterModal({
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>Release Year</label>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>
+                        {draft.categoryType === "SPORTS" ? "Season / Year" : "Release Year"}
+                      </label>
                       <input
                         type="number"
                         value={draft.year}
@@ -567,7 +574,9 @@ export default function BulkPosterModal({
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>Director</label>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#334155" }}>
+                        {draft.categoryType === "SPORTS" ? "League / Tournament" : draft.categoryType === "FINE_ART" ? "Artist / Studio" : "Director"}
+                      </label>
                       <input
                         type="text"
                         value={draft.director}

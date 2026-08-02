@@ -106,6 +106,7 @@ export default function AdminProductsPage() {
   >([]);
 
   // AI Vision & Ingestion State
+  const [categoryType, setCategoryType] = useState<string>("CINEMA");
   const [isAnalyzingAi, setIsAnalyzingAi] = useState(false);
   const [aiConfidenceScores, setAiConfidenceScores] = useState<Record<string, number> | null>(null);
   const [aiDuplicateWarning, setAiDuplicateWarning] = useState<string | null>(null);
@@ -130,6 +131,7 @@ export default function AdminProductsPage() {
       if (res.ok) {
         const { analysis } = await res.json();
         if (analysis) {
+          if (analysis.categoryType) setCategoryType(analysis.categoryType);
           setTitle(analysis.title || title);
           setFilm(analysis.film || film);
           setYear(analysis.year || year);
@@ -765,21 +767,53 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Row 2: Film, Year, Director */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Film Name *</label>
-                  <input type="text" required value={film} onChange={(e) => setFilm(e.target.value)} placeholder="Enter film title..." style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Release Year *</label>
-                  <input type="number" required value={year} onChange={(e) => setYear(Number(e.target.value))} placeholder="e.g. 2024" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Director *</label>
-                  <input type="text" required value={director} onChange={(e) => setDirector(e.target.value)} placeholder="Enter director name..." style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
-                </div>
-              </div>
+              {/* Row 2: Film / Subject, Year / Season, Director / Studio */}
+              {(() => {
+                const isNonCinema = categoryType === "SPORTS" || categoryType === "FINE_ART" || categoryType === "MUSIC" || collectionName.toLowerCase().includes("sport") || collectionName.toLowerCase().includes("art");
+                return (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                    <div>
+                      <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>
+                        {isNonCinema ? "Athlete / Subject / Team" : "Film Name *"}
+                      </label>
+                      <input
+                        type="text"
+                        required={!isNonCinema}
+                        value={film}
+                        onChange={(e) => setFilm(e.target.value)}
+                        placeholder={isNonCinema ? "e.g. Lionel Messi - Argentina" : "Enter film title..."}
+                        style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>
+                        {isNonCinema ? "Season / Year (Optional)" : "Release Year *"}
+                      </label>
+                      <input
+                        type="number"
+                        required={!isNonCinema}
+                        value={year}
+                        onChange={(e) => setYear(Number(e.target.value))}
+                        placeholder="e.g. 2024"
+                        style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>
+                        {isNonCinema ? "League / Event / Studio (Optional)" : "Director *"}
+                      </label>
+                      <input
+                        type="text"
+                        required={!isNonCinema}
+                        value={director}
+                        onChange={(e) => setDirector(e.target.value)}
+                        placeholder={isNonCinema ? "e.g. FIFA World Cup Qatar" : "Enter director name..."}
+                        style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Row 3: Collection, SubCollection, Genre, Price */}
               <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.2fr 1fr 1fr", gap: "1rem" }}>
