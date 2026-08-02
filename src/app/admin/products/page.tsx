@@ -265,12 +265,12 @@ export default function AdminProductsPage() {
   const handleApplyAIDraft = (draft: any) => {
     if (!draft) return;
 
-    console.log("==========================================");
-    console.log("STAGE 8: FRONTEND APPLIED AI DRAFT");
-    console.log("APPLIED DRAFT:", draft);
-    console.log("==========================================");
+    if (draft.title && !draft.title.toLowerCase().includes("poster poster")) {
+      setTitle(draft.title);
+    } else if (draft.movie) {
+      setTitle(`${draft.movie} Poster`);
+    }
 
-    if (draft.title) setTitle(draft.title);
     if (draft.movie) setFilm(draft.movie);
     if (draft.year) setYear(draft.year);
     if (draft.director) setDirector(draft.director);
@@ -280,7 +280,10 @@ export default function AdminProductsPage() {
     if (draft.shortDescription) setDesignNotes(draft.shortDescription);
     if (draft.suggestedCollections?.[0]) {
       const match = collections.find((c) => c.toLowerCase() === draft.suggestedCollections[0].toLowerCase());
-      if (match) setCollectionName(match);
+      if (match) {
+        setCollectionName(match);
+        fetchSubCollectionsForCollection(match);
+      }
     }
   };
 

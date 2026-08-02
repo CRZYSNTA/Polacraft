@@ -16,7 +16,8 @@ class AIProviderFactory {
    * Retrieves or instantiates provider singleton matching configured requested name
    */
   static getProvider(providerName?: AIProviderName): IAIProvider {
-    const selectedName = (providerName || process.env.AI_PROVIDER || "openai").toLowerCase() as AIProviderName;
+    const defaultProvider = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) ? "gemini" : "openai";
+    const selectedName = (providerName || process.env.AI_PROVIDER || defaultProvider).toLowerCase() as AIProviderName;
 
     if (this.instanceMap.has(selectedName)) {
       return this.instanceMap.get(selectedName)!;
