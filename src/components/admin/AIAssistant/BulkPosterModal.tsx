@@ -110,6 +110,73 @@ export default function BulkPosterModal({
     );
   };
 
+  const analyzeSingleItemWithAI = async (id: string) => {
+    const draft = drafts.find((d) => d.id === id);
+    if (!draft) return;
+
+    updateDraftField(id, "status", "ANALYZING");
+    updateDraftField(id, "statusText", "Analyzing poster artwork with Gemini Vision AI...");
+    updateDraftField(id, "progress", 50);
+
+    try {
+      const aiFormData = new FormData();
+      aiFormData.append("file", draft.file);
+
+      let aiRes = await fetch("/api/admin/ai/vision-analyze", {
+        method: "POST",
+        body: aiFormData,
+      });
+
+      if (!aiRes.ok && draft.uploadedUrl && !draft.uploadedUrl.startsWith("blob:")) {
+        aiRes = await fetch("/api/admin/ai/vision-analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageUrl: draft.uploadedUrl }),
+        });
+      }
+
+      if (aiRes.ok) {
+        const { analysis } = await aiRes.json();
+        if (analysis) {
+          setDrafts((prev) =>
+            prev.map((d) => {
+              if (d.id !== id) return d;
+              return {
+                ...d,
+                analysis,
+                status: "READY",
+                statusText: "Vision AI Ready",
+                progress: 100,
+                title: analysis.title || d.title,
+                film: analysis.film || d.film,
+                year: analysis.year || d.year,
+                director: analysis.director || d.director,
+                cast: analysis.cast || d.cast,
+                collectionName: analysis.collectionName || d.collectionName,
+                subCollectionId: analysis.subCollectionId,
+                genre: analysis.genre || d.genre,
+                story: analysis.story || d.story,
+                tagline: analysis.tagline || d.tagline,
+                seoTitle: analysis.seoTitle || "",
+                seoDescription: analysis.seoDescription || "",
+                isDuplicate: analysis.isDuplicate,
+                duplicateWarning: analysis.duplicateWarning,
+                qualityWarnings: analysis.quality?.warnings,
+              };
+            })
+          );
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("[Single AI Vision Error]:", err);
+    }
+
+    updateDraftField(id, "status", "READY");
+    updateDraftField(id, "statusText", "Ready for Approval");
+    updateDraftField(id, "progress", 100);
+  };
+
   const processBatchAIAnalysis = async () => {
     setIsProcessing(true);
 
@@ -146,11 +213,21 @@ export default function BulkPosterModal({
       updateDraftField(draft.id, "progress", 65);
 
       try {
-        const aiRes = await fetch("/api/admin/ai/vision-analyze", {
+        const aiFormData = new FormData();
+        aiFormData.append("file", draft.file);
+
+        let aiRes = await fetch("/api/admin/ai/vision-analyze", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageUrl: uploadedUrl }),
+          body: aiFormData,
         });
+
+        if (!aiRes.ok && uploadedUrl && !uploadedUrl.startsWith("blob:")) {
+          aiRes = await fetch("/api/admin/ai/vision-analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageUrl: uploadedUrl }),
+          });
+        }
 
         if (aiRes.ok) {
           const { analysis } = await aiRes.json();
@@ -162,7 +239,7 @@ export default function BulkPosterModal({
                   ...d,
                   analysis,
                   status: "READY",
-                  statusText: "Analysis Complete",
+                  statusText: "Vision AI Ready",
                   progress: 100,
                   title: analysis.title || d.title,
                   film: analysis.film || d.film,
@@ -432,6 +509,15 @@ export default function BulkPosterModal({
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <button
+                      type="button"
+                      onClick={() => analyzeSingleItemWithAI(draft.id)}
+                      disabled={draft.status === "ANALYZING"}
+                      style={{ border: "1px solid #10B981", background: "#ECFDF5", color: "#047857", borderRadius: "8px", padding: "0.35rem 0.6rem", cursor: "pointer", fontSize: "0.75rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "4px" }}
+                    >
+                      {draft.status === "ANALYZING" ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} Auto-Fill with AI
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => toggleExpand(draft.id)}
