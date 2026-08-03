@@ -153,13 +153,38 @@ export default function AdminSettingsPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
       {/* Header */}
-      <div>
-        <h1 style={{ fontSize: "2.25rem", fontWeight: "900", letterSpacing: "-0.03em" }}>
-          Polacraft v1.1 Store Strategy & Rules
-        </h1>
-        <p style={{ color: "#666", fontSize: "0.9rem" }}>
-          Configure shipping rules, value-based reward thresholds, dynamic hero text, and loyalty ratios without code changes.
-        </p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h1 style={{ fontSize: "2.25rem", fontWeight: "900", letterSpacing: "-0.03em" }}>
+            Polacraft v1.1 Store Strategy & Rules
+          </h1>
+          <p style={{ color: "#666", fontSize: "0.9rem" }}>
+            Configure shipping rules, production costs, value-based reward thresholds, dynamic hero text, and loyalty ratios without code changes.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={saving}
+          style={{
+            padding: "0.85rem 1.75rem",
+            borderRadius: "14px",
+            backgroundColor: "#0F172A",
+            color: "#FFF",
+            fontWeight: 800,
+            fontSize: "0.9rem",
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            boxShadow: "0 4px 14px rgba(15, 23, 42, 0.25)",
+          }}
+        >
+          {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+          {saving ? "Saving Changes..." : "Save All Business Settings"}
+        </button>
       </div>
 
       {savedSuccess && (
@@ -353,6 +378,31 @@ export default function AdminSettingsPage() {
                 <label style={{ fontSize: "0.8rem", fontWeight: 700 }}>GSTIN Number</label>
                 <input type="text" value={gstNumber} onChange={(e) => setGstNumber(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
               </div>
+
+              <button
+                type="submit"
+                disabled={saving}
+                style={{
+                  marginTop: "0.5rem",
+                  width: "100%",
+                  padding: "0.85rem",
+                  borderRadius: "12px",
+                  backgroundColor: "#0F172A",
+                  color: "#FFF",
+                  fontWeight: 800,
+                  fontSize: "0.9rem",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.2)",
+                }}
+              >
+                {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                {saving ? "Saving Changes..." : "Save All Settings"}
+              </button>
             </div>
           </div>
         </form>
