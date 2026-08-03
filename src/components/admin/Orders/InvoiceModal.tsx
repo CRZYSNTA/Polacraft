@@ -253,40 +253,43 @@ Thank you for bringing Malayalam Cinema home with Polacraft!
           @media print {
             @page {
               size: A4 portrait;
-              margin: 10mm;
+              margin: 8mm;
             }
             html, body {
               background: #FFF !important;
               color: #000 !important;
               margin: 0 !important;
               padding: 0 !important;
-              width: 100% !important;
-              height: 100% !important;
             }
-            body > * {
-              display: none !important;
+            body * {
+              visibility: hidden !important;
+            }
+            #printable-invoice-modal,
+            #printable-invoice-modal *,
+            #printable-invoice-content,
+            #printable-invoice-content * {
+              visibility: visible !important;
             }
             #printable-invoice-modal {
-              display: block !important;
-              position: absolute !important;
+              position: fixed !important;
               left: 0 !important;
               top: 0 !important;
-              width: 100% !important;
-              height: auto !important;
+              width: 100vw !important;
+              height: 100vh !important;
               margin: 0 !important;
               padding: 0 !important;
               background: #FFF !important;
               backdrop-filter: none !important;
               box-shadow: none !important;
-            }
-            #printable-invoice-modal * {
-              visibility: visible !important;
+              z-index: 9999999 !important;
+              display: block !important;
             }
             #printable-invoice-content {
-              position: relative !important;
+              position: absolute !important;
               left: 0 !important;
               top: 0 !important;
               width: 100% !important;
+              max-width: 100% !important;
               height: auto !important;
               max-height: none !important;
               overflow: visible !important;
@@ -298,6 +301,7 @@ Thank you for bringing Malayalam Cinema home with Polacraft!
             }
             .no-print {
               display: none !important;
+              visibility: hidden !important;
             }
           }
         `}</style>
