@@ -31,12 +31,25 @@ import {
   Trash2,
 } from "lucide-react";
 
+import OrderWizardModal from "@/components/admin/Orders/OrderWizardModal";
+import PaymentLedgerModal from "@/components/admin/Orders/PaymentLedgerModal";
+import InvoiceModal from "@/components/admin/Orders/InvoiceModal";
+import { convertQuoteToOrderAction } from "@/features/admin/orderEngineActions";
+import { Plus, DollarSign, Sparkles, Filter } from "lucide-react";
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sourceFilter, setSourceFilter] = useState("ALL");
   const [isPending, startTransition] = useTransition();
+
+  // Modals state
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [paymentLedgerOrder, setPaymentLedgerOrder] = useState<any | null>(null);
+  const [invoiceOrder, setInvoiceOrder] = useState<any | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
   const handleDeleteOrder = (orderId: string, orderNumber: string) => {
     if (!window.confirm(`Are you sure you want to permanently delete Order #${orderNumber}? This action cannot be undone.`)) {
@@ -59,12 +72,6 @@ export default function AdminOrdersPage() {
       }
     });
   };
-
-  // Selected order for Detail & Timeline modal
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
-
-  // Selected order for Printable Invoice modal
-  const [invoiceOrder, setInvoiceOrder] = useState<any | null>(null);
 
   // Payment Verification State
   const [upiTxnId, setUpiTxnId] = useState("");
@@ -188,14 +195,20 @@ export default function AdminOrdersPage() {
 
   const filteredOrders = orders.filter((o) => {
     const matchesSearch =
-      o.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      o.shippingName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      o.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.shippingName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (o.phone && o.phone.includes(searchQuery));
 
     const matchesStatus = statusFilter === "ALL" || o.shippingStatus === statusFilter;
+    const matchesSource =
+      sourceFilter === "ALL"
+        ? true
+        : sourceFilter === "QUOTES"
+        ? o.orderType === "QUOTE"
+        : o.orderSource === sourceFilter;
 
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesSource;
   });
 
   return (
@@ -204,12 +217,63 @@ export default function AdminOrdersPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h1 style={{ fontSize: "2.25rem", fontWeight: "900", letterSpacing: "-0.03em" }}>
-            Orders & Manual Payment Verification
+            Orders & Manual Order Engine
           </h1>
           <p style={{ color: "#666", fontSize: "0.9rem" }}>
-            Verify WhatsApp UPI payments, approve transactions, deduct inventory atomically, and generate GST invoices.
+            WhatsApp, Instagram & Direct Ingestion, Quotation Engine, Partial Payments & GST Invoices.
           </p>
         </div>
+
+        <button
+          onClick={() => setIsWizardOpen(true)}
+          style={{
+            padding: "0.85rem 1.5rem",
+            borderRadius: "14px",
+            border: "none",
+            backgroundColor: "#10B981",
+            color: "#FFF",
+            fontWeight: "900",
+            fontSize: "0.95rem",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            boxShadow: "0 10px 15px -3px rgba(16,185,129,0.3)",
+          }}
+        >
+          <Plus size={20} /> Create Order / Quote
+        </button>
+      </div>
+
+      {/* Order Source Tabs Bar */}
+      <div style={{ display: "flex", gap: "0.75rem", borderBottom: "2px solid #E5E7EB", paddingBottom: "0.5rem" }}>
+        {[
+          { id: "ALL", label: "All Sales" },
+          { id: "WEBSITE", label: "🌐 Website" },
+          { id: "WHATSAPP", label: "📲 WhatsApp" },
+          { id: "INSTAGRAM", label: "📸 Instagram" },
+          { id: "PHONE", label: "📞 Phone" },
+          { id: "DIRECT_SALE", label: "🏪 Direct Sale" },
+          { id: "QUOTES", label: "📄 Quotations (Quotes)" },
+        ].map((src) => (
+          <button
+            key={src.id}
+            onClick={() => setSourceFilter(src.id)}
+            style={{
+              padding: "0.6rem 1.1rem",
+              borderRadius: "12px",
+              border: "none",
+              backgroundColor: sourceFilter === src.id ? "#0F172A" : "transparent",
+              color: sourceFilter === src.id ? "#FFF" : "#64748B",
+              fontWeight: sourceFilter === src.id ? 800 : 600,
+              fontSize: "0.85rem",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            {src.label}
+          </button>
+        ))}
       </div>
 
       {/* Filter & Search Bar */}
@@ -364,6 +428,55 @@ export default function AdminOrdersPage() {
 
                     <td style={{ padding: "1rem", textAlign: "right" }}>
                       <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.4rem", flexWrap: "wrap" }}>
+                        {order.orderType === "QUOTE" && (
+                          <button
+                            onClick={() => {
+                              if (confirm(`Convert Quote #${order.orderNumber} to Official Order? Stock will be reserved.`)) {
+                                startTransition(async () => {
+                                  const res = await convertQuoteToOrderAction(order.id);
+                                  if (res.success && res.order) {
+                                    setOrders((prev) => prev.map((o) => (o.id === order.id ? res.order : o)));
+                                    alert(`Quote converted to Order #${res.order.orderNumber}!`);
+                                  } else {
+                                    alert("Conversion Failed: " + res.error);
+                                  }
+                                });
+                              }
+                            }}
+                            style={{
+                              border: "none",
+                              background: "#D97706",
+                              color: "#FFF",
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem",
+                              cursor: "pointer",
+                              fontSize: "0.75rem",
+                              fontWeight: "800",
+                            }}
+                            title="Convert Quote to Official Order"
+                          >
+                            Convert Order
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setPaymentLedgerOrder(order)}
+                          style={{
+                            border: "1px solid #A7F3D0",
+                            background: "#ECFDF5",
+                            color: "#047857",
+                            borderRadius: "8px",
+                            padding: "0.4rem 0.6rem",
+                            cursor: "pointer",
+                            fontSize: "0.75rem",
+                            fontWeight: "700",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                          title="Open Payment Ledger"
+                        >
+                          <DollarSign size={14} /> Ledger
+                        </button>
                         <button
                           onClick={() => handleOpenWhatsAppChat(order.phone, order.orderNumber)}
                           style={{
@@ -398,14 +511,14 @@ export default function AdminOrdersPage() {
                             gap: "4px",
                           }}
                         >
-                          <Truck size={14} /> Manage
+                          <FileText size={14} /> Details
                         </button>
                         <button
                           onClick={() => setInvoiceOrder(order)}
                           style={{
-                            border: "1px solid #10B981",
-                            background: "#ECFDF5",
-                            color: "#047857",
+                            border: "none",
+                            background: "#1E1E1E",
+                            color: "#FFF",
                             borderRadius: "8px",
                             padding: "0.4rem 0.6rem",
                             cursor: "pointer",
@@ -903,6 +1016,31 @@ export default function AdminOrdersPage() {
           </div>
         </div>
       )}
+
+      {/* NEW ORDER / QUOTE WIZARD MODAL */}
+      <OrderWizardModal
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        onSuccess={() => fetchOrders()}
+      />
+
+      {/* PAYMENT LEDGER MODAL */}
+      <PaymentLedgerModal
+        isOpen={!!paymentLedgerOrder}
+        order={paymentLedgerOrder}
+        onClose={() => setPaymentLedgerOrder(null)}
+        onSuccess={(updated) => {
+          setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+          if (selectedOrder?.id === updated.id) setSelectedOrder(updated);
+        }}
+      />
+
+      {/* NEW INVOICE / QUOTE MODAL */}
+      <InvoiceModal
+        isOpen={!!invoiceOrder}
+        order={invoiceOrder}
+        onClose={() => setInvoiceOrder(null)}
+      />
 
       <style>{`
         @media print {

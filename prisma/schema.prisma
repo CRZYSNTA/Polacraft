@@ -283,16 +283,73 @@ model Review {
   @@map("reviews")
 }
 
+enum OrderSource {
+  WEBSITE
+  WHATSAPP
+  INSTAGRAM
+  PHONE
+  DIRECT_SALE
+}
+
+enum OrderType {
+  ORDER
+  QUOTE
+  DRAFT
+}
+
+enum OrderTag {
+  URGENT
+  VIP
+  GIFT
+  REPLACEMENT
+  BULK_ORDER
+  INTERNATIONAL
+  REPEAT_CUSTOMER
+}
+
+enum PaymentMode {
+  UPI
+  CASH
+  BANK_TRANSFER
+  CREDIT_CARD
+  DEBIT_CARD
+  COD
+}
+
+model InvoiceSequence {
+  year      Int    @id
+  lastValue Int    @default(0)
+
+  @@map("invoice_sequences")
+}
+
+model OrderSequence {
+  year      Int    @id
+  lastValue Int    @default(0)
+
+  @@map("order_sequences")
+}
+
 model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  size      String
-  frame     String
-  price     Float
-  quantity  Int
+  id            String   @id @default(uuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String?
+  product       Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  // Frozen Product Snapshot & Custom Item Support
+  isCustomItem  Boolean  @default(false)
+  title         String   @default("Poster Print")
+  description   String?
+  size          String   @default("A4")
+  frame         String   @default("UNFRAMED")
+  sku           String?
+  productSlug   String?
+  thumbnailUrl  String?
+  originalPrice Float    @default(0.0)
+  price         Float
+  discount      Float    @default(0.0)
+  quantity      Int      @default(1)
 
   @@map("order_items")
 }
@@ -311,51 +368,136 @@ model OrderReward {
 }
 
 model Order {
-  id                 String                @id @default(uuid())
-  orderNumber        String                @unique
-  userId             String?
-  user               User?                 @relation(fields: [userId], references: [id])
-  email              String
-  phone              String?
+  id                  String                @id @default(uuid())
+  orderNumber         String                @unique
+  orderType           OrderType             @default(ORDER)
+  orderSource         OrderSource           @default(WEBSITE)
+  userId              String?
+  user                User?                 @relation(fields: [userId], references: [id])
+  email               String
+  phone               String?
   
-  // Shipping details
-  shippingName       String
-  shippingStreet     String
-  shippingCity       String
-  shippingState      String?
-  shippingZip        String
-  shippingCountry    String
+  // Frozen Address Snapshot
+  shippingName        String
+  shippingStreet      String
+  shippingCity        String
+  shippingState       String?
+  shippingZip         String
+  shippingCountry     String                @default("India")
 
-  items              OrderItem[]
-  rewards            OrderReward[]
-  subtotal           Float
-  shippingCost       Float
-  taxAmount          Float                 @default(0.0)
-  discount           Float
-  total              Float
+  items               OrderItem[]
+  payments            OrderPayment[]
+  notesHistory        OrderNote[]
+  auditEvents         OrderAuditEvent[]
+  attachments         OrderAttachment[]
+  invoices            Invoice[]
+  rewards             OrderReward[]
+  tags                OrderTag[]
+
+  subtotal            Float
+  shippingCost        Float                 @default(0.0)
+  shippingType        String                @default("Standard")
+  discount            Float                 @default(0.0)
+  discountType        String?               // "PERCENTAGE" | "FIXED"
+  taxAmount           Float                 @default(0.0)
+  total               Float
   
-  paymentMethod      String
-  paymentReference   String?
-  upiTransactionId   String?
-  paymentProofImage  String?
-  paymentStatus      PaymentStatus         @default(PENDING)
-  shippingStatus     ShippingStatus        @default(PENDING)
-  paymentVerifiedAt  DateTime?
+  paymentMethod       String                @default("UPI")
+  paymentReference    String?
+  upiTransactionId    String?
+  paymentProofImage   String?
+  paymentStatus       PaymentStatus         @default(PENDING)
+  shippingStatus      ShippingStatus        @default(PENDING)
+  
+  courierPartner      String?
+  awbNumber           String?
+  shippingLabelUrl    String?
+  paymentVerifiedAt   DateTime?
   inventoryDeductedAt DateTime?
-  confirmedByAdminId String?
-  trackingNumber     String?
-  estimatedDelivery  DateTime?
-  notes              String?               @db.Text
+  confirmedByAdminId  String?
+  trackingNumber      String?
+  estimatedDelivery   DateTime?
+  convertedFromQuoteId String?
+  notes               String?               @db.Text
   
-  statusHistory      OrderStatusHistory[]
-  createdAt          DateTime              @default(now())
-  updatedAt          DateTime              @updatedAt
+  statusHistory       OrderStatusHistory[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
 
+  @@index([orderSource])
+  @@index([orderType])
   @@index([paymentStatus])
   @@index([shippingStatus])
   @@index([createdAt])
   @@index([userId])
   @@map("orders")
+}
+
+model OrderPayment {
+  id             String      @id @default(uuid())
+  orderId        String
+  order          Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount         Float
+  paymentMode    PaymentMode
+  transactionRef String?
+  paymentProof   String?
+  paidAt         DateTime    @default(now())
+  notes          String?
+  recordedBy     String?
+
+  @@map("order_payments")
+}
+
+model Invoice {
+  id               String   @id @default(uuid())
+  invoiceNumber    String   @unique // POL-2026-000152
+  version          Int      @default(1)
+  orderId          String
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  pdfUrl           String?
+  subtotal         Float
+  discount         Float
+  tax              Float
+  total            Float
+  businessSnapshot Json?    // Frozen company profile at issue time
+  issuedAt         DateTime @default(now())
+
+  @@map("invoices")
+}
+
+model OrderAuditEvent {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  event       String   // e.g. "PAYMENT_RECORDED", "INVOICE_GENERATED"
+  details     String?  @db.Text
+  performedBy String   @default("System")
+  createdAt   DateTime @default(now())
+
+  @@map("order_audit_events")
+}
+
+model OrderNote {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  author    String   @default("Admin")
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("order_notes")
+}
+
+model OrderAttachment {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  url       String
+  name      String
+  fileType  String
+  createdAt DateTime @default(now())
+
+  @@map("order_attachments")
 }
 
 model OrderStatusHistory {
@@ -371,6 +513,7 @@ model OrderStatusHistory {
 
 enum PaymentStatus {
   PENDING
+  PARTIALLY_PAID
   VERIFIED
   PAID
   FAILED
@@ -378,9 +521,12 @@ enum PaymentStatus {
 
 enum ShippingStatus {
   WHATSAPP_PENDING
+  DRAFT
+  QUOTE
   PENDING
   CONFIRMED
   PAID
+  PRINTED
   PACKED
   SHIPPED
   OUT_FOR_DELIVERY
