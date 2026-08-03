@@ -47,37 +47,29 @@ export interface CreateOrderOrQuoteInput {
 // ----------------------------------------------------
 // 1. Atomic Concurrency-Safe Sequence Locks
 // ----------------------------------------------------
-export async function getNextOrderNumber(orderType: "ORDER" | "QUOTE" | "DRAFT"): Promise<string> {
+export async function getNextOrderNumber(orderType: "ORDER" | "QUOTE" | "DRAFT", client: any = prisma): Promise<string> {
   const currentYear = new Date().getFullYear();
   const prefix = orderType === "QUOTE" ? "QUO" : "ORD";
 
-  const result = await prisma.$transaction(async (tx) => {
-    const seq = await tx.orderSequence.upsert({
-      where: { year: currentYear },
-      update: { lastValue: { increment: 1 } },
-      create: { year: currentYear, lastValue: 1 },
-    });
-    const formattedNum = String(seq.lastValue).padStart(6, "0");
-    return `${prefix}-${currentYear}-${formattedNum}`;
+  const seq = await client.orderSequence.upsert({
+    where: { year: currentYear },
+    update: { lastValue: { increment: 1 } },
+    create: { year: currentYear, lastValue: 1 },
   });
-
-  return result;
+  const formattedNum = String(seq.lastValue).padStart(6, "0");
+  return `${prefix}-${currentYear}-${formattedNum}`;
 }
 
-export async function getNextInvoiceNumber(): Promise<string> {
+export async function getNextInvoiceNumber(client: any = prisma): Promise<string> {
   const currentYear = new Date().getFullYear();
 
-  const result = await prisma.$transaction(async (tx) => {
-    const seq = await tx.invoiceSequence.upsert({
-      where: { year: currentYear },
-      update: { lastValue: { increment: 1 } },
-      create: { year: currentYear, lastValue: 1 },
-    });
-    const formattedNum = String(seq.lastValue).padStart(6, "0");
-    return `POL-${currentYear}-${formattedNum}`;
+  const seq = await client.invoiceSequence.upsert({
+    where: { year: currentYear },
+    update: { lastValue: { increment: 1 } },
+    create: { year: currentYear, lastValue: 1 },
   });
-
-  return result;
+  const formattedNum = String(seq.lastValue).padStart(6, "0");
+  return `POL-${currentYear}-${formattedNum}`;
 }
 
 // ----------------------------------------------------
@@ -198,8 +190,6 @@ export async function searchProductsForOrderAction(query: string) {
 // ----------------------------------------------------
 export async function createOrderOrQuoteAction(input: CreateOrderOrQuoteInput) {
   try {
-    const orderNumber = await getNextOrderNumber(input.orderType);
-
     // Calculate Subtotal & Item Totals
     let calculatedSubtotal = 0;
     const itemsData = input.items.map((item) => {
@@ -242,151 +232,156 @@ export async function createOrderOrQuoteAction(input: CreateOrderOrQuoteInput) {
         ? "PARTIALLY_PAID"
         : "PENDING";
 
-    // Perform Atomic Transaction
-    const newOrder = await prisma.$transaction(async (tx) => {
-      // 1. Create User if email doesn't exist
-      let userId: string | null = null;
-      if (input.email) {
-        const existingUser = await tx.user.findUnique({ where: { email: input.email } });
-        if (existingUser) {
-          userId = existingUser.id;
-        } else {
-          const createdUser = await tx.user.create({
-            data: {
-              email: input.email,
-              name: input.customerName,
-              phone: input.phone,
-            },
-          });
-          userId = createdUser.id;
-        }
-      }
+    // Perform Atomic Transaction with extended timeout for serverless DB
+    const newOrder = await prisma.$transaction(
+      async (tx) => {
+        const orderNumber = await getNextOrderNumber(input.orderType, tx);
 
-      const isStockApproved =
-        (initialShippingStatus as ShippingStatus) === "CONFIRMED" ||
-        (initialShippingStatus as ShippingStatus) === "PAID";
-
-      // 2. Reserve / Deduct Stock ONLY IF CONFIRMED or PAID
-      if (isStockApproved) {
-        for (const item of input.items) {
-          if (item.productId && !item.isCustomItem) {
-            await tx.product.update({
-              where: { id: item.productId },
+        // 1. Create User if email doesn't exist
+        let userId: string | null = null;
+        if (input.email) {
+          const existingUser = await tx.user.findUnique({ where: { email: input.email } });
+          if (existingUser) {
+            userId = existingUser.id;
+          } else {
+            const createdUser = await tx.user.create({
               data: {
-                inventory: { decrement: item.quantity },
-                editionSold: { increment: item.quantity },
+                email: input.email,
+                name: input.customerName,
+                phone: input.phone,
               },
             });
+            userId = createdUser.id;
           }
         }
-      }
 
-      // 3. Create Order Record
-      const createdOrder = await tx.order.create({
-        data: {
-          orderNumber,
-          orderType: input.orderType as OrderType,
-          orderSource: input.orderSource as OrderSource,
-          userId,
-          email: input.email,
-          phone: input.phone,
-          shippingName: input.customerName,
-          shippingStreet: input.shippingStreet,
-          shippingCity: input.shippingCity,
-          shippingState: input.shippingState || null,
-          shippingZip: input.shippingZip,
-          shippingCountry: input.shippingCountry || "India",
-          shippingCost,
-          shippingType: input.shippingType || "Standard",
-          discount: discountAmount,
-          discountType: input.discountType || "FIXED",
-          subtotal: calculatedSubtotal,
-          total: grandTotal,
-          paymentMethod: input.paymentMethod || "UPI",
-          paymentStatus: initialPaymentStatus,
-          shippingStatus: initialShippingStatus,
-          inventoryDeductedAt: isStockApproved ? new Date() : null,
-          tags: input.tags || [],
-          items: {
-            create: itemsData,
-          },
-          statusHistory: {
-            create: {
-              status: initialShippingStatus,
-              comment: `Order initialized via ${input.orderSource} as ${input.orderType}.`,
-            },
-          },
-          auditEvents: {
-            create: {
-              event: "ORDER_CREATED",
-              details: `Order #${orderNumber} created via ${input.orderSource}. Initial Status: ${initialShippingStatus}`,
-              performedBy: "Admin",
-            },
-          },
-        },
-        include: {
-          items: { include: { product: true } },
-          payments: true,
-          invoices: true,
-          auditEvents: true,
-        },
-      });
+        const isStockApproved =
+          (initialShippingStatus as ShippingStatus) === "CONFIRMED" ||
+          (initialShippingStatus as ShippingStatus) === "PAID";
 
-      // 4. Record Initial Payment if amount > 0
-      if ((input.amountPaidNow || 0) > 0) {
-        await tx.orderPayment.create({
+        // 2. Reserve / Deduct Stock ONLY IF CONFIRMED or PAID
+        if (isStockApproved) {
+          for (const item of input.items) {
+            if (item.productId && !item.isCustomItem) {
+              await tx.product.update({
+                where: { id: item.productId },
+                data: {
+                  inventory: { decrement: item.quantity },
+                  editionSold: { increment: item.quantity },
+                },
+              });
+            }
+          }
+        }
+
+        // 3. Create Order Record
+        const createdOrder = await tx.order.create({
           data: {
-            orderId: createdOrder.id,
-            amount: input.amountPaidNow!,
-            paymentMode: (input.paymentMode as PaymentMode) || "UPI",
-            transactionRef: input.transactionRef || null,
-            recordedBy: "Admin",
-            notes: "Initial payment recorded during order creation.",
-          },
-        });
-      }
-
-      // 5. Generate Immutable Invoice if Order is CONFIRMED or PAID
-      if (
-        input.orderType === "ORDER" &&
-        (initialPaymentStatus === "PAID" || initialShippingStatus === "CONFIRMED")
-      ) {
-        const invNumber = await getNextInvoiceNumber();
-        const siteSettings = await tx.siteSettings.findFirst();
-
-        await tx.invoice.create({
-          data: {
-            invoiceNumber: invNumber,
-            version: 1,
-            orderId: createdOrder.id,
-            subtotal: calculatedSubtotal,
+            orderNumber,
+            orderType: input.orderType as OrderType,
+            orderSource: input.orderSource as OrderSource,
+            userId,
+            email: input.email,
+            phone: input.phone,
+            shippingName: input.customerName,
+            shippingStreet: input.shippingStreet,
+            shippingCity: input.shippingCity,
+            shippingState: input.shippingState || null,
+            shippingZip: input.shippingZip,
+            shippingCountry: input.shippingCountry || "India",
+            shippingCost,
+            shippingType: input.shippingType || "Standard",
             discount: discountAmount,
-            tax: 0,
+            discountType: input.discountType || "FIXED",
+            subtotal: calculatedSubtotal,
             total: grandTotal,
-            businessSnapshot: {
-              businessName: siteSettings?.heroTitle ? "Polacraft Studio" : "Polacraft",
-              gstin: siteSettings?.gstNumber || "32AABCP1234F1ZP",
-              supportEmail: siteSettings?.supportEmail || "support@polacraft.com",
-              logoUrl: siteSettings?.logo || "/images/polacraft-logo.png",
-              address: "Kochi, Kerala, India - 682001",
+            paymentMethod: input.paymentMethod || "UPI",
+            paymentStatus: initialPaymentStatus,
+            shippingStatus: initialShippingStatus,
+            inventoryDeductedAt: isStockApproved ? new Date() : null,
+            tags: input.tags || [],
+            items: {
+              create: itemsData,
+            },
+            statusHistory: {
+              create: {
+                status: initialShippingStatus,
+                comment: `Order initialized via ${input.orderSource} as ${input.orderType}.`,
+              },
+            },
+            auditEvents: {
+              create: {
+                event: "ORDER_CREATED",
+                details: `Order #${orderNumber} created via ${input.orderSource}. Initial Status: ${initialShippingStatus}`,
+                performedBy: "Admin",
+              },
             },
           },
-        });
-      }
-
-      // 6. Record Initial Note if provided
-      if (input.notes) {
-        await tx.orderNote.create({
-          data: {
-            orderId: createdOrder.id,
-            author: "Admin",
-            content: input.notes,
+          include: {
+            items: { include: { product: true } },
+            payments: true,
+            invoices: true,
+            auditEvents: true,
           },
         });
-      }
 
-      return createdOrder;
-    });
+        // 4. Record Initial Payment if amount > 0
+        if ((input.amountPaidNow || 0) > 0) {
+          await tx.orderPayment.create({
+            data: {
+              orderId: createdOrder.id,
+              amount: input.amountPaidNow!,
+              paymentMode: (input.paymentMode as PaymentMode) || "UPI",
+              transactionRef: input.transactionRef || null,
+              recordedBy: "Admin",
+              notes: "Initial payment recorded during order creation.",
+            },
+          });
+        }
+
+        // 5. Generate Immutable Invoice if Order is CONFIRMED or PAID
+        if (
+          input.orderType === "ORDER" &&
+          (initialPaymentStatus === "PAID" || initialShippingStatus === "CONFIRMED")
+        ) {
+          const invNumber = await getNextInvoiceNumber(tx);
+          const siteSettings = await tx.siteSettings.findFirst();
+
+          await tx.invoice.create({
+            data: {
+              invoiceNumber: invNumber,
+              version: 1,
+              orderId: createdOrder.id,
+              subtotal: calculatedSubtotal,
+              discount: discountAmount,
+              tax: 0,
+              total: grandTotal,
+              businessSnapshot: {
+                businessName: siteSettings?.heroTitle ? "Polacraft Studio" : "Polacraft",
+                gstin: siteSettings?.gstNumber || "32AABCP1234F1ZP",
+                supportEmail: siteSettings?.supportEmail || "support@polacraft.com",
+                logoUrl: siteSettings?.logo || "/images/polacraft-logo.png",
+                address: "Kochi, Kerala, India - 682001",
+              },
+            },
+          });
+        }
+
+        // 6. Record Initial Note if provided
+        if (input.notes) {
+          await tx.orderNote.create({
+            data: {
+              orderId: createdOrder.id,
+              author: "Admin",
+              content: input.notes,
+            },
+          });
+        }
+
+        return createdOrder;
+      },
+      { maxWait: 10000, timeout: 25000 }
+    );
 
     return { success: true, order: newOrder };
   } catch (err: any) {
@@ -411,64 +406,67 @@ export async function convertQuoteToOrderAction(quoteId: string) {
 
     const orderNumber = await getNextOrderNumber("ORDER");
 
-    const updated = await prisma.$transaction(async (tx) => {
-      // Reserve inventory for catalog items
-      for (const item of quote.items) {
-        if (item.productId && !item.isCustomItem) {
-          await tx.product.update({
-            where: { id: item.productId },
-            data: {
-              inventory: { decrement: item.quantity },
-              editionSold: { increment: item.quantity },
-            },
-          });
+    const updated = await prisma.$transaction(
+      async (tx) => {
+        // Reserve inventory for catalog items
+        for (const item of quote.items) {
+          if (item.productId && !item.isCustomItem) {
+            await tx.product.update({
+              where: { id: item.productId },
+              data: {
+                inventory: { decrement: item.quantity },
+                editionSold: { increment: item.quantity },
+              },
+            });
+          }
         }
-      }
 
-      const order = await tx.order.update({
-        where: { id: quoteId },
-        data: {
-          orderNumber,
-          orderType: "ORDER",
-          shippingStatus: "CONFIRMED",
-          paymentStatus: "PENDING",
-          inventoryDeductedAt: new Date(),
-          convertedFromQuoteId: quoteId,
-          auditEvents: {
-            create: {
-              event: "QUOTE_CONVERTED_TO_ORDER",
-              details: `Quotation #${quote.orderNumber} successfully converted to official Order #${orderNumber}. Inventory reserved.`,
-              performedBy: "Admin",
+        const order = await tx.order.update({
+          where: { id: quoteId },
+          data: {
+            orderNumber,
+            orderType: "ORDER",
+            shippingStatus: "CONFIRMED",
+            paymentStatus: "PENDING",
+            inventoryDeductedAt: new Date(),
+            convertedFromQuoteId: quoteId,
+            auditEvents: {
+              create: {
+                event: "QUOTE_CONVERTED_TO_ORDER",
+                details: `Quotation #${quote.orderNumber} successfully converted to official Order #${orderNumber}. Inventory reserved.`,
+                performedBy: "Admin",
+              },
             },
           },
-        },
-        include: { items: true, payments: true, invoices: true, auditEvents: true },
-      });
+          include: { items: true, payments: true, invoices: true, auditEvents: true },
+        });
 
-      // Issue Immutable Invoice
-      const invNumber = await getNextInvoiceNumber();
-      const siteSettings = await tx.siteSettings.findFirst();
+        // Issue Immutable Invoice
+        const invNumber = await getNextInvoiceNumber(tx);
+        const siteSettings = await tx.siteSettings.findFirst();
 
-      await tx.invoice.create({
-        data: {
-          invoiceNumber: invNumber,
-          version: 1,
-          orderId: order.id,
-          subtotal: order.subtotal,
-          discount: order.discount,
-          tax: 0,
-          total: order.total,
-          businessSnapshot: {
-            businessName: "Polacraft Studio",
-            gstin: siteSettings?.gstNumber || "32AABCP1234F1ZP",
-            supportEmail: siteSettings?.supportEmail || "support@polacraft.com",
-            logoUrl: siteSettings?.logo || "/images/polacraft-logo.png",
+        await tx.invoice.create({
+          data: {
+            invoiceNumber: invNumber,
+            version: 1,
+            orderId: order.id,
+            subtotal: order.subtotal,
+            discount: order.discount,
+            tax: 0,
+            total: order.total,
+            businessSnapshot: {
+              businessName: "Polacraft Studio",
+              gstin: siteSettings?.gstNumber || "32AABCP1234F1ZP",
+              supportEmail: siteSettings?.supportEmail || "support@polacraft.com",
+              logoUrl: siteSettings?.logo || "/images/polacraft-logo.png",
+            },
           },
-        },
-      });
+        });
 
-      return order;
-    });
+        return order;
+      },
+      { maxWait: 10000, timeout: 25000 }
+    );
 
     return { success: true, order: updated };
   } catch (err: any) {
@@ -495,99 +493,102 @@ export async function recordOrderPaymentAction(
 
     if (!order) return { success: false, error: "Order not found." };
 
-    const result = await prisma.$transaction(async (tx) => {
-      // Create Payment Ledger Entry
-      const payment = await tx.orderPayment.create({
-        data: {
-          orderId,
-          amount,
-          paymentMode: mode as PaymentMode,
-          transactionRef: transactionRef || null,
-          paymentProof: paymentProofUrl || null,
-          recordedBy: "Admin",
-          notes: notes || `Recorded ₹${amount} payment via ${mode}.`,
-        },
-      });
-
-      const totalPaid = order.payments.reduce((sum, p) => sum + p.amount, 0) + amount;
-      const newPaymentStatus: PaymentStatus =
-        totalPaid >= order.total
-          ? "PAID"
-          : totalPaid > 0
-          ? "PARTIALLY_PAID"
-          : "PENDING";
-
-      const newShippingStatus: ShippingStatus =
-        newPaymentStatus === "PAID" && order.shippingStatus === "WHATSAPP_PENDING"
-          ? "CONFIRMED"
-          : order.shippingStatus;
-
-      // Reserve stock if newly confirmed
-      if (
-        (newPaymentStatus === "PAID" || newShippingStatus === "CONFIRMED") &&
-        !order.inventoryDeductedAt
-      ) {
-        for (const item of order.items) {
-          if (item.productId && !item.isCustomItem) {
-            await tx.product.update({
-              where: { id: item.productId },
-              data: {
-                inventory: { decrement: item.quantity },
-                editionSold: { increment: item.quantity },
-              },
-            });
-          }
-        }
-      }
-
-      // Update Order Status
-      const updatedOrder = await tx.order.update({
-        where: { id: orderId },
-        data: {
-          paymentStatus: newPaymentStatus,
-          shippingStatus: newShippingStatus,
-          inventoryDeductedAt:
-            !order.inventoryDeductedAt && (newPaymentStatus === "PAID" || newShippingStatus === "CONFIRMED")
-              ? new Date()
-              : order.inventoryDeductedAt,
-          paymentVerifiedAt: newPaymentStatus === "PAID" ? new Date() : order.paymentVerifiedAt,
-          auditEvents: {
-            create: {
-              event: "PAYMENT_RECORDED",
-              details: `Payment of ₹${amount} (${mode}) recorded. Total Paid: ₹${totalPaid}/${order.total}. Status: ${newPaymentStatus}`,
-              performedBy: "Admin",
-            },
-          },
-        },
-        include: { payments: true, items: true, invoices: true, auditEvents: true },
-      });
-
-      // Auto-issue Invoice if order just reached PAID and has no invoice yet
-      const existingInvoices = await tx.invoice.findMany({ where: { orderId } });
-      if (newPaymentStatus === "PAID" && existingInvoices.length === 0) {
-        const invNumber = await getNextInvoiceNumber();
-        const siteSettings = await tx.siteSettings.findFirst();
-
-        await tx.invoice.create({
+    const result = await prisma.$transaction(
+      async (tx) => {
+        // Create Payment Ledger Entry
+        const payment = await tx.orderPayment.create({
           data: {
-            invoiceNumber: invNumber,
-            version: 1,
             orderId,
-            subtotal: order.subtotal,
-            discount: order.discount,
-            tax: 0,
-            total: order.total,
-            businessSnapshot: {
-              businessName: "Polacraft Studio",
-              gstin: siteSettings?.gstNumber || "32AABCP1234F1ZP",
-              supportEmail: siteSettings?.supportEmail || "support@polacraft.com",
-            },
+            amount,
+            paymentMode: mode as PaymentMode,
+            transactionRef: transactionRef || null,
+            paymentProof: paymentProofUrl || null,
+            recordedBy: "Admin",
+            notes: notes || `Recorded ₹${amount} payment via ${mode}.`,
           },
         });
-      }
 
-      return updatedOrder;
-    });
+        const totalPaid = order.payments.reduce((sum, p) => sum + p.amount, 0) + amount;
+        const newPaymentStatus: PaymentStatus =
+          totalPaid >= order.total
+            ? "PAID"
+            : totalPaid > 0
+            ? "PARTIALLY_PAID"
+            : "PENDING";
+
+        const newShippingStatus: ShippingStatus =
+          newPaymentStatus === "PAID" && order.shippingStatus === "WHATSAPP_PENDING"
+            ? "CONFIRMED"
+            : order.shippingStatus;
+
+        // Reserve stock if newly confirmed
+        if (
+          (newPaymentStatus === "PAID" || newShippingStatus === "CONFIRMED") &&
+          !order.inventoryDeductedAt
+        ) {
+          for (const item of order.items) {
+            if (item.productId && !item.isCustomItem) {
+              await tx.product.update({
+                where: { id: item.productId },
+                data: {
+                  inventory: { decrement: item.quantity },
+                  editionSold: { increment: item.quantity },
+                },
+              });
+            }
+          }
+        }
+
+        // Update Order Status
+        const updatedOrder = await tx.order.update({
+          where: { id: orderId },
+          data: {
+            paymentStatus: newPaymentStatus,
+            shippingStatus: newShippingStatus,
+            inventoryDeductedAt:
+              !order.inventoryDeductedAt && (newPaymentStatus === "PAID" || newShippingStatus === "CONFIRMED")
+                ? new Date()
+                : order.inventoryDeductedAt,
+            paymentVerifiedAt: newPaymentStatus === "PAID" ? new Date() : order.paymentVerifiedAt,
+            auditEvents: {
+              create: {
+                event: "PAYMENT_RECORDED",
+                details: `Payment of ₹${amount} (${mode}) recorded. Total Paid: ₹${totalPaid}/${order.total}. Status: ${newPaymentStatus}`,
+                performedBy: "Admin",
+              },
+            },
+          },
+          include: { payments: true, items: true, invoices: true, auditEvents: true },
+        });
+
+        // Auto-issue Invoice if order just reached PAID and has no invoice yet
+        const existingInvoices = await tx.invoice.findMany({ where: { orderId } });
+        if (newPaymentStatus === "PAID" && existingInvoices.length === 0) {
+          const invNumber = await getNextInvoiceNumber(tx);
+          const siteSettings = await tx.siteSettings.findFirst();
+
+          await tx.invoice.create({
+            data: {
+              invoiceNumber: invNumber,
+              version: 1,
+              orderId,
+              subtotal: order.subtotal,
+              discount: order.discount,
+              tax: 0,
+              total: order.total,
+              businessSnapshot: {
+                businessName: "Polacraft Studio",
+                gstin: siteSettings?.gstNumber || "32AABCP1234F1ZP",
+                supportEmail: siteSettings?.supportEmail || "support@polacraft.com",
+              },
+            },
+          });
+        }
+
+        return updatedOrder;
+      },
+      { maxWait: 10000, timeout: 25000 }
+    );
 
     return { success: true, order: result };
   } catch (err: any) {
