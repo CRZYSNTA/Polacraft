@@ -251,36 +251,49 @@ Thank you for bringing Malayalam Cinema home with Polacraft!
         {/* Print Stylesheet */}
         <style>{`
           @media print {
-            body {
+            @page {
+              size: A4 portrait;
+              margin: 10mm;
+            }
+            html, body {
               background: #FFF !important;
+              color: #000 !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100% !important;
+              height: 100% !important;
             }
-            body * {
-              visibility: hidden !important;
-            }
-            #printable-invoice-modal,
-            #printable-invoice-content,
-            #printable-invoice-content * {
-              visibility: visible !important;
+            body > * {
+              display: none !important;
             }
             #printable-invoice-modal {
-              position: static !important;
-              background: transparent !important;
-              padding: 0 !important;
-              box-shadow: none !important;
-              backdrop-filter: none !important;
               display: block !important;
+              position: absolute !important;
+              left: 0 !important;
+              top: 0 !important;
+              width: 100% !important;
+              height: auto !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              background: #FFF !important;
+              backdrop-filter: none !important;
+              box-shadow: none !important;
+            }
+            #printable-invoice-modal * {
+              visibility: visible !important;
             }
             #printable-invoice-content {
-              position: absolute !important;
+              position: relative !important;
               left: 0 !important;
               top: 0 !important;
               width: 100% !important;
               height: auto !important;
               max-height: none !important;
               overflow: visible !important;
-              padding: 15mm 20mm !important;
+              padding: 10mm 15mm !important;
               box-shadow: none !important;
               border-radius: 0 !important;
+              background: #FFF !important;
               color: #000 !important;
             }
             .no-print {
