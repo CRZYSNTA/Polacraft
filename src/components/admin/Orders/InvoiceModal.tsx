@@ -53,6 +53,7 @@ Thank you for bringing Malayalam Cinema home with Polacraft!
 
   return (
     <div
+      id="printable-invoice-modal"
       style={{
         position: "fixed",
         inset: 0,
@@ -250,19 +251,37 @@ Thank you for bringing Malayalam Cinema home with Polacraft!
         {/* Print Stylesheet */}
         <style>{`
           @media print {
-            body * {
-              visibility: hidden;
+            body {
+              background: #FFF !important;
             }
-            #printable-invoice-content, #printable-invoice-content * {
-              visibility: visible;
+            body * {
+              visibility: hidden !important;
+            }
+            #printable-invoice-modal,
+            #printable-invoice-content,
+            #printable-invoice-content * {
+              visibility: visible !important;
+            }
+            #printable-invoice-modal {
+              position: static !important;
+              background: transparent !important;
+              padding: 0 !important;
+              box-shadow: none !important;
+              backdrop-filter: none !important;
+              display: block !important;
             }
             #printable-invoice-content {
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 100%;
-              padding: 0;
+              position: absolute !important;
+              left: 0 !important;
+              top: 0 !important;
+              width: 100% !important;
+              height: auto !important;
+              max-height: none !important;
+              overflow: visible !important;
+              padding: 15mm 20mm !important;
               box-shadow: none !important;
+              border-radius: 0 !important;
+              color: #000 !important;
             }
             .no-print {
               display: none !important;
