@@ -130,6 +130,7 @@ model Product {
   collection          Collection     @relation(fields: [collectionName], references: [name])
   genre               String
   price               Float
+  costPrice           Float          @default(0.0)
   inventory           Int            @default(0)
   lowStockThreshold   Int            @default(5)
   isPreorder          Boolean        @default(false)
@@ -348,6 +349,7 @@ model OrderItem {
   thumbnailUrl  String?
   originalPrice Float    @default(0.0)
   price         Float
+  unitCost      Float    @default(0.0)
   discount      Float    @default(0.0)
   quantity      Int      @default(1)
 
@@ -401,6 +403,11 @@ model Order {
   discountType        String?               // "PERCENTAGE" | "FIXED"
   taxAmount           Float                 @default(0.0)
   total               Float
+  
+  // Cost & Profit Analytics
+  totalCost           Float                 @default(0.0)
+  netProfit           Float                 @default(0.0)
+  profitMargin        Float                 @default(0.0)
   
   paymentMethod       String                @default("UPI")
   paymentReference    String?

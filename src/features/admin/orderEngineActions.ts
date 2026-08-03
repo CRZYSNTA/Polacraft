@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { OrderSource, OrderType, PaymentMode, PaymentStatus, ShippingStatus, OrderTag } from "@prisma/client";
+import { calculateOrderProfitMetrics, calculateItemUnitCost } from "@/lib/profitEngine";
 
 export interface OrderItemInput {
   productId?: string;
@@ -15,6 +16,7 @@ export interface OrderItemInput {
   thumbnailUrl?: string;
   originalPrice: number;
   unitPrice: number;
+  unitCost?: number;
   discount?: number;
   quantity: number;
 }
@@ -190,11 +192,13 @@ export async function searchProductsForOrderAction(query: string) {
 // ----------------------------------------------------
 export async function createOrderOrQuoteAction(input: CreateOrderOrQuoteInput) {
   try {
-    // Calculate Subtotal & Item Totals
+    // Calculate Subtotal, Expenses & Profit Metrics
     let calculatedSubtotal = 0;
     const itemsData = input.items.map((item) => {
       const lineTotal = item.unitPrice * item.quantity;
       calculatedSubtotal += lineTotal;
+      const unitCost = calculateItemUnitCost(item.size, item.frame, item.unitCost);
+
       return {
         productId: item.productId || null,
         isCustomItem: item.isCustomItem ?? !item.productId,
@@ -207,6 +211,7 @@ export async function createOrderOrQuoteAction(input: CreateOrderOrQuoteInput) {
         thumbnailUrl: item.thumbnailUrl || null,
         originalPrice: item.originalPrice || item.unitPrice,
         price: item.unitPrice,
+        unitCost,
         discount: item.discount || 0,
         quantity: item.quantity,
       };
@@ -215,6 +220,13 @@ export async function createOrderOrQuoteAction(input: CreateOrderOrQuoteInput) {
     const shippingCost = input.shippingCost || 0;
     const discountAmount = input.discountAmount || 0;
     const grandTotal = Math.max(0, calculatedSubtotal + shippingCost - discountAmount);
+
+    const profitMetrics = calculateOrderProfitMetrics(
+      input.items,
+      shippingCost,
+      input.shippingType || "Standard",
+      discountAmount
+    );
 
     let initialShippingStatus: ShippingStatus = "WHATSAPP_PENDING";
     if (input.orderType === "QUOTE") {
@@ -295,6 +307,9 @@ export async function createOrderOrQuoteAction(input: CreateOrderOrQuoteInput) {
             discountType: input.discountType || "FIXED",
             subtotal: calculatedSubtotal,
             total: grandTotal,
+            totalCost: profitMetrics.totalExpense,
+            netProfit: profitMetrics.netProfit,
+            profitMargin: profitMetrics.profitMargin,
             paymentMethod: input.paymentMethod || "UPI",
             paymentStatus: initialPaymentStatus,
             shippingStatus: initialShippingStatus,

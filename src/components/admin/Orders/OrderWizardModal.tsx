@@ -27,6 +27,7 @@ import {
   OrderItemInput,
   CreateOrderOrQuoteInput,
 } from "@/features/admin/orderEngineActions";
+import { calculateOrderProfitMetrics } from "@/lib/profitEngine";
 
 interface OrderWizardModalProps {
   isOpen: boolean;
@@ -188,10 +189,17 @@ export default function OrderWizardModal({ isOpen, onClose, onSuccess }: OrderWi
     setSelectedItems((prev) => prev.filter((_, idx) => idx !== index));
   };
 
-  // Calculate Totals
+  // Calculate Totals & Profit Metrics
   const subtotal = selectedItems.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
   const actualDiscount = discountType === "PERCENTAGE" ? (subtotal * discountAmount) / 100 : discountAmount;
   const grandTotal = Math.max(0, subtotal + shippingCost - actualDiscount);
+
+  const profitMetrics = calculateOrderProfitMetrics(
+    selectedItems,
+    shippingCost,
+    shippingType,
+    actualDiscount
+  );
 
   // AI Chat Parsing Action
   const handleParseWhatsAppChat = async () => {
@@ -642,6 +650,28 @@ Deliver to: Gowtham, MG Road, Kochi 682001. Phone: 9895012345"`}
                   </div>
                 )}
               </div>
+
+              {/* Live Profit & Expense Calculation Card */}
+              {selectedItems.length > 0 && (
+                <div style={{ padding: "1rem 1.25rem", borderRadius: "14px", backgroundColor: profitMetrics.netProfit >= 0 ? "#F0FDF4" : "#FEF2F2", border: `1.5px solid ${profitMetrics.netProfit >= 0 ? "#BBF7D0" : "#FCA5A5"}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", color: profitMetrics.netProfit >= 0 ? "#166534" : "#991B1B" }}>
+                      📊 Estimated Expense & Profit Analysis
+                    </div>
+                    <div style={{ fontSize: "0.82rem", marginTop: "2px", color: "#334155" }}>
+                      Total Expense: <strong>₹{profitMetrics.totalExpense}</strong> (Paper/Ink: ₹{profitMetrics.itemExpense} + Courier: ₹{profitMetrics.shippingExpense})
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: "1.1rem", fontWeight: 900, color: profitMetrics.netProfit >= 0 ? "#15803D" : "#DC2626" }}>
+                      {profitMetrics.netProfit >= 0 ? "+" : ""}₹{profitMetrics.netProfit} Net Profit
+                    </div>
+                    <div style={{ fontSize: "0.75rem", fontWeight: 800, color: profitMetrics.profitMargin >= 40 ? "#166534" : profitMetrics.profitMargin >= 20 ? "#D97706" : "#DC2626" }}>
+                      Profit Margin: {profitMetrics.profitMargin}%
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #E2E8F0", paddingTop: "1rem" }}>
                 <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#0F172A" }}>

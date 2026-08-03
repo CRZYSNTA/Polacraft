@@ -350,6 +350,7 @@ export default function AdminOrdersPage() {
                 <th style={{ padding: "1rem" }}>Customer & Phone</th>
                 <th style={{ padding: "1rem" }}>Purchased Items</th>
                 <th style={{ padding: "1rem" }}>Total</th>
+                <th style={{ padding: "1rem" }}>Expense & Profit</th>
                 <th style={{ padding: "1rem" }}>Fulfillment</th>
                 <th style={{ padding: "1rem" }}>Payment Status</th>
                 <th style={{ padding: "1rem", textAlign: "right", minWidth: "270px" }}>Actions</th>
@@ -361,6 +362,10 @@ export default function AdminOrdersPage() {
                 const isDelivered = order.shippingStatus === "DELIVERED";
                 const isPaid = order.paymentStatus === "VERIFIED" || order.shippingStatus === "PAID";
                 const isExpired = order.shippingStatus === "EXPIRED";
+
+                const totalCost = order.totalCost ?? (order.total * 0.4);
+                const netProfit = order.netProfit ?? (order.total - totalCost);
+                const margin = order.profitMargin ?? (order.total > 0 ? (netProfit / order.total) * 100 : 0);
 
                 return (
                   <tr key={order.id} style={{ borderBottom: "1px solid #F3F4F6" }}>
@@ -380,7 +385,7 @@ export default function AdminOrdersPage() {
                       <div style={{ fontSize: "0.85rem", color: "#333" }}>
                         {order.items?.map((item: any, i: number) => (
                           <div key={i} style={{ fontSize: "0.8rem" }}>
-                            • <strong>{item.product?.title || "Poster"}</strong> ({item.size}, {item.frame}) x{item.quantity}
+                            • <strong>{item.product?.title || item.title || "Poster"}</strong> ({item.size}, {item.frame}) x{item.quantity}
                           </div>
                         ))}
                       </div>
@@ -393,6 +398,18 @@ export default function AdminOrdersPage() {
                           Disc: -₹{order.discount}
                         </div>
                       )}
+                    </td>
+
+                    <td style={{ padding: "1rem" }}>
+                      <div style={{ fontSize: "0.8rem", fontWeight: "800", color: netProfit >= 0 ? "#15803D" : "#DC2626" }}>
+                        {netProfit >= 0 ? "+" : ""}₹{Math.round(netProfit)}
+                      </div>
+                      <div style={{ fontSize: "0.7rem", fontWeight: "700", color: margin >= 40 ? "#166534" : margin >= 20 ? "#D97706" : "#DC2626" }}>
+                        Margin: {margin.toFixed(1)}%
+                      </div>
+                      <div style={{ fontSize: "0.68rem", color: "#64748B" }}>
+                        Cost: ₹{Math.round(totalCost)}
+                      </div>
                     </td>
 
                     <td style={{ padding: "1rem" }}>
