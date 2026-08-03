@@ -659,7 +659,7 @@ Deliver to: Gowtham, MG Road, Kochi 682001. Phone: 9895012345"`}
                       📊 Estimated Expense & Profit Analysis
                     </div>
                     <div style={{ fontSize: "0.82rem", marginTop: "2px", color: "#334155" }}>
-                      Total Expense: <strong>₹{profitMetrics.totalExpense}</strong> (Paper/Ink: ₹{profitMetrics.itemExpense} + Courier: ₹{profitMetrics.shippingExpense})
+                      Total Expense: <strong>₹{profitMetrics.totalExpense}</strong> (Paper/Ink: ₹{profitMetrics.printingCost} + Frame: ₹{profitMetrics.frameCost} + Courier: ₹{profitMetrics.shippingExpense})
                     </div>
                   </div>
                   <div style={{ textAlign: "right" }}>

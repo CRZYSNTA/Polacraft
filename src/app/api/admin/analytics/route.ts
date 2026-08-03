@@ -36,6 +36,15 @@ export async function GET(req: Request) {
     let rewardUnlockedCount = 0;
     let totalRewardCost = 0;
 
+    // Compute Enterprise Net Profit & Expense Metrics
+    let netProfitToday = 0;
+    let netProfitThisMonth = 0;
+    let totalNetProfit = 0;
+    let totalOrderCost = 0;
+
+    const operatingExpenses = await prisma.operatingExpense.findMany();
+    const totalOperatingExpenses = operatingExpenses.reduce((sum, e) => sum + e.amount, 0);
+
     allOrders.forEach((order) => {
       const isPaid =
         order.paymentStatus === "VERIFIED" ||
@@ -51,20 +60,24 @@ export async function GET(req: Request) {
 
       // Compute estimated reward cost
       if (order.rewards && order.rewards.length > 0) {
-        order.rewards.forEach(r => {
+        order.rewards.forEach((r) => {
           totalRewardCost += r.estimatedCost > 0 ? r.estimatedCost : 120.0;
         });
       }
 
       if (isPaid) {
         revenueCollected += order.total;
+        totalOrderCost += order.totalCost;
+        totalNetProfit += order.netProfit;
         ordersPaid++;
 
         if (new Date(order.createdAt) >= startOfToday) {
           revenueToday += order.total;
+          netProfitToday += order.netProfit;
         }
         if (new Date(order.createdAt) >= startOfMonth) {
           revenueThisMonth += order.total;
+          netProfitThisMonth += order.netProfit;
         }
       } else if (order.shippingStatus === "EXPIRED") {
         expiredOrders++;
@@ -76,49 +89,62 @@ export async function GET(req: Request) {
       }
     });
 
+    const actualBusinessNetProfit = Number((totalNetProfit - totalOperatingExpenses).toFixed(2));
+    const overallProfitMargin = revenueCollected > 0 ? Number(((totalNetProfit / revenueCollected) * 100).toFixed(1)) : 0;
     const averageOrderValue = ordersPaid > 0 ? Math.round(revenueCollected / ordersPaid) : 0;
     const freeShippingPercentage = ordersCreated > 0 ? Math.round((freeShippingUnlockedCount / ordersCreated) * 100) : 0;
     const rewardUnlockPercentage = ordersCreated > 0 ? Math.round((rewardUnlockedCount / ordersCreated) * 100) : 0;
-    const rewardCostPercentage = revenueCollected > 0 ? Math.round((totalRewardCost / revenueCollected) * 100) : 0;
 
-    // Fetch top best-selling products from OrderItems
-    const orderItems = await prisma.orderItem.findMany({
+    // Fetch products with Inventory Valuation & Unit Economics
+    const allProducts = await prisma.product.findMany({
       include: {
-        product: { select: { id: true, title: true, price: true, collectionName: true } },
+        wishlistedBy: { select: { id: true } },
       },
     });
 
-    const productSalesMap: Record<string, { product: any; unitsSold: number; revenue: number }> = {};
+    let inventoryValuationTotal = 0;
+    allProducts.forEach((p) => {
+      const unitCost = p.costPrice > 0 ? p.costPrice : 60;
+      inventoryValuationTotal += p.inventory * unitCost;
+    });
+
+    // Fetch OrderItems for Product Unit Economics
+    const orderItems = await prisma.orderItem.findMany({
+      include: {
+        product: { select: { id: true, title: true, price: true, costPrice: true, collectionName: true } },
+      },
+    });
+
+    const productSalesMap: Record<
+      string,
+      { product: any; unitsSold: number; revenue: number; cost: number; profit: number; margin: number }
+    > = {};
 
     orderItems.forEach((item) => {
       if (!item.product) return;
       const id = item.productId;
+      const unitCost = item.unitCost > 0 ? item.unitCost : item.product.costPrice > 0 ? item.product.costPrice : 60;
+      const itemRev = item.price * item.quantity;
+      const itemCost = unitCost * item.quantity;
+
       if (!productSalesMap[id]) {
-        productSalesMap[id] = { product: item.product, unitsSold: 0, revenue: 0 };
+        productSalesMap[id] = { product: item.product, unitsSold: 0, revenue: 0, cost: 0, profit: 0, margin: 0 };
       }
       productSalesMap[id].unitsSold += item.quantity;
-      productSalesMap[id].revenue += item.price * item.quantity;
+      productSalesMap[id].revenue += itemRev;
+      productSalesMap[id].cost += itemCost;
+      productSalesMap[id].profit += itemRev - itemCost;
+      productSalesMap[id].margin =
+        productSalesMap[id].revenue > 0
+          ? Number(((productSalesMap[id].profit / productSalesMap[id].revenue) * 100).toFixed(1))
+          : 0;
     });
 
-    const topSellingProducts = Object.values(productSalesMap)
-      .sort((a, b) => b.unitsSold - a.unitsSold)
-      .slice(0, 5);
+    const topProfitableProducts = Object.values(productSalesMap)
+      .sort((a, b) => b.profit - a.profit)
+      .slice(0, 10);
 
-    // Low stock alerts
-    const allProducts = await prisma.product.findMany({
-      select: {
-        id: true,
-        title: true,
-        inventory: true,
-        lowStockThreshold: true,
-        isSoldOut: true,
-        isPreorder: true,
-      },
-    });
-
-    const lowStockAlerts = allProducts.filter(
-      (p) => p.inventory <= p.lowStockThreshold
-    );
+    const lowStockAlerts = allProducts.filter((p) => p.inventory <= p.lowStockThreshold);
 
     return NextResponse.json({
       metrics: {
@@ -130,6 +156,13 @@ export async function GET(req: Request) {
         revenueToday,
         revenueThisMonth,
         revenueCollected,
+        netProfitToday,
+        netProfitThisMonth,
+        totalNetProfit,
+        totalOperatingExpenses,
+        actualBusinessNetProfit,
+        overallProfitMargin,
+        inventoryValuationTotal,
         pendingPaymentValue,
         averageOrderValue,
         freeShippingUnlockedCount,
@@ -137,9 +170,8 @@ export async function GET(req: Request) {
         rewardUnlockedCount,
         rewardUnlockPercentage,
         totalRewardCost,
-        rewardCostPercentage
       },
-      topSellingProducts,
+      topProfitableProducts,
       lowStockAlerts,
     });
   } catch (error: any) {

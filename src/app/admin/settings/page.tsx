@@ -19,6 +19,18 @@ export default function AdminSettingsPage() {
   const [gstNumber, setGstNumber] = useState<string>("");
   const [instagramUrl, setInstagramUrl] = useState<string>("");
 
+  // Enterprise Variable Unit Expense Settings
+  const [costA5, setCostA5] = useState<number>(15);
+  const [costA4, setCostA4] = useState<number>(28);
+  const [costA3, setCostA3] = useState<number>(52);
+  const [costA2, setCostA2] = useState<number>(100);
+  const [costCanvas, setCostCanvas] = useState<number>(200);
+  const [costBlackFrame, setCostBlackFrame] = useState<number>(120);
+  const [costWoodFrame, setCostWoodFrame] = useState<number>(150);
+  const [packagingCostPerOrder, setPackagingCostPerOrder] = useState<number>(18);
+  const [gatewayFeePercent, setGatewayFeePercent] = useState<number>(2.0);
+  const [gstTaxPercent, setGstTaxPercent] = useState<number>(18.0);
+
   // AI Assistant Settings
   const [aiSettings, setAiSettings] = useState({
     aiEnabled: true,
@@ -55,6 +67,17 @@ export default function AdminSettingsPage() {
             setSupportEmail(data.settings.supportEmail || "support@polacraft.com");
             setGstNumber(data.settings.gstNumber || "");
             setInstagramUrl(data.settings.instagramUrl || "");
+
+            setCostA5(data.settings.costA5 ?? 15);
+            setCostA4(data.settings.costA4 ?? 28);
+            setCostA3(data.settings.costA3 ?? 52);
+            setCostA2(data.settings.costA2 ?? 100);
+            setCostCanvas(data.settings.costCanvas ?? 200);
+            setCostBlackFrame(data.settings.costBlackFrame ?? 120);
+            setCostWoodFrame(data.settings.costWoodFrame ?? 150);
+            setPackagingCostPerOrder(data.settings.packagingCostPerOrder ?? 18);
+            setGatewayFeePercent(data.settings.gatewayFeePercent ?? 2.0);
+            setGstTaxPercent(data.settings.gstTaxPercent ?? 18.0);
 
             setAiSettings({
               aiEnabled: data.settings.aiEnabled !== undefined ? Boolean(data.settings.aiEnabled) : true,
@@ -99,6 +122,16 @@ export default function AdminSettingsPage() {
           supportEmail,
           gstNumber,
           instagramUrl,
+          costA5: Number(costA5),
+          costA4: Number(costA4),
+          costA3: Number(costA3),
+          costA2: Number(costA2),
+          costCanvas: Number(costCanvas),
+          costBlackFrame: Number(costBlackFrame),
+          costWoodFrame: Number(costWoodFrame),
+          packagingCostPerOrder: Number(packagingCostPerOrder),
+          gatewayFeePercent: Number(gatewayFeePercent),
+          gstTaxPercent: Number(gstTaxPercent),
           ...aiSettings
         })
       });
@@ -183,6 +216,68 @@ export default function AdminSettingsPage() {
               <div>
                 <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Premium Reward Threshold (₹) *</label>
                 <input type="number" required value={premiumRewardThreshold} onChange={(e) => setPremiumRewardThreshold(Number(e.target.value))} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+              </div>
+            </div>
+
+            {/* SECTION 2: PRODUCTION & VARIABLE UNIT EXPENSE SETTINGS */}
+            <h3 style={{ fontSize: "1.1rem", fontWeight: "800", margin: "1rem 0 0 0", paddingBottom: "0.75rem", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <DollarSign size={20} style={{ color: "#10B981" }} /> Production & Variable Unit Expenses
+            </h3>
+            <p style={{ margin: 0, fontSize: "0.78rem", color: "#64748B" }}>
+              These base cost values are used by the Profit Engine to calculate exact Net Profit and Margin % for every order.
+            </p>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem" }}>
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>A5 Print Cost (₹)</label>
+                <input type="number" value={costA5} onChange={(e) => setCostA5(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>A4 Print Cost (₹)</label>
+                <input type="number" value={costA4} onChange={(e) => setCostA4(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>A3 Print Cost (₹)</label>
+                <input type="number" value={costA3} onChange={(e) => setCostA3(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>A2 Print Cost (₹)</label>
+                <input type="number" value={costA2} onChange={(e) => setCostA2(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>Canvas Print Cost (₹)</label>
+                <input type="number" value={costCanvas} onChange={(e) => setCostCanvas(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>Packaging / Tube (₹)</label>
+                <input type="number" value={packagingCostPerOrder} onChange={(e) => setPackagingCostPerOrder(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "0.75rem" }}>
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>Black Frame (₹)</label>
+                <input type="number" value={costBlackFrame} onChange={(e) => setCostBlackFrame(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>Wood Frame (₹)</label>
+                <input type="number" value={costWoodFrame} onChange={(e) => setCostWoodFrame(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>Gateway Fee (%)</label>
+                <input type="number" step="0.1" value={gatewayFeePercent} onChange={(e) => setGatewayFeePercent(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>GST Rate (%)</label>
+                <input type="number" step="0.1" value={gstTaxPercent} onChange={(e) => setGstTaxPercent(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
               </div>
             </div>
 

@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { OrderSource, OrderType, PaymentMode, PaymentStatus, ShippingStatus, OrderTag } from "@prisma/client";
-import { calculateOrderProfitMetrics, calculateItemUnitCost } from "@/lib/profitEngine";
+import { calculateOrderProfitMetrics, calculateItemUnitBreakdown } from "@/lib/profitEngine";
 
 export interface OrderItemInput {
   productId?: string;
@@ -192,62 +192,79 @@ export async function searchProductsForOrderAction(query: string) {
 // ----------------------------------------------------
 export async function createOrderOrQuoteAction(input: CreateOrderOrQuoteInput) {
   try {
-    // Calculate Subtotal, Expenses & Profit Metrics
-    let calculatedSubtotal = 0;
-    const itemsData = input.items.map((item) => {
-      const lineTotal = item.unitPrice * item.quantity;
-      calculatedSubtotal += lineTotal;
-      const unitCost = calculateItemUnitCost(item.size, item.frame, item.unitCost);
-
-      return {
-        productId: item.productId || null,
-        isCustomItem: item.isCustomItem ?? !item.productId,
-        title: item.title,
-        description: item.description || null,
-        size: item.size || "A4",
-        frame: item.frame || "UNFRAMED",
-        sku: item.sku || null,
-        productSlug: item.productSlug || null,
-        thumbnailUrl: item.thumbnailUrl || null,
-        originalPrice: item.originalPrice || item.unitPrice,
-        price: item.unitPrice,
-        unitCost,
-        discount: item.discount || 0,
-        quantity: item.quantity,
-      };
-    });
-
-    const shippingCost = input.shippingCost || 0;
-    const discountAmount = input.discountAmount || 0;
-    const grandTotal = Math.max(0, calculatedSubtotal + shippingCost - discountAmount);
-
-    const profitMetrics = calculateOrderProfitMetrics(
-      input.items,
-      shippingCost,
-      input.shippingType || "Standard",
-      discountAmount
-    );
-
-    let initialShippingStatus: ShippingStatus = "WHATSAPP_PENDING";
-    if (input.orderType === "QUOTE") {
-      initialShippingStatus = "QUOTE";
-    } else if (input.orderType === "DRAFT") {
-      initialShippingStatus = "DRAFT";
-    } else if ((input.amountPaidNow || 0) >= grandTotal) {
-      initialShippingStatus = "CONFIRMED";
-    }
-
-    const initialPaymentStatus: PaymentStatus =
-      (input.amountPaidNow || 0) >= grandTotal
-        ? "PAID"
-        : (input.amountPaidNow || 0) > 0
-        ? "PARTIALLY_PAID"
-        : "PENDING";
-
     // Perform Atomic Transaction with extended timeout for serverless DB
     const newOrder = await prisma.$transaction(
       async (tx) => {
         const orderNumber = await getNextOrderNumber(input.orderType, tx);
+        const siteSettings = await tx.siteSettings.findFirst();
+
+        const expenseCfg = siteSettings ? {
+          costA5: siteSettings.costA5,
+          costA4: siteSettings.costA4,
+          costA3: siteSettings.costA3,
+          costA2: siteSettings.costA2,
+          costCanvas: siteSettings.costCanvas,
+          costBlackFrame: siteSettings.costBlackFrame,
+          costWoodFrame: siteSettings.costWoodFrame,
+          packagingCostPerOrder: siteSettings.packagingCostPerOrder,
+          gatewayFeePercent: siteSettings.gatewayFeePercent,
+          gstTaxPercent: siteSettings.gstTaxPercent,
+        } : undefined;
+
+        let calculatedSubtotal = 0;
+        const itemsData = input.items.map((item) => {
+          const lineTotal = item.unitPrice * item.quantity;
+          calculatedSubtotal += lineTotal;
+          const breakdown = calculateItemUnitBreakdown(item.size, item.frame, expenseCfg);
+
+          return {
+            productId: item.productId || null,
+            isCustomItem: item.isCustomItem ?? !item.productId,
+            title: item.title,
+            description: item.description || null,
+            size: item.size || "A4",
+            frame: item.frame || "UNFRAMED",
+            sku: item.sku || null,
+            productSlug: item.productSlug || null,
+            thumbnailUrl: item.thumbnailUrl || null,
+            originalPrice: item.originalPrice || item.unitPrice,
+            price: item.unitPrice,
+            printCost: breakdown.printCost,
+            frameCost: breakdown.frameCost,
+            unitCost: breakdown.unitCost,
+            discount: item.discount || 0,
+            quantity: item.quantity,
+          };
+        });
+
+        const shippingCost = input.shippingCost || 0;
+        const discountAmount = input.discountAmount || 0;
+        const grandTotal = Math.max(0, calculatedSubtotal + shippingCost - discountAmount);
+
+        let initialShippingStatus: ShippingStatus = "WHATSAPP_PENDING";
+        if (input.orderType === "QUOTE") {
+          initialShippingStatus = "QUOTE";
+        } else if (input.orderType === "DRAFT") {
+          initialShippingStatus = "DRAFT";
+        } else if ((input.amountPaidNow || 0) >= grandTotal) {
+          initialShippingStatus = "CONFIRMED";
+        }
+
+        const initialPaymentStatus: PaymentStatus =
+          (input.amountPaidNow || 0) >= grandTotal
+            ? "PAID"
+            : (input.amountPaidNow || 0) > 0
+            ? "PARTIALLY_PAID"
+            : "PENDING";
+
+        const profitMetrics = calculateOrderProfitMetrics(
+          input.items,
+          shippingCost,
+          input.shippingType || "Standard",
+          discountAmount,
+          0,
+          expenseCfg
+        );
 
         // 1. Create User if email doesn't exist
         let userId: string | null = null;
@@ -307,6 +324,12 @@ export async function createOrderOrQuoteAction(input: CreateOrderOrQuoteInput) {
             discountType: input.discountType || "FIXED",
             subtotal: calculatedSubtotal,
             total: grandTotal,
+            printingCost: profitMetrics.printingCost,
+            frameCost: profitMetrics.frameCost,
+            packagingCost: profitMetrics.packagingCost,
+            gatewayFee: profitMetrics.gatewayFee,
+            rewardCost: profitMetrics.rewardCost,
+            gstAmount: profitMetrics.gstAmount,
             totalCost: profitMetrics.totalExpense,
             netProfit: profitMetrics.netProfit,
             profitMargin: profitMetrics.profitMargin,

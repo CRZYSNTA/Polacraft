@@ -349,6 +349,8 @@ model OrderItem {
   thumbnailUrl  String?
   originalPrice Float    @default(0.0)
   price         Float
+  printCost     Float    @default(0.0)
+  frameCost     Float    @default(0.0)
   unitCost      Float    @default(0.0)
   discount      Float    @default(0.0)
   quantity      Int      @default(1)
@@ -404,7 +406,13 @@ model Order {
   taxAmount           Float                 @default(0.0)
   total               Float
   
-  // Cost & Profit Analytics
+  // Enterprise Financial Snapshot Breakdown
+  printingCost        Float                 @default(0.0)
+  frameCost           Float                 @default(0.0)
+  packagingCost       Float                 @default(0.0)
+  gatewayFee          Float                 @default(0.0)
+  rewardCost          Float                 @default(0.0)
+  gstAmount           Float                 @default(0.0)
   totalCost           Float                 @default(0.0)
   netProfit           Float                 @default(0.0)
   profitMargin        Float                 @default(0.0)
@@ -595,6 +603,18 @@ model SiteSettings {
   supportEmail             String   @default("support@polacraft.com")
   gstNumber                String?
   maintenanceMode          Boolean  @default(false)
+
+  // Enterprise Variable Unit Expenses (Defaults)
+  costA5                   Float    @default(15.0)
+  costA4                   Float    @default(28.0)
+  costA3                   Float    @default(52.0)
+  costA2                   Float    @default(100.0)
+  costCanvas               Float    @default(200.0)
+  costBlackFrame           Float    @default(120.0)
+  costWoodFrame            Float    @default(150.0)
+  packagingCostPerOrder    Float    @default(18.0)
+  gatewayFeePercent        Float    @default(2.0)
+  gstTaxPercent            Float    @default(18.0)
   
   // Polacraft v1.2 AI Settings
   aiEnabled                Boolean  @default(true)
@@ -609,6 +629,51 @@ model SiteSettings {
   updatedAt                DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+model ExpenseSettingHistory {
+  id                    String   @id @default(uuid())
+  effectiveFrom         DateTime @default(now())
+  costA5                Float    @default(15.0)
+  costA4                Float    @default(28.0)
+  costA3                Float    @default(52.0)
+  costA2                Float    @default(100.0)
+  costCanvas            Float    @default(200.0)
+  costBlackFrame        Float    @default(120.0)
+  costWoodFrame         Float    @default(150.0)
+  packagingCostPerOrder Float    @default(18.0)
+  gatewayFeePercent     Float    @default(2.0)
+  gstTaxPercent         Float    @default(18.0)
+  note                  String?
+  createdAt             DateTime @default(now())
+
+  @@map("expense_setting_histories")
+}
+
+model OperatingExpense {
+  id           String   @id @default(uuid())
+  title        String
+  category     String   // "SUPPLIES" | "MARKETING" | "EQUIPMENT" | "SHIPPING" | "SOFTWARE" | "OTHER"
+  amount       Float
+  description  String?
+  receiptImage String?
+  date         DateTime @default(now())
+  loggedBy     String   @default("Admin")
+  createdAt    DateTime @default(now())
+
+  @@map("operating_expenses")
+}
+
+model FixedOverhead {
+  id          String   @id @default(uuid())
+  name        String   // "Adobe Creative Cloud", "Shopify/Vercel", "Monthly Internet", "Rent"
+  category    String   // "SOFTWARE" | "UTILITIES" | "RENT" | "SALARY"
+  amount      Float
+  frequency   String   @default("MONTHLY") // "MONTHLY" | "ANNUAL"
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("fixed_overheads")
 }
 
 model LoyaltyTransaction {
