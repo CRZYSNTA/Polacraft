@@ -21,6 +21,7 @@ export interface ProductInput {
   subCollectionId?: string | null;
   genre: string;
   price: number;
+  costPrice?: number;
   inventory: number;
   lowStockThreshold?: number;
   isPreorder?: boolean;
@@ -88,6 +89,7 @@ export async function saveProductAction(input: ProductInput) {
       subCollectionId: input.subCollectionId && input.subCollectionId !== "" ? input.subCollectionId : null,
       genre: input.genre,
       price: Number(input.price),
+      costPrice: Number(input.costPrice || 60),
       inventory: Number(input.inventory),
       lowStockThreshold: Number(lowStockThreshold),
       isPreorder: Boolean(input.isPreorder),

@@ -79,7 +79,8 @@ export default function AdminProductsPage() {
     fetchSubCollectionsForCollection(newColName);
   };
   const [genre, setGenre] = useState("Drama");
-  const [price, setPrice] = useState(49);
+  const [price, setPrice] = useState(350);
+  const [costPrice, setCostPrice] = useState(60);
   const [inventory, setInventory] = useState(20);
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [isPreorder, setIsPreorder] = useState(false);
@@ -233,6 +234,7 @@ export default function AdminProductsPage() {
     fetchSubCollectionsForCollection(p.collectionName);
     setGenre(p.genre);
     setPrice(p.price);
+    setCostPrice(p.costPrice || 60);
     setInventory(p.inventory);
     setLowStockThreshold(p.lowStockThreshold);
     setIsPreorder(p.isPreorder);
@@ -335,6 +337,7 @@ export default function AdminProductsPage() {
         subCollectionId: subCollectionId || null,
         genre,
         price,
+        costPrice,
         inventory,
         lowStockThreshold,
         isPreorder,
@@ -815,8 +818,8 @@ export default function AdminProductsPage() {
                 );
               })()}
 
-              {/* Row 3: Collection, SubCollection, Genre, Price */}
-              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.2fr 1fr 1fr", gap: "1rem" }}>
+              {/* Row 3: Collection, SubCollection, Genre, Price, Cost Price */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: "1rem" }}>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Collection *</label>
                   <select value={collectionName} onChange={(e) => handleCollectionNameChange(e.target.value)} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }}>
@@ -828,7 +831,7 @@ export default function AdminProductsPage() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Sub Collection (Optional)</label>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Sub Collection</label>
                   <select value={subCollectionId} onChange={(e) => setSubCollectionId(e.target.value)} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem", backgroundColor: "#FFF" }}>
                     <option value="">None (Top-Level Only)</option>
                     {subCollections.map((sub: any) => (
@@ -837,19 +840,18 @@ export default function AdminProductsPage() {
                       </option>
                     ))}
                   </select>
-                  {subCollections.length === 0 && (
-                    <span style={{ fontSize: "0.7rem", color: "#888", display: "block", marginTop: "2px" }}>
-                      No Sub Collections available.
-                    </span>
-                  )}
                 </div>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Genre *</label>
-                  <input type="text" required value={genre} onChange={(e) => setGenre(e.target.value)} placeholder="Psychological Thriller" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                  <input type="text" required value={genre} onChange={(e) => setGenre(e.target.value)} placeholder="Drama" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Base Price (₹) *</label>
-                  <input type="number" required value={price} onChange={(e) => setPrice(Number(e.target.value))} placeholder="1499" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Selling Price (₹) *</label>
+                  <input type="number" required value={price} onChange={(e) => setPrice(Number(e.target.value))} placeholder="350" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#059669" }}>Cost Expense (₹) *</label>
+                  <input type="number" required value={costPrice} onChange={(e) => setCostPrice(Number(e.target.value))} placeholder="60" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #A7F3D0", backgroundColor: "#ECFDF5", fontSize: "0.9rem", fontWeight: 700, color: "#047857" }} />
                 </div>
               </div>
 
