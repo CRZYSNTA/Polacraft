@@ -112,6 +112,28 @@ export default function AdminProductsPage() {
   const [aiConfidenceScores, setAiConfidenceScores] = useState<Record<string, number> | null>(null);
   const [aiDuplicateWarning, setAiDuplicateWarning] = useState<string | null>(null);
 
+  // Duplicate Detection & Warning State
+  const [duplicateConfirmModalOpen, setDuplicateConfirmModalOpen] = useState(false);
+  const [duplicateFoundMatch, setDuplicateFoundMatch] = useState<any | null>(null);
+
+  const checkDuplicatePoster = (inputTitle: string, inputFilm: string, currentId?: string) => {
+    if (!inputTitle && !inputFilm) return null;
+    const cleanTitle = inputTitle.toLowerCase().replace(/[^a-z0-9]/g, "").trim();
+    const cleanFilm = inputFilm.toLowerCase().replace(/[^a-z0-9]/g, "").trim();
+
+    if (!cleanTitle && !cleanFilm) return null;
+
+    return products.find((p) => {
+      if (currentId && p.id === currentId) return false;
+      const pTitle = (p.title || "").toLowerCase().replace(/[^a-z0-9]/g, "").trim();
+      const pFilm = (p.film || "").toLowerCase().replace(/[^a-z0-9]/g, "").trim();
+
+      const titleMatch = cleanTitle.length > 2 && pTitle === cleanTitle;
+      const filmMatch = cleanFilm.length > 2 && pFilm === cleanFilm;
+      return titleMatch || filmMatch;
+    });
+  };
+
   const handleAiVisionAutoFill = async (overrideUrl?: string) => {
     const targetUrl = overrideUrl || images[0]?.url;
     if (!targetUrl) {
@@ -322,8 +344,15 @@ export default function AdminProductsPage() {
     setImages(reordered);
   };
 
-  const handleSubmitProduct = (e: React.FormEvent) => {
+  const handleSubmitProduct = (e: React.FormEvent, forceSave: boolean = false) => {
     e.preventDefault();
+
+    const dupMatch = checkDuplicatePoster(title, film, editingProduct?.id);
+    if (dupMatch && !forceSave) {
+      setDuplicateFoundMatch(dupMatch);
+      setDuplicateConfirmModalOpen(true);
+      return;
+    }
 
     startTransition(async () => {
       const payload: ProductInput = {
@@ -363,6 +392,8 @@ export default function AdminProductsPage() {
       const res = await saveProductAction(payload);
       if (res.success) {
         setIsModalOpen(false);
+        setDuplicateConfirmModalOpen(false);
+        setDuplicateFoundMatch(null);
         fetchProducts();
       } else {
         alert("Error saving product: " + res.error);
@@ -763,6 +794,18 @@ export default function AdminProductsPage() {
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Product Title *</label>
                   <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Enter product title..." style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                  {(() => {
+                    const liveDup = checkDuplicatePoster(title, film, editingProduct?.id);
+                    if (!liveDup) return null;
+                    return (
+                      <div style={{ backgroundColor: "#FEF3C7", border: "1px solid #F59E0B", color: "#92400E", padding: "0.5rem 0.75rem", borderRadius: "8px", marginTop: "0.4rem", fontSize: "0.78rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <AlertTriangle size={16} style={{ color: "#D97706", flexShrink: 0 }} />
+                        <span>
+                          <strong>Duplicate Warning:</strong> A poster titled <u>"{liveDup.title}"</u> ({liveDup.film}) already exists!
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>URL Slug (auto-generated if empty)</label>
@@ -1077,6 +1120,108 @@ export default function AdminProductsPage() {
         collections={rawCollections}
         onComplete={fetchProducts}
       />
+
+      {/* ⚠️ DUPLICATE POSTER WARNING DIALOG */}
+      {duplicateConfirmModalOpen && duplicateFoundMatch && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(15, 23, 42, 0.75)",
+            backdropFilter: "blur(4px)",
+            zIndex: 1300,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1.5rem",
+          }}
+          onClick={() => setDuplicateConfirmModalOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: "#FFF",
+              borderRadius: "24px",
+              width: "100%",
+              maxWidth: "520px",
+              padding: "2rem",
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.3)",
+              border: "2px solid #F59E0B",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem", color: "#D97706" }}>
+              <AlertTriangle size={28} />
+              <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 900, color: "#0F172A" }}>
+                Duplicate Poster Warning
+              </h3>
+            </div>
+
+            <p style={{ margin: "0 0 1rem 0", fontSize: "0.9rem", color: "#334155", lineHeight: "1.5" }}>
+              This poster is already added to the website catalog!
+            </p>
+
+            {/* Existing Poster Info Card */}
+            <div style={{ backgroundColor: "#FEF3C7", border: "1px solid #FDE68A", borderRadius: "14px", padding: "1rem", marginBottom: "1.5rem", display: "flex", gap: "1rem", alignItems: "center" }}>
+              {duplicateFoundMatch.heroImage ? (
+                <img src={duplicateFoundMatch.heroImage} alt="Existing Poster" style={{ width: "54px", height: "70px", objectFit: "cover", borderRadius: "8px" }} />
+              ) : (
+                <div style={{ width: "54px", height: "70px", backgroundColor: "#CBD5E1", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <ImageIcon size={20} style={{ color: "#64748B" }} />
+                </div>
+              )}
+              <div style={{ flexGrow: 1 }}>
+                <strong style={{ fontSize: "0.95rem", color: "#92400E", display: "block" }}>{duplicateFoundMatch.title}</strong>
+                <div style={{ fontSize: "0.8rem", color: "#B45309" }}>Film: {duplicateFoundMatch.film} ({duplicateFoundMatch.year})</div>
+                <div style={{ fontSize: "0.75rem", color: "#B45309", marginTop: "2px" }}>Collection: {duplicateFoundMatch.collectionName} • Price: ₹{duplicateFoundMatch.price}</div>
+              </div>
+            </div>
+
+            <p style={{ margin: "0 0 1.5rem 0", fontSize: "0.85rem", fontWeight: 700, color: "#0F172A" }}>
+              Do you want to continue creating/saving this duplicate poster listing?
+            </p>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
+              <button
+                type="button"
+                onClick={() => setDuplicateConfirmModalOpen(false)}
+                style={{
+                  padding: "0.7rem 1.25rem",
+                  borderRadius: "10px",
+                  border: "1px solid #CBD5E1",
+                  backgroundColor: "#FFF",
+                  color: "#334155",
+                  fontWeight: 800,
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel & Review
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => handleSubmitProduct(e as any, true)}
+                disabled={isPending}
+                style={{
+                  padding: "0.7rem 1.25rem",
+                  borderRadius: "10px",
+                  border: "none",
+                  backgroundColor: "#D97706",
+                  color: "#FFF",
+                  fontWeight: 800,
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                {isPending ? <Loader2 size={16} className="animate-spin" /> : "Save Duplicate Poster Anyway"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
