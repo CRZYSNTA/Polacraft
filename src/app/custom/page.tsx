@@ -117,9 +117,9 @@ export default function CustomPrintStudio() {
     e.stopPropagation();
   };
 
-  // Construct Synthetic Poster Object for Live PosterRenderer Preview
-  const customPoster: Product = {
-    id: "custom-print-" + Date.now(),
+  // Construct Synthetic Poster Object with a Stable Memoized ID for Live PosterRenderer Preview
+  const customPoster: Product = React.useMemo(() => ({
+    id: "custom-print-session",
     slug: "custom-artwork",
     title: customTitle || "Custom Fine Art Print",
     film: "Custom Collector Design",
@@ -148,7 +148,7 @@ export default function CustomPrintStudio() {
     heroImage: previewUrl || undefined,
     galleryImages: previewUrl ? [previewUrl] : [],
     wallMockups: ["/assets/living_room_mockup.png"]
-  };
+  }), [customTitle, basePrice, previewUrl]);
 
   // WhatsApp Order Redirect
   const handleWhatsAppOrder = () => {

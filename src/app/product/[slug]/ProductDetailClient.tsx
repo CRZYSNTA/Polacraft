@@ -37,7 +37,7 @@ export default function ProductDetailClient({ poster }: { poster: any }) {
     if (poster && poster.id) {
       addRecentlyViewed(poster);
     }
-  }, [poster?.id, addRecentlyViewed]);
+  }, [poster, addRecentlyViewed]);
 
   // Reset quantity to 1 when size changes
   useEffect(() => {

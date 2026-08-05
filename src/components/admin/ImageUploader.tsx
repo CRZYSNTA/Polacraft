@@ -130,6 +130,7 @@ export default function ImageUploader({
               border: "1px solid #E2E8F0",
             }}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={value}
               alt="Preview"

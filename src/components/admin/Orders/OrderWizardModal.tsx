@@ -82,11 +82,22 @@ export default function OrderWizardModal({ isOpen, onClose, onSuccess }: OrderWi
   const [rawChatText, setRawChatText] = useState("");
   const [isParsingChat, setIsParsingChat] = useState(false);
 
+  // Product Search Trigger
+  const handleProductSearch = React.useCallback(async (query: string) => {
+    setSearchQuery(query);
+    setIsSearchingProducts(true);
+    const res = await searchProductsForOrderAction(query);
+    setIsSearchingProducts(false);
+    if (res.success) {
+      setSearchResults(res.products || []);
+    }
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       handleProductSearch("");
     }
-  }, [isOpen]);
+  }, [isOpen, handleProductSearch]);
 
   if (!isOpen) return null;
 
@@ -111,17 +122,6 @@ export default function OrderWizardModal({ isOpen, onClose, onSuccess }: OrderWi
         setCustomerInfoBadge(null);
         if (!email) setEmail(`${clean}@polacraft-customer.in`);
       }
-    }
-  };
-
-  // Product Search Trigger
-  const handleProductSearch = async (query: string) => {
-    setSearchQuery(query);
-    setIsSearchingProducts(true);
-    const res = await searchProductsForOrderAction(query);
-    setIsSearchingProducts(false);
-    if (res.success) {
-      setSearchResults(res.products || []);
     }
   };
 
