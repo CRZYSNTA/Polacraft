@@ -61,6 +61,7 @@ export function mapDbProductToPoster(p: any): Product {
     isSoldOut: p.inventory === 0 && !p.isPreorder,
     seoTitle: `${p.title} Poster | Polacraft Studio`,
     seoDescription: p.story || `Fine art poster of ${p.title}`,
+    heroImage: heroImage || undefined,
     galleryImages: galleryImages,
     wallMockups: ["/assets/living_room_mockup.png"],
   };
