@@ -9,7 +9,18 @@ import { AppContext } from "../features/cart/AppContext";
 import { Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 
 const LogoVideoReveal = () => {
+  const videoRef = React.useRef<HTMLVideoElement>(null);
   const [hasVideoError, setHasVideoError] = useState(false);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {
+        // Suppress browser autoplay policy errors gracefully
+      });
+    }
+  }, []);
 
   if (hasVideoError) {
     return (
@@ -49,23 +60,25 @@ const LogoVideoReveal = () => {
   }
 
   return (
-    <video
-      autoPlay
-      loop
-      muted
-      playsInline
-      onError={() => setHasVideoError(true)}
-      style={{
-        height: "40px",
-        width: "auto",
-        maxHeight: "44px",
-        objectFit: "contain",
-        display: "block"
-      }}
-    >
-      <source src="/assets/logo-reveal.mp4" type="video/mp4" />
-      <source src="/assets/logo-reveal.webm" type="video/webm" />
-    </video>
+    <div style={{ display: "flex", alignItems: "center", height: "44px" }}>
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        onError={() => setHasVideoError(true)}
+        style={{
+          height: "44px",
+          width: "auto",
+          maxWidth: "180px",
+          objectFit: "contain",
+          display: "block"
+        }}
+      >
+        <source src="/assets/logo-reveal.mp4" type="video/mp4" />
+      </video>
+    </div>
   );
 };
 
