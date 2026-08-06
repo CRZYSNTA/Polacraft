@@ -61,10 +61,16 @@ export default function AccountDashboardPage() {
     }
   }, [session]);
 
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
   if (status === "loading") {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#0B0C10", display: "flex", alignItems: "center", justifyContent: "center", color: "#FFFFFF" }}>
-        <Loader2 size={32} className="animate-spin" style={{ color: "#D4AF37" }} />
+      <div style={{ minHeight: "100vh", backgroundColor: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center", color: "#111111" }}>
+        <Loader2 size={32} className="animate-spin" style={{ color: "#5A31F4" }} />
       </div>
     );
   }
@@ -104,15 +110,15 @@ export default function AccountDashboardPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#0B0C10", color: "#F3F4F6", paddingTop: "120px", paddingBottom: "100px" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#FAFAF8", color: "#111111", paddingTop: "120px", paddingBottom: "100px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem" }}>
         
         {/* POST-LOGIN LOW-FRICTION PROFILE COMPLETION BANNER */}
         {addressesCount === 0 && (
           <div
             style={{
-              backgroundColor: "rgba(212, 175, 55, 0.08)",
-              border: "1px solid rgba(212, 175, 55, 0.3)",
+              backgroundColor: "#F3F4F6",
+              border: "1px solid #E5E7EB",
               borderRadius: "20px",
               padding: "1.5rem 1.75rem",
               marginBottom: "2rem",
@@ -124,10 +130,10 @@ export default function AccountDashboardPage() {
             }}
           >
             <div>
-              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#D4AF37", marginBottom: "0.2rem" }}>
+              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#111111", marginBottom: "0.2rem" }}>
                 ⚡ Quick Step: Add Your Delivery Address
               </div>
-              <div style={{ fontSize: "0.85rem", color: "#9CA3AF" }}>
+              <div style={{ fontSize: "0.85rem", color: "#6B7280" }}>
                 Complete your profile once to enable 1-click Express WhatsApp checkout & automatic address filling.
               </div>
             </div>
@@ -138,8 +144,8 @@ export default function AccountDashboardPage() {
                 padding: "0.65rem 1.25rem",
                 borderRadius: "12px",
                 border: "none",
-                backgroundColor: "#D4AF37",
-                color: "#111111",
+                backgroundColor: "#111111",
+                color: "#FFFFFF",
                 fontWeight: 800,
                 fontSize: "0.85rem",
                 cursor: "pointer",
@@ -149,11 +155,11 @@ export default function AccountDashboardPage() {
             </button>
 
             {showCompletionForm && (
-              <form onSubmit={handleSaveProfileDetails} style={{ width: "100%", marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid rgba(212,175,55,0.2)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                <input required value={completePhone} onChange={(e) => setCompletePhone(e.target.value)} placeholder="WhatsApp Phone # (e.g. 9876543210)" style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
-                <input required value={completeStreet} onChange={(e) => setCompleteStreet(e.target.value)} placeholder="Street / Door No." style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
-                <input required value={completeCity} onChange={(e) => setCompleteCity(e.target.value)} placeholder="City / District" style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
-                <input required value={completeZip} onChange={(e) => setCompleteZip(e.target.value)} placeholder="PIN / ZIP Code" style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#1A1D24", border: "1px solid #333", color: "#FFF", fontSize: "0.85rem" }} />
+              <form onSubmit={handleSaveProfileDetails} style={{ width: "100%", marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid #E5E7EB", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <input required value={completePhone} onChange={(e) => setCompletePhone(e.target.value)} placeholder="WhatsApp Phone # (e.g. 9876543210)" style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#FFFFFF", border: "1px solid #D1D5DB", color: "#111", fontSize: "0.85rem" }} />
+                <input required value={completeStreet} onChange={(e) => setCompleteStreet(e.target.value)} placeholder="Street / Door No." style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#FFFFFF", border: "1px solid #D1D5DB", color: "#111", fontSize: "0.85rem" }} />
+                <input required value={completeCity} onChange={(e) => setCompleteCity(e.target.value)} placeholder="City / District" style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#FFFFFF", border: "1px solid #D1D5DB", color: "#111", fontSize: "0.85rem" }} />
+                <input required value={completeZip} onChange={(e) => setCompleteZip(e.target.value)} placeholder="PIN / ZIP Code" style={{ padding: "0.75rem", borderRadius: "10px", backgroundColor: "#FFFFFF", border: "1px solid #D1D5DB", color: "#111", fontSize: "0.85rem" }} />
                 <button type="submit" disabled={savingProfile} style={{ gridColumn: "span 2", padding: "0.75rem", borderRadius: "10px", backgroundColor: "#10B981", color: "#FFF", fontWeight: 800, border: "none", cursor: "pointer" }}>
                   {savingProfile ? "Saving Profile..." : "Save WhatsApp # & Delivery Address"}
                 </button>
@@ -165,18 +171,17 @@ export default function AccountDashboardPage() {
         {/* HEADER DASHBOARD BANNER */}
         <div
           style={{
-            backgroundColor: "rgba(18, 20, 26, 0.85)",
-            backdropFilter: "blur(16px)",
+            backgroundColor: "#FFFFFF",
             borderRadius: "24px",
             padding: "2.5rem 2rem",
-            border: "1px solid rgba(212, 175, 55, 0.2)",
+            border: "1px solid rgba(17, 17, 17, 0.08)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
             gap: "1.5rem",
             marginBottom: "2.5rem",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
@@ -187,7 +192,7 @@ export default function AccountDashboardPage() {
                 width={72}
                 height={72}
                 unoptimized={user.image.startsWith("http")}
-                style={{ borderRadius: "50%", objectFit: "cover", border: "2px solid #D4AF37" }}
+                style={{ borderRadius: "50%", objectFit: "cover", border: "2px solid #111111" }}
               />
             ) : (
               <div
@@ -195,14 +200,14 @@ export default function AccountDashboardPage() {
                   width: "72px",
                   height: "72px",
                   borderRadius: "50%",
-                  backgroundColor: "rgba(212, 175, 55, 0.15)",
-                  border: "2px solid #D4AF37",
+                  backgroundColor: "#F3F4F6",
+                  border: "2px solid #111111",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: "1.75rem",
                   fontWeight: 800,
-                  color: "#D4AF37",
+                  color: "#111111",
                 }}
               >
                 {user?.name ? user.name[0].toUpperCase() : "C"}
@@ -210,14 +215,13 @@ export default function AccountDashboardPage() {
             )}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <h1 style={{ fontSize: "1.75rem", fontWeight: "800", color: "#FFFFFF", margin: 0 }}>
+                <h1 style={{ fontSize: "1.75rem", fontWeight: "800", color: "#111111", margin: 0 }}>
                   {user?.name || "Collector"}
                 </h1>
                 <span
                   style={{
-                    backgroundColor: "rgba(212, 175, 55, 0.15)",
-                    color: "#D4AF37",
-                    border: "1px solid rgba(212, 175, 55, 0.3)",
+                    backgroundColor: "#111111",
+                    color: "#FFFFFF",
                     padding: "0.2rem 0.6rem",
                     borderRadius: "20px",
                     fontSize: "0.75rem",
@@ -228,15 +232,15 @@ export default function AccountDashboardPage() {
                   {(session?.user as any)?.role || "CUSTOMER"}
                 </span>
               </div>
-              <p style={{ fontSize: "0.9rem", color: "#9CA3AF", margin: "0.35rem 0 0 0" }}>{user?.email}</p>
+              <p style={{ fontSize: "0.9rem", color: "#666666", margin: "0.35rem 0 0 0" }}>{user?.email}</p>
             </div>
           </div>
 
           {/* LOYALTY REWARDS COUNTER */}
           <div
             style={{
-              backgroundColor: "rgba(212, 175, 55, 0.08)",
-              border: "1px solid rgba(212, 175, 55, 0.3)",
+              backgroundColor: "#FAFAFA",
+              border: "1px solid #E5E7EB",
               borderRadius: "18px",
               padding: "1rem 1.5rem",
               display: "flex",
@@ -246,10 +250,10 @@ export default function AccountDashboardPage() {
           >
             <Award size={32} style={{ color: "#D4AF37" }} />
             <div>
-              <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#9CA3AF", fontWeight: 700 }}>
+              <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#666666", fontWeight: 700 }}>
                 Collector Rewards Points
               </span>
-              <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#D4AF37" }}>
+              <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#111111" }}>
                 {loyaltyPoints} Points
               </div>
             </div>
@@ -257,7 +261,7 @@ export default function AccountDashboardPage() {
         </div>
 
         {/* PRIMARY FEATURE CARDS GRID */}
-        <h2 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#FFFFFF", marginBottom: "1.25rem", letterSpacing: "-0.01em" }}>
+        <h2 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#111111", marginBottom: "1.25rem", letterSpacing: "-0.01em" }}>
           Account Navigation
         </h2>
 
@@ -273,24 +277,25 @@ export default function AccountDashboardPage() {
           <Link href="/account/orders" style={{ textDecoration: "none" }}>
             <div
               style={{
-                backgroundColor: "#12141A",
+                backgroundColor: "#FFFFFF",
                 borderRadius: "20px",
                 padding: "1.75rem",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(17, 17, 17, 0.08)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                 transition: "all 0.2s ease",
                 cursor: "pointer",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(212, 175, 55, 0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Package size={22} style={{ color: "#D4AF37" }} />
+                <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Package size={22} style={{ color: "#111111" }} />
                 </div>
-                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#D4AF37", backgroundColor: "rgba(212, 175, 55, 0.1)", padding: "0.25rem 0.65rem", borderRadius: "12px" }}>
+                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#111111", backgroundColor: "#F3F4F6", padding: "0.25rem 0.65rem", borderRadius: "12px" }}>
                   {ordersCount} Orders
                 </span>
               </div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#FFFFFF", margin: "0 0 0.35rem 0" }}>My Orders</h3>
-              <p style={{ fontSize: "0.85rem", color: "#9CA3AF", margin: 0 }}>Track shipments, view invoices & purchase details.</p>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#111111", margin: "0 0 0.35rem 0" }}>My Orders</h3>
+              <p style={{ fontSize: "0.85rem", color: "#666666", margin: 0 }}>Track shipments, view invoices & purchase details.</p>
             </div>
           </Link>
 
@@ -298,24 +303,25 @@ export default function AccountDashboardPage() {
           <Link href="/account/wishlist" style={{ textDecoration: "none" }}>
             <div
               style={{
-                backgroundColor: "#12141A",
+                backgroundColor: "#FFFFFF",
                 borderRadius: "20px",
                 padding: "1.75rem",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(17, 17, 17, 0.08)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                 transition: "all 0.2s ease",
                 cursor: "pointer",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(239, 68, 68, 0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(239, 68, 68, 0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Heart size={22} style={{ color: "#EF4444" }} />
                 </div>
                 <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#EF4444", backgroundColor: "rgba(239, 68, 68, 0.1)", padding: "0.25rem 0.65rem", borderRadius: "12px" }}>
                   {wishlistCount} Saved
                 </span>
               </div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#FFFFFF", margin: "0 0 0.35rem 0" }}>Wishlist</h3>
-              <p style={{ fontSize: "0.85rem", color: "#9CA3AF", margin: 0 }}>View saved cinema posters & instant checkout.</p>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#111111", margin: "0 0 0.35rem 0" }}>Wishlist</h3>
+              <p style={{ fontSize: "0.85rem", color: "#666666", margin: 0 }}>View saved cinema posters & instant checkout.</p>
             </div>
           </Link>
 
@@ -323,24 +329,25 @@ export default function AccountDashboardPage() {
           <Link href="/account/addresses" style={{ textDecoration: "none" }}>
             <div
               style={{
-                backgroundColor: "#12141A",
+                backgroundColor: "#FFFFFF",
                 borderRadius: "20px",
                 padding: "1.75rem",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(17, 17, 17, 0.08)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                 transition: "all 0.2s ease",
                 cursor: "pointer",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(16, 185, 129, 0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(16, 185, 129, 0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <MapPin size={22} style={{ color: "#10B981" }} />
                 </div>
                 <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#10B981", backgroundColor: "rgba(16, 185, 129, 0.1)", padding: "0.25rem 0.65rem", borderRadius: "12px" }}>
                   {addressesCount} Saved
                 </span>
               </div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#FFFFFF", margin: "0 0 0.35rem 0" }}>Saved Addresses</h3>
-              <p style={{ fontSize: "0.85rem", color: "#9CA3AF", margin: 0 }}>Manage delivery locations for 1-click checkout.</p>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#111111", margin: "0 0 0.35rem 0" }}>Saved Addresses</h3>
+              <p style={{ fontSize: "0.85rem", color: "#666666", margin: 0 }}>Manage delivery locations for 1-click checkout.</p>
             </div>
           </Link>
 
@@ -348,45 +355,46 @@ export default function AccountDashboardPage() {
           <Link href="/account/settings" style={{ textDecoration: "none" }}>
             <div
               style={{
-                backgroundColor: "#12141A",
+                backgroundColor: "#FFFFFF",
                 borderRadius: "20px",
                 padding: "1.75rem",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(17, 17, 17, 0.08)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                 transition: "all 0.2s ease",
                 cursor: "pointer",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(99, 102, 241, 0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: "rgba(99, 102, 241, 0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Settings size={22} style={{ color: "#6366F1" }} />
                 </div>
               </div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#FFFFFF", margin: "0 0 0.35rem 0" }}>Account Settings</h3>
-              <p style={{ fontSize: "0.85rem", color: "#9CA3AF", margin: 0 }}>Profile details, security & notifications.</p>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#111111", margin: "0 0 0.35rem 0" }}>Account Settings</h3>
+              <p style={{ fontSize: "0.85rem", color: "#666666", margin: 0 }}>Profile details, security & notifications.</p>
             </div>
           </Link>
         </div>
 
         {/* FUTURE PLACEHOLDERS SECTION */}
-        <h2 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#FFFFFF", marginBottom: "1.25rem", letterSpacing: "-0.01em" }}>
+        <h2 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#111111", marginBottom: "1.25rem", letterSpacing: "-0.01em" }}>
           Collector Suite (Upcoming)
         </h2>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem", marginBottom: "3rem" }}>
-          <div style={{ backgroundColor: "#12141A", borderRadius: "20px", padding: "1.5rem", border: "1px solid rgba(255, 255, 255, 0.05)", opacity: 0.6 }}>
+          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "20px", padding: "1.5rem", border: "1px solid rgba(17, 17, 17, 0.08)", opacity: 0.7 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
-              <Clock size={20} style={{ color: "#D4AF37" }} />
-              <h4 style={{ margin: 0, color: "#FFF", fontSize: "1rem" }}>Recently Viewed Posters</h4>
+              <Clock size={20} style={{ color: "#111111" }} />
+              <h4 style={{ margin: 0, color: "#111111", fontSize: "1rem" }}>Recently Viewed Posters</h4>
             </div>
-            <p style={{ margin: 0, fontSize: "0.8rem", color: "#6B7280" }}>Quickly re-visit posters you inspected earlier.</p>
+            <p style={{ margin: 0, fontSize: "0.8rem", color: "#666666" }}>Quickly re-visit posters you inspected earlier.</p>
           </div>
 
-          <div style={{ backgroundColor: "#12141A", borderRadius: "20px", padding: "1.5rem", border: "1px solid rgba(255, 255, 255, 0.05)", opacity: 0.6 }}>
+          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "20px", padding: "1.5rem", border: "1px solid rgba(17, 17, 17, 0.08)", opacity: 0.7 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
-              <Sparkles size={20} style={{ color: "#D4AF37" }} />
-              <h4 style={{ margin: 0, color: "#FFF", fontSize: "1rem" }}>Curated Recommendations</h4>
+              <Sparkles size={20} style={{ color: "#111111" }} />
+              <h4 style={{ margin: 0, color: "#111111", fontSize: "1rem" }}>Curated Recommendations</h4>
             </div>
-            <p style={{ margin: 0, fontSize: "0.8rem", color: "#6B7280" }}>AI recommendations based on director & genre preferences.</p>
+            <p style={{ margin: 0, fontSize: "0.8rem", color: "#666666" }}>AI recommendations based on director & genre preferences.</p>
           </div>
         </div>
 
@@ -397,15 +405,16 @@ export default function AccountDashboardPage() {
           style={{
             padding: "0.85rem 1.75rem",
             borderRadius: "14px",
-            border: "1px solid rgba(220, 38, 38, 0.3)",
-            backgroundColor: "rgba(220, 38, 38, 0.1)",
-            color: "#FCA5A5",
+            border: "1px solid #E5E7EB",
+            backgroundColor: "#FFFFFF",
+            color: "#DC2626",
             fontWeight: 800,
             fontSize: "0.9rem",
             cursor: "pointer",
             display: "inline-flex",
             alignItems: "center",
             gap: "0.6rem",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.02)"
           }}
         >
           <LogOut size={18} /> Sign Out of Account
