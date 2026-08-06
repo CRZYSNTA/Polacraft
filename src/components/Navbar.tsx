@@ -45,7 +45,7 @@ const LogoVideoReveal = () => {
           borderRadius: "4px"
         }}
       >
-        <source src="/assets/logo-reveal.mp4?v=new" type="video/mp4" />
+        <source src="/assets/logo-reveal.mp4?v=v3" type="video/mp4" />
         {/* Native Fallback for unsupported browsers */}
         <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
           <Image
