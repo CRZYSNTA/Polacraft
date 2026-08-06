@@ -292,171 +292,213 @@ export default function ShopClient({
 
   return (
     <div style={{ backgroundColor: "#FAFAF8", minHeight: "100vh", paddingBottom: "5rem" }}>
-      
-      {/* 1. HERO HEADER SECTION (COMPACT & FAST TO PRODUCTS) */}
+            {/* 1. HERO HEADER SECTION (COMPACT, TEXTURED, FAST TO PRODUCTS) */}
       <section
         style={{
-          paddingTop: isMobile ? "2.5rem" : "4.25rem",
-          paddingBottom: "1.5rem",
+          paddingTop: isMobile ? "1.5rem" : "2.5rem",
+          paddingBottom: "0.85rem",
           backgroundColor: "#111111",
+          backgroundImage: "radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.18), transparent 70%), url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
           color: "#FAFAF8",
           textAlign: "center",
           position: "relative",
           overflow: "hidden"
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: "radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.15), transparent 70%)",
-            pointerEvents: "none"
-          }}
-        />
-
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem", position: "relative", zIndex: 1 }}>
-          <span style={{ fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.22em", color: "#D4AF37", fontWeight: "800" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.25rem", position: "relative", zIndex: 1 }}>
+          <span style={{ fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.22em", color: "#D4AF37", fontWeight: "800", opacity: 0.85 }}>
             The Polacraft Vault
           </span>
-          <h1 style={{ fontSize: isMobile ? "2rem" : "2.75rem", fontWeight: "900", letterSpacing: "-0.04em", margin: "0.25rem 0 0.35rem 0" }}>
-            Shop Posters
+          <h1 style={{ fontSize: isMobile ? "1.75rem" : "2.5rem", fontWeight: "900", letterSpacing: "-0.04em", margin: "0.15rem 0 0.25rem 0" }}>
+            SHOP POSTERS
           </h1>
-          <p style={{ maxWidth: "520px", margin: "0 auto", fontSize: "0.95rem", color: "#A0A0A0" }}>
-            Handcrafted archival cinema art prints & vintage editions.
+          <p style={{ maxWidth: "500px", margin: "0 auto", fontSize: "0.9rem", color: "#D1D5DB", fontWeight: "500" }}>
+            Museum-grade Malayalam cinema posters.
           </p>
         </div>
       </section>
 
       {/* 2. FILTER & SEARCH CONTROL BAR */}
-      <div style={{ maxWidth: "1350px", margin: "0 auto", padding: isMobile ? "1rem 1rem" : "1.5rem 1.5rem" }}>
+      <div style={{ maxWidth: "1350px", margin: "0 auto", padding: isMobile ? "0.75rem 0.85rem" : "1.25rem 1.5rem" }}>
         
-        {/* TOP SEARCH & VIEW MODE TOOLBAR */}
+        {/* UNIFIED TOP TOOLBAR (OPTION A) */}
         <div
           style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "1rem",
-            marginBottom: "1.75rem",
             backgroundColor: "#FFFFFF",
-            padding: "1rem 1.25rem",
-            borderRadius: "20px",
+            padding: "0.75rem 1.15rem",
+            borderRadius: "18px",
             border: "1px solid rgba(17,17,17,0.08)",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.03)"
+            boxShadow: "0 8px 25px rgba(0,0,0,0.03)",
+            marginBottom: "1.25rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
           }}
         >
-          {/* SEARCH INPUT */}
-          <div style={{ position: "relative", flex: "1 1 300px", maxWidth: "450px" }}>
-            <Search size={18} style={{ position: "absolute", left: "1.1rem", top: "50%", transform: "translateY(-50%)", color: "#888" }} />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-              placeholder="Search posters..."
-              style={{
-                width: "100%",
-                padding: "0.75rem 1rem 0.75rem 2.8rem",
-                borderRadius: "100px",
-                border: "1px solid rgba(17,17,17,0.12)",
-                fontSize: "0.9rem",
-                outline: "none",
-                backgroundColor: "#FAFAFA"
-              }}
-            />
-            {searchQuery && (
-              <X
-                size={16}
-                onClick={() => setSearchQuery("")}
-                style={{ position: "absolute", right: "1.1rem", top: "50%", transform: "translateY(-50%)", color: "#888", cursor: "pointer" }}
+          {/* ROW 1: SEARCH & VIEW MODES */}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "0.75rem"
+            }}
+          >
+            {/* SEARCH INPUT */}
+            <div style={{ position: "relative", flex: "1 1 260px", maxWidth: "420px" }}>
+              <Search size={17} style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#111111", opacity: 0.85 }} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Search posters..."
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 1rem 0.65rem 2.6rem",
+                  borderRadius: "100px",
+                  border: "1px solid rgba(17,17,17,0.15)",
+                  fontSize: "0.88rem",
+                  outline: "none",
+                  backgroundColor: "#FAFAFA",
+                  color: "#111111",
+                  fontWeight: "600"
+                }}
               />
-            )}
+              {searchQuery && (
+                <X
+                  size={15}
+                  onClick={() => setSearchQuery("")}
+                  style={{ position: "absolute", right: "1rem", top: "50%", transform: "translateY(-50%)", color: "#555", cursor: "pointer" }}
+                />
+              )}
+            </div>
+
+            {/* VIEW MODES */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <button
+                onClick={() => setViewMode("shop")}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "100px",
+                  border: "none",
+                  backgroundColor: viewMode === "shop" ? "#111" : "#F3F3F0",
+                  color: viewMode === "shop" ? "#FFF" : "#555",
+                  fontWeight: "700",
+                  fontSize: "0.82rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.35rem"
+                }}
+              >
+                <LayoutGrid size={14} /> Shop
+              </button>
+
+              <button
+                onClick={() => setViewMode("gallery")}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "100px",
+                  border: "none",
+                  backgroundColor: viewMode === "gallery" ? "#111" : "#F3F3F0",
+                  color: viewMode === "gallery" ? "#FFF" : "#555",
+                  fontWeight: "700",
+                  fontSize: "0.82rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.35rem"
+                }}
+              >
+                <Compass size={14} /> Gallery
+              </button>
+
+              <button
+                onClick={() => setViewMode("story")}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "100px",
+                  border: "none",
+                  backgroundColor: viewMode === "story" ? "#111" : "#F3F3F0",
+                  color: viewMode === "story" ? "#FFF" : "#555",
+                  fontWeight: "700",
+                  fontSize: "0.82rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.35rem"
+                }}
+              >
+                <BookOpen size={14} /> Stories
+              </button>
+            </div>
           </div>
 
-          {/* VIEW MODES */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <button
-              onClick={() => setViewMode("shop")}
-              style={{
-                padding: "0.6rem 1.1rem",
-                borderRadius: "100px",
-                border: "none",
-                backgroundColor: viewMode === "shop" ? "#111" : "#F3F3F0",
-                color: viewMode === "shop" ? "#FFF" : "#555",
-                fontWeight: "700",
-                fontSize: "0.85rem",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem"
-              }}
-            >
-              <LayoutGrid size={15} /> Shop
-            </button>
-
-            <button
-              onClick={() => setViewMode("gallery")}
-              style={{
-                padding: "0.6rem 1.1rem",
-                borderRadius: "100px",
-                border: "none",
-                backgroundColor: viewMode === "gallery" ? "#111" : "#F3F3F0",
-                color: viewMode === "gallery" ? "#FFF" : "#555",
-                fontWeight: "700",
-                fontSize: "0.85rem",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem"
-              }}
-            >
-              <Compass size={15} /> Gallery
-            </button>
-
-            <button
-              onClick={() => setViewMode("story")}
-              style={{
-                padding: "0.6rem 1.1rem",
-                borderRadius: "100px",
-                border: "none",
-                backgroundColor: viewMode === "story" ? "#111" : "#F3F3F0",
-                color: viewMode === "story" ? "#FFF" : "#555",
-                fontWeight: "700",
-                fontSize: "0.85rem",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem"
-              }}
-            >
-              <BookOpen size={15} /> Stories
-            </button>
-          </div>
-
-          {/* MOBILE FILTER TRIGGER */}
-          {isMobile && (
+          {/* ROW 2: SUB-BAR (FILTERS TOGGLE & SORT BY DROPDOWN) */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingTop: "0.5rem",
+              borderTop: "1px solid rgba(17,17,17,0.06)",
+              gap: "0.75rem"
+            }}
+          >
+            {/* Filters Toggle Button */}
             <button
               onClick={() => setIsFilterDrawerOpen(true)}
               style={{
-                padding: "0.75rem 1.25rem",
+                padding: "0.45rem 0.95rem",
                 borderRadius: "100px",
-                border: "1.5px solid #111",
-                backgroundColor: "#111",
-                color: "#FFF",
-                fontWeight: "700",
-                fontSize: "0.85rem",
+                border: "1.5px solid #111111",
+                backgroundColor: isFilterDrawerOpen ? "#111111" : "transparent",
+                color: isFilterDrawerOpen ? "#FFFFFF" : "#111111",
+                fontWeight: "800",
+                fontSize: "0.82rem",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem"
+                gap: "0.4rem"
               }}
             >
-              <SlidersHorizontal size={16} /> Filters
+              <SlidersHorizontal size={14} /> Filters
+              {(activeFilters.collection !== "All Collections" || activeFilters.actor !== "All" || activeFilters.director !== "All") && (
+                <span style={{ backgroundColor: "#D4AF37", color: "#111", borderRadius: "50%", width: "16px", height: "16px", fontSize: "0.65rem", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: "900" }}>
+                  !
+                </span>
+              )}
             </button>
-          )}
+
+            {/* Sort By Dropdown */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <span style={{ fontSize: "0.78rem", fontWeight: "700", color: "#666666" }} className="desktop-only">Sort By:</span>
+              <select
+                value={activeFilters.sort}
+                onChange={(e) => handleFilterChange("sort", e.target.value)}
+                style={{
+                  padding: "0.45rem 0.85rem",
+                  borderRadius: "100px",
+                  border: "1px solid rgba(17,17,17,0.15)",
+                  backgroundColor: "#FAFAFA",
+                  color: "#111111",
+                  fontWeight: "700",
+                  fontSize: "0.8rem",
+                  outline: "none",
+                  cursor: "pointer"
+                }}
+              >
+                <option value="default">Featured / Default</option>
+                <option value="year-desc">Newest Year</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* MAIN LAYOUT: SIDEBAR FILTERS + PRODUCTS GRID */}
@@ -777,23 +819,23 @@ export default function ShopClient({
                                 }}
                                 style={{
                                   position: "absolute",
-                                  top: "0.75rem",
-                                  right: "0.75rem",
-                                  width: "36px",
-                                  height: "36px",
+                                  top: "0.4rem",
+                                  right: "0.4rem",
+                                  width: "32px",
+                                  height: "32px",
                                   borderRadius: "50%",
-                                  backgroundColor: "rgba(255,255,255,0.9)",
+                                  backgroundColor: "rgba(255,255,255,0.92)",
                                   backdropFilter: "blur(4px)",
                                   border: "none",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
                                   cursor: "pointer",
-                                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
                                   color: isWish ? "#EF4444" : "#111"
                                 }}
                               >
-                                <Heart size={18} fill={isWish ? "#EF4444" : "none"} />
+                                <Heart size={16} fill={isWish ? "#EF4444" : "none"} />
                               </button>
 
                               {/* QUICK VIEW TRIGGER */}

@@ -210,14 +210,14 @@ export const Navbar = () => {
               <Image
                 src="/assets/polacraft-logo-mark.png"
                 alt="Polacraft Logo Mark"
-                width={28}
-                height={28}
+                width={32}
+                height={32}
                 style={{ objectFit: "contain", borderRadius: "5px" }}
               />
               <span
                 style={{
                   fontFamily: "var(--font-serif)",
-                  fontSize: "1.65rem",
+                  fontSize: "1.8rem",
                   fontWeight: "900",
                   letterSpacing: "-0.04em",
                   display: "inline-flex",
