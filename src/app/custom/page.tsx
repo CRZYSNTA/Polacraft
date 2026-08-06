@@ -44,6 +44,7 @@ export default function CustomPrintStudio() {
   const [selectedFrame, setSelectedFrame] = useState<"unframed" | "black" | "white" | "wood">("unframed");
   const [quantity, setQuantity] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   // Size Base Rates
   const BASE_RATES: Record<string, number> = {
@@ -785,6 +786,93 @@ export default function CustomPrintStudio() {
 
           </div>
 
+        </div>
+
+        {/* 4. FREQUENTLY ASKED QUESTIONS (FAQ) SECTION */}
+        <div style={{ marginTop: "6rem", maxWidth: "900px", margin: "6rem auto 0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+            <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666", fontWeight: "700" }}>
+              Got Questions?
+            </span>
+            <h2 style={{ fontSize: "2rem", fontWeight: "900", color: "#111111", margin: "0.3rem 0 0.5rem 0" }}>
+              Custom Printing FAQs
+            </h2>
+            <p style={{ color: "#666666", fontSize: "0.95rem" }}>
+              Everything you need to know about uploading, paper quality, frames, and delivery.
+            </p>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {[
+              {
+                q: "What image resolution should I upload for custom printing?",
+                a: "We recommend uploading high-resolution files (JPEG, PNG, or WEBP, at least 2000×3000 pixels or 300 DPI) for maximum clarity and detail. Our design team reviews every uploaded artwork before printing to ensure museum quality."
+              },
+              {
+                q: "What paper quality and print finish do you use?",
+                a: "We print exclusively on museum-grade 250 GSM 100% Cotton Archival Fine Art Paper using 12-color pigment Giclée printing technology. Prints feature an ultra-matte finish guaranteed fade-resistant for 100+ years."
+              },
+              {
+                q: "How does a Split Poster (3-Panel or 2x2 Grid) work?",
+                a: "Our master printers slice your uploaded artwork across 3 vertical panels or a 2x2 grid (4 panels). Panels are produced with exact edge bleed and seamless alignment for a gallery-style wall setup."
+              },
+              {
+                q: "What framing options are available?",
+                a: "You can choose Unframed (shipped safely in heavy-duty 3.5mm eco-tubes) or framed in our handcrafted solid wood frames in Matte Black, Studio White, or Teak Natural Wood with shatterproof acrylic glass."
+              },
+              {
+                q: "How long does shipping and delivery take?",
+                a: "Custom orders are printed and hand-framed within 1–2 business days. Express courier delivery across India takes 3–5 business days with live SMS and WhatsApp tracking."
+              },
+              {
+                q: "Can I place a custom design order directly via WhatsApp?",
+                a: "Yes! Simply upload your artwork or tap 'Order Custom Design via WhatsApp' to chat directly with our design team. We send a free digital proof before printing."
+              }
+            ].map((faq, index) => {
+              const isOpen = openFaqIndex === index;
+              return (
+                <div
+                  key={index}
+                  style={{
+                    backgroundColor: "#FAFAF8",
+                    borderRadius: "16px",
+                    border: "1px solid rgba(17,17,17,0.08)",
+                    overflow: "hidden",
+                    transition: "all 0.2s ease"
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                    style={{
+                      width: "100%",
+                      padding: "1.25rem 1.5rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      backgroundColor: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      textAlign: "left"
+                    }}
+                  >
+                    <span style={{ fontSize: "1.05rem", fontWeight: "800", color: "#111111" }}>
+                      {faq.q}
+                    </span>
+                    <span style={{ fontSize: "1.25rem", fontWeight: "700", color: "#111111", transform: isOpen ? "rotate(45deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }}>
+                      +
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                    <div style={{ padding: "0 1.5rem 1.25rem 1.5rem", color: "#555555", fontSize: "0.92rem", lineHeight: "1.6" }}>
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
       </div>
