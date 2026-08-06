@@ -394,7 +394,7 @@ export default function ShopClient({
                 gap: "0.4rem"
               }}
             >
-              <LayoutGrid size={15} /> Shop Grid
+              <LayoutGrid size={15} /> Shop
             </button>
 
             <button
@@ -413,7 +413,7 @@ export default function ShopClient({
                 gap: "0.4rem"
               }}
             >
-              <Compass size={15} /> Visual Gallery
+              <Compass size={15} /> Gallery
             </button>
 
             <button
@@ -432,7 +432,7 @@ export default function ShopClient({
                 gap: "0.4rem"
               }}
             >
-              <BookOpen size={15} /> Film Lore
+              <BookOpen size={15} /> Stories
             </button>
           </div>
 
