@@ -807,165 +807,234 @@ export default function ShopClient({
               </div>
             ) : (
               <>
-                {/* MODE 1: STANDARD SHOP GRID */}
+                {/* MODE 1: STANDARD SHOP GRID (2-COLUMN MATCHING POSTERIZED.IN ON MOBILE) */}
                 {viewMode === "shop" && (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "2rem" }}>
-                    {currentPosters.map((poster) => {
-                      const isWish = wishlist.includes(poster.id);
-                      const selectedSize = cardSizes[poster.id] || "A5";
-                      const currentSizeObj = sizes.find((s) => s.id === selectedSize) || sizes[0];
-                      const displayPrice = poster.price + currentSizeObj.priceModifier;
-
-                      return (
-                        <div
-                          key={poster.id}
+                  <div>
+                    {/* MOBILE FILTER & COUNT ROW */}
+                    {isMobile && (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: "1rem",
+                          padding: "0 0.25rem",
+                        }}
+                      >
+                        <button
+                          onClick={() => setIsFilterDrawerOpen(true)}
                           style={{
-                            backgroundColor: "#FFFFFF",
-                            borderRadius: "20px",
-                            padding: "1.25rem",
-                            border: "1px solid rgba(17,17,17,0.06)",
-                            boxShadow: "0 10px 25px rgba(0,0,0,0.02)",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
                             display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            transition: "transform 0.2s ease, box-shadow 0.2s ease"
+                            alignItems: "center",
+                            gap: "0.4rem",
+                            fontSize: "0.92rem",
+                            fontWeight: "700",
+                            color: "#111111",
                           }}
-                          className="hover-card"
                         >
-                          <div>
-                            {/* POSTER RENDERER PREVIEW */}
-                            <div
-                              onClick={() => router.push(`/product/${poster.slug}`)}
-                              style={{ cursor: "pointer", position: "relative", marginBottom: "1.25rem", overflow: "hidden", borderRadius: "12px" }}
-                            >
-                              <PosterRenderer poster={poster} selectedSize={selectedSize} />
+                          <SlidersHorizontal size={15} /> Filter and sort
+                        </button>
 
-                              {/* WISHLIST BUTTON (TUCKED CLEANLY WITH MOTION) */}
-                              <motion.button
-                                whileTap={{ scale: 0.82 }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleWishlist(poster.id);
-                                }}
-                                style={{
-                                  position: "absolute",
-                                  top: "6px",
-                                  right: "6px",
-                                  width: "28px",
-                                  height: "28px",
-                                  borderRadius: "50%",
-                                  backgroundColor: "rgba(255,255,255,0.75)",
-                                  backdropFilter: "blur(4px)",
-                                  border: "none",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  cursor: "pointer",
-                                  boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
-                                  color: isWish ? "#EF4444" : "#111111",
-                                  zIndex: 10
-                                }}
+                        <span style={{ fontSize: "0.82rem", fontWeight: "600", color: "#666666" }}>
+                          {filteredPosters.length} products
+                        </span>
+                      </div>
+                    )}
+
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(auto-fill, minmax(260px, 1fr))", gap: isMobile ? "0.85rem" : "2rem" }}>
+                      {currentPosters.map((poster) => {
+                        const isWish = wishlist.includes(poster.id);
+                        const selectedSize = cardSizes[poster.id] || "A4";
+                        const currentSizeObj = sizes.find((s) => s.id === selectedSize) || sizes[0];
+                        const displayPrice = poster.price + currentSizeObj.priceModifier;
+                        const originalPrice = Math.round(displayPrice * 1.6);
+
+                        return (
+                          <div
+                            key={poster.id}
+                            style={{
+                              backgroundColor: "#FFFFFF",
+                              borderRadius: isMobile ? "12px" : "20px",
+                              padding: isMobile ? "0.65rem" : "1.25rem",
+                              border: "1px solid rgba(17,17,17,0.06)",
+                              boxShadow: "0 4px 18px rgba(0,0,0,0.03)",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between",
+                              transition: "transform 0.2s ease, box-shadow 0.2s ease"
+                            }}
+                            className="hover-card"
+                          >
+                            <div>
+                              {/* POSTER RENDERER PREVIEW */}
+                              <div
+                                onClick={() => router.push(`/product/${poster.slug}`)}
+                                style={{ cursor: "pointer", position: "relative", marginBottom: isMobile ? "0.65rem" : "1.25rem", overflow: "hidden", borderRadius: isMobile ? "8px" : "12px" }}
                               >
-                                <Heart size={14} fill={isWish ? "#EF4444" : "none"} />
-                              </motion.button>
+                                <PosterRenderer poster={poster} selectedSize={selectedSize} />
 
-                              {/* QUICK VIEW TRIGGER */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openQuickView(poster);
-                                }}
-                                style={{
-                                  position: "absolute",
-                                  bottom: "0.75rem",
-                                  right: "0.75rem",
-                                  width: "36px",
-                                  height: "36px",
-                                  borderRadius: "50%",
-                                  backgroundColor: "rgba(17,17,17,0.85)",
-                                  color: "#FFF",
-                                  border: "none",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  cursor: "pointer",
-                                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
-                                }}
-                                title="Quick View Artwork"
-                              >
-                                <Eye size={18} />
-                              </button>
-                            </div>
-
-                            {/* TITLE & DETAILS */}
-                            <Link href={`/product/${poster.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
-                              <h3 style={{ fontSize: "1.1rem", fontWeight: "800", margin: "0 0 0.25rem 0", color: "#111" }}>
-                                {poster.title}
-                              </h3>
-                            </Link>
-
-                            <p style={{ fontSize: "0.85rem", color: "#666", margin: "0 0 1rem 0" }}>
-                              {poster.film} ({poster.year}) • {poster.director}
-                            </p>
-                          </div>
-
-                          <div>
-                            {/* SIZE SELECTOR PILLS */}
-                            <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem" }}>
-                              {sizes.map((s) => (
-                                <button
-                                  key={s.id}
-                                  onClick={() => handleCardSizeChange(poster.id, s.id)}
+                                {/* Sale Badge */}
+                                <span
                                   style={{
-                                    flex: 1,
-                                    padding: "0.35rem 0",
-                                    borderRadius: "8px",
-                                    border: selectedSize === s.id ? "1.5px solid #111" : "1px solid #E5E7EB",
-                                    backgroundColor: selectedSize === s.id ? "#111" : "#FFF",
-                                    color: selectedSize === s.id ? "#FFF" : "#444",
-                                    fontSize: "0.75rem",
+                                    position: "absolute",
+                                    bottom: isMobile ? "5px" : "8px",
+                                    left: isMobile ? "5px" : "8px",
+                                    backgroundColor: "#111111",
+                                    color: "#FFFFFF",
+                                    fontSize: isMobile ? "0.62rem" : "0.72rem",
                                     fontWeight: "700",
-                                    cursor: "pointer",
-                                    transition: "all 0.15s ease"
+                                    padding: isMobile ? "0.15rem 0.45rem" : "0.2rem 0.6rem",
+                                    borderRadius: "100px",
                                   }}
                                 >
-                                  {s.label}
-                                </button>
-                              ))}
-                            </div>
+                                  Sale
+                                </span>
 
-                            {/* PRICE & ADD TO CART */}
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #F3F3F0", paddingTop: "0.85rem" }}>
-                              <div>
-                                <span style={{ fontSize: "0.7rem", textTransform: "uppercase", color: "#888", display: "block", fontWeight: "700" }}>Price</span>
-                                <span style={{ fontSize: "1.2rem", fontWeight: "900", color: "#111" }}>₹{displayPrice}</span>
+                                {/* WISHLIST BUTTON (TUCKED CLEANLY WITH MOTION) */}
+                                <motion.button
+                                  whileTap={{ scale: 0.82 }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleWishlist(poster.id);
+                                  }}
+                                  style={{
+                                    position: "absolute",
+                                    top: "6px",
+                                    right: "6px",
+                                    width: "28px",
+                                    height: "28px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "rgba(255,255,255,0.75)",
+                                    backdropFilter: "blur(4px)",
+                                    border: "none",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    cursor: "pointer",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+                                    color: isWish ? "#EF4444" : "#111111",
+                                    zIndex: 10
+                                  }}
+                                >
+                                  <Heart size={14} fill={isWish ? "#EF4444" : "none"} />
+                                </motion.button>
                               </div>
 
+                              {/* TITLE */}
+                              <Link href={`/product/${poster.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+                                <h3
+                                  style={{
+                                    fontSize: isMobile ? "0.82rem" : "1.1rem",
+                                    fontWeight: "700",
+                                    margin: "0 0 0.35rem 0",
+                                    color: "#111111",
+                                    textAlign: isMobile ? "center" : "left",
+                                    lineHeight: "1.25",
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                    overflow: "hidden",
+                                    minHeight: isMobile ? "2.1rem" : "auto",
+                                  }}
+                                >
+                                  {poster.title} | {poster.film} | Movie Poster
+                                </h3>
+                              </Link>
+
+                              {/* PRICE DISPLAY */}
+                              <div style={{ textAlign: isMobile ? "center" : "left", marginBottom: isMobile ? "0.5rem" : "0.85rem" }}>
+                                <div style={{ fontSize: isMobile ? "0.7rem" : "0.8rem", color: "#888888", textDecoration: "line-through" }}>
+                                  Rs. {originalPrice}.00
+                                </div>
+                                <div style={{ fontSize: isMobile ? "0.92rem" : "1.2rem", fontWeight: "900", color: "#111111" }}>
+                                  From Rs. {displayPrice}.00
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              {/* SIZE SELECTOR DROPDOWN ON MOBILE / PILLS ON DESKTOP */}
+                              {isMobile ? (
+                                <div style={{ marginBottom: "0.5rem" }}>
+                                  <select
+                                    value={selectedSize}
+                                    onChange={(e) => handleCardSizeChange(poster.id, e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: "0.4rem 0.5rem",
+                                      borderRadius: "8px",
+                                      border: "1px solid #111111",
+                                      fontSize: "0.78rem",
+                                      fontWeight: "600",
+                                      backgroundColor: "#FFFFFF",
+                                      color: "#111111",
+                                      outline: "none",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    {sizes.map((sz) => {
+                                      const szPrice = poster.price + sz.priceModifier;
+                                      return (
+                                        <option key={sz.id} value={sz.id}>
+                                          {sz.id} - Rs. {szPrice}.00
+                                        </option>
+                                      );
+                                    })}
+                                  </select>
+                                </div>
+                              ) : (
+                                <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem" }}>
+                                  {sizes.map((s) => (
+                                    <button
+                                      key={s.id}
+                                      onClick={() => handleCardSizeChange(poster.id, s.id)}
+                                      style={{
+                                        flex: 1,
+                                        padding: "0.35rem 0",
+                                        borderRadius: "8px",
+                                        border: selectedSize === s.id ? "1.5px solid #111" : "1px solid #E5E7EB",
+                                        backgroundColor: selectedSize === s.id ? "#111" : "#FFF",
+                                        color: selectedSize === s.id ? "#FFF" : "#444",
+                                        fontSize: "0.75rem",
+                                        fontWeight: "700",
+                                        cursor: "pointer",
+                                        transition: "all 0.15s ease"
+                                      }}
+                                    >
+                                      {s.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* ADD TO CART BUTTON */}
                               <button
                                 onClick={() => addToCart(poster, selectedSize, "unframed", 1)}
+                                disabled={poster.inventory === 0 && !poster.isPreorder}
                                 style={{
-                                  padding: "0.65rem 1.1rem",
-                                  borderRadius: "100px",
+                                  width: "100%",
+                                  padding: isMobile ? "0.55rem 0.5rem" : "0.75rem 1rem",
+                                  borderRadius: isMobile ? "8px" : "100px",
                                   border: "none",
-                                  backgroundColor: "#10B981",
-                                  color: "#FFF",
+                                  backgroundColor: "#111111",
+                                  color: "#FFFFFF",
+                                  fontSize: isMobile ? "0.82rem" : "0.9rem",
                                   fontWeight: "700",
-                                  fontSize: "0.85rem",
                                   cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "0.4rem",
-                                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)"
+                                  textAlign: "center",
+                                  transition: "background-color 0.2s ease"
                                 }}
                               >
-                                <ShoppingBag size={15} /> Add to Order
+                                Add to cart
                               </button>
                             </div>
                           </div>
-
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
