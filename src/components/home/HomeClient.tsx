@@ -28,43 +28,7 @@ export default function HomeClient({ initialPosters, heroPosters }: HomeClientPr
 
   return (
     <main style={{ backgroundColor: "#FAFAFA", color: "#111111", minHeight: "100vh", overflowX: "hidden" }}>
-      
-      {/* 1. DYNAMIC STOREWIDE OFFER BANNER */}
-      <div
-        style={{
-          backgroundColor: "#111111",
-          color: "#FAFAFA",
-          padding: "0.65rem 1rem",
-          fontSize: "0.82rem",
-          fontWeight: "600",
-          textAlign: "center",
-          letterSpacing: "0.02em",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "1.5rem",
-          flexWrap: "wrap",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          position: "relative",
-          zIndex: 40
-        }}
-      >
-        <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-          🚚 <strong>FREE Shipping</strong> on ₹{siteSettings.freeShippingThreshold}+
-        </span>
-        <span style={{ opacity: 0.3 }}>|</span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-          🎁 <strong>Collector Reward</strong> on ₹{siteSettings.collectorRewardThreshold}+
-        </span>
-        <span style={{ opacity: 0.3 }}>|</span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-          🏆 <strong>Premium Status</strong> on ₹{siteSettings.premiumRewardThreshold}+
-        </span>
-        <span style={{ opacity: 0.3 }}>|</span>
-        <span style={{ color: "#F59E0B", fontWeight: "700" }}>Mix Any Movie. Mix Any Size.</span>
-      </div>
-
-      {/* 2. HERO SECTION */}
+      {/* 1. HERO SECTION */}
       <HeroSection
         heroTitle={siteSettings.heroTitle}
         heroSubtitle={siteSettings.heroSubtitle}
