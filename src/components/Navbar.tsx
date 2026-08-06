@@ -8,6 +8,67 @@ import { useSession, signOut } from "next-auth/react";
 import { AppContext } from "../features/cart/AppContext";
 import { Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 
+const LogoVideoReveal = () => {
+  const [hasVideoError, setHasVideoError] = useState(false);
+
+  if (hasVideoError) {
+    return (
+      <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+        <Image
+          src="/assets/polacraft-logo-mark.png"
+          alt="Polacraft Logo Mark"
+          width={32}
+          height={32}
+          style={{ objectFit: "contain", borderRadius: "5px" }}
+        />
+        <span
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontSize: "1.8rem",
+            fontWeight: "900",
+            letterSpacing: "-0.04em",
+            display: "inline-flex",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ color: "#111111" }}>POLA</span>
+          <span style={{ color: "#666666", fontWeight: "300" }}>CRAFT</span>
+          <span
+            style={{
+              width: "5px",
+              height: "5px",
+              backgroundColor: "#D4AF37",
+              borderRadius: "50%",
+              marginLeft: "2px",
+              display: "inline-block",
+            }}
+          />
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      onError={() => setHasVideoError(true)}
+      style={{
+        height: "40px",
+        width: "auto",
+        maxHeight: "44px",
+        objectFit: "contain",
+        display: "block"
+      }}
+    >
+      <source src="/assets/logo-reveal.mp4" type="video/mp4" />
+      <source src="/assets/logo-reveal.webm" type="video/webm" />
+    </video>
+  );
+};
+
 export const Navbar = () => {
   const { cartItemCount, wishlist, setCartOpen, siteSettings } = useContext(AppContext);
   const { data: session } = useSession();
@@ -200,7 +261,7 @@ export const Navbar = () => {
             </div>
           </div>
 
-          {/* CENTER SLOT: CENTERED BRAND LOGO WITH LOGO MARK */}
+          {/* CENTER SLOT: CENTERED BRAND LOGO WITH VIDEO REVEAL SUPPORT */}
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Link
               href="/"
@@ -212,36 +273,8 @@ export const Navbar = () => {
                 textDecoration: "none",
               }}
             >
-              <Image
-                src="/assets/polacraft-logo-mark.png"
-                alt="Polacraft Logo Mark"
-                width={32}
-                height={32}
-                style={{ objectFit: "contain", borderRadius: "5px" }}
-              />
-              <span
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: "1.8rem",
-                  fontWeight: "900",
-                  letterSpacing: "-0.04em",
-                  display: "inline-flex",
-                  alignItems: "center",
-                }}
-              >
-                <span style={{ color: "#111111" }}>POLA</span>
-                <span style={{ color: "#666666", fontWeight: "300" }}>CRAFT</span>
-                <span
-                  style={{
-                    width: "5px",
-                    height: "5px",
-                    backgroundColor: "#D4AF37",
-                    borderRadius: "50%",
-                    marginLeft: "2px",
-                    display: "inline-block",
-                  }}
-                />
-              </span>
+              {/* Logo Reveal Video (Auto-plays muted loop, falls back to brand logo if no video uploaded) */}
+              <LogoVideoReveal />
             </Link>
           </div>
 
