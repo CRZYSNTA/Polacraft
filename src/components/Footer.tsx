@@ -93,6 +93,11 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link href="/faq" className="footer-link" style={{ color: "rgba(250,250,248,0.7)" }}>
+                  Help & FAQs
+                </Link>
+              </li>
+              <li>
                 <Link href="/journal" className="footer-link" style={{ color: "rgba(250,250,248,0.7)" }}>
                   Editorial Journal
                 </Link>
