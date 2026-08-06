@@ -293,11 +293,11 @@ export default function ShopClient({
   return (
     <div style={{ backgroundColor: "#FAFAF8", minHeight: "100vh", paddingBottom: "5rem" }}>
       
-      {/* 1. HERO HEADER SECTION */}
+      {/* 1. HERO HEADER SECTION (COMPACT & FAST TO PRODUCTS) */}
       <section
         style={{
-          paddingTop: "7.5rem",
-          paddingBottom: "3rem",
+          paddingTop: isMobile ? "2.5rem" : "4.25rem",
+          paddingBottom: "1.5rem",
           backgroundColor: "#111111",
           color: "#FAFAF8",
           textAlign: "center",
@@ -315,20 +315,20 @@ export default function ShopClient({
         />
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem", position: "relative", zIndex: 1 }}>
-          <span style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.25em", color: "#D4AF37", fontWeight: "700" }}>
+          <span style={{ fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.22em", color: "#D4AF37", fontWeight: "800" }}>
             The Polacraft Vault
           </span>
-          <h1 style={{ fontSize: isMobile ? "2.5rem" : "3.75rem", fontWeight: "900", letterSpacing: "-0.04em", margin: "0.75rem 0 1rem 0" }}>
-            Cinema Art Exhibition
+          <h1 style={{ fontSize: isMobile ? "2rem" : "2.75rem", fontWeight: "900", letterSpacing: "-0.04em", margin: "0.25rem 0 0.35rem 0" }}>
+            Shop Posters
           </h1>
-          <p style={{ maxWidth: "650px", margin: "0 auto", fontSize: "1.05rem", color: "#A0A0A0", lineHeight: "1.6" }}>
-            Museum-grade 250 GSM Giclée prints celebrating legendary Malayalam cinematic masterpieces, original posters, and vintage art editions.
+          <p style={{ maxWidth: "520px", margin: "0 auto", fontSize: "0.95rem", color: "#A0A0A0" }}>
+            Handcrafted archival cinema art prints & vintage editions.
           </p>
         </div>
       </section>
 
       {/* 2. FILTER & SEARCH CONTROL BAR */}
-      <div style={{ maxWidth: "1350px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+      <div style={{ maxWidth: "1350px", margin: "0 auto", padding: isMobile ? "1rem 1rem" : "1.5rem 1.5rem" }}>
         
         {/* TOP SEARCH & VIEW MODE TOOLBAR */}
         <div
@@ -337,10 +337,10 @@ export default function ShopClient({
             flexWrap: "wrap",
             justifyContent: "space-between",
             alignItems: "center",
-            gap: "1.25rem",
-            marginBottom: "2.5rem",
+            gap: "1rem",
+            marginBottom: "1.75rem",
             backgroundColor: "#FFFFFF",
-            padding: "1.25rem 1.75rem",
+            padding: "1rem 1.25rem",
             borderRadius: "20px",
             border: "1px solid rgba(17,17,17,0.08)",
             boxShadow: "0 10px 30px rgba(0,0,0,0.03)"
@@ -356,10 +356,10 @@ export default function ShopClient({
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search films, actors, directors, dialogues..."
+              placeholder="Search posters..."
               style={{
                 width: "100%",
-                padding: "0.8rem 1rem 0.8rem 2.8rem",
+                padding: "0.75rem 1rem 0.75rem 2.8rem",
                 borderRadius: "100px",
                 border: "1px solid rgba(17,17,17,0.12)",
                 fontSize: "0.9rem",
