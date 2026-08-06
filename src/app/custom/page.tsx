@@ -272,15 +272,13 @@ export default function CustomPrintStudio() {
               </button>
             </div>
             <div 
-              style={{ position: "relative", width: "100%", height: "400px", cursor: "pointer" }} 
+              style={{ position: "relative", width: "100%", height: "420px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} 
               onClick={() => openStudio("single")}
             >
               <Image src="/assets/custom_single.jpg" alt="Custom Single Poster" fill style={{ objectFit: "cover" }} />
-              <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ backgroundColor: "rgba(255,255,255,0.92)", backdropFilter: "blur(8px)", padding: "1.25rem 2rem", borderRadius: "12px", border: "1.5px solid #111111", textAlign: "center", boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}>
-                  <span style={{ fontSize: "1.3rem", fontWeight: "900", letterSpacing: "0.08em", color: "#111111", display: "block", lineHeight: "1.2" }}>UPLOAD YOUR</span>
-                  <span style={{ fontSize: "1.3rem", fontWeight: "900", letterSpacing: "0.08em", color: "#111111", display: "block", lineHeight: "1.2" }}>IMAGE HERE</span>
-                </div>
+              <div style={{ position: "relative", zIndex: 2, width: "185px", height: "250px", backgroundColor: "#F5F5F0", border: "4px solid #E2DDD5", boxShadow: "0 15px 35px rgba(0,0,0,0.15)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "1rem" }}>
+                <span style={{ fontSize: "1.25rem", fontWeight: "900", color: "#333333", letterSpacing: "0.05em", lineHeight: "1.2" }}>UPLOAD YOUR</span>
+                <span style={{ fontSize: "1.25rem", fontWeight: "900", color: "#333333", letterSpacing: "0.05em", lineHeight: "1.2" }}>IMAGE HERE</span>
               </div>
             </div>
           </div>
@@ -323,15 +321,21 @@ export default function CustomPrintStudio() {
               </button>
             </div>
             <div 
-              style={{ position: "relative", width: "100%", height: "400px", cursor: "pointer" }} 
+              style={{ position: "relative", width: "100%", height: "420px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} 
               onClick={() => openStudio("split-3")}
             >
               <Image src="/assets/custom_split_3.jpg" alt="Custom Split Poster" fill style={{ objectFit: "cover" }} />
-              <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ backgroundColor: "rgba(255,255,255,0.92)", backdropFilter: "blur(8px)", padding: "1.25rem 2rem", borderRadius: "12px", border: "1.5px solid #111111", textAlign: "center", boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}>
-                  <span style={{ fontSize: "1.3rem", fontWeight: "900", letterSpacing: "0.08em", color: "#111111", display: "block", lineHeight: "1.2" }}>UPLOAD YOUR</span>
-                  <span style={{ fontSize: "1.3rem", fontWeight: "900", letterSpacing: "0.08em", color: "#111111", display: "block", lineHeight: "1.2" }}>IMAGE HERE</span>
-                </div>
+              <div style={{ position: "relative", zIndex: 2, display: "flex", gap: "6px" }}>
+                {[1, 2, 3].map((panel) => (
+                  <div key={panel} style={{ width: "80px", height: "230px", backgroundColor: "#F5F5F0", border: "3px solid #E2DDD5", boxShadow: "0 10px 25px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+                    {panel === 2 && (
+                      <div style={{ textAlign: "center" }}>
+                        <span style={{ fontSize: "1.1rem", fontWeight: "900", color: "#333333", letterSpacing: "0.05em", display: "block", lineHeight: "1.2" }}>UPLOAD YOUR</span>
+                        <span style={{ fontSize: "1.1rem", fontWeight: "900", color: "#333333", letterSpacing: "0.05em", display: "block", lineHeight: "1.2" }}>IMAGE HERE</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -375,16 +379,20 @@ export default function CustomPrintStudio() {
               </button>
             </div>
             <div 
-              style={{ position: "relative", width: "100%", height: "400px", cursor: "pointer" }} 
+              style={{ position: "relative", width: "100%", height: "420px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} 
               onClick={() => openStudio("split-2x2")}
             >
               <Image src="/assets/custom_split_2x2.jpg" alt="Custom 2x2 Split Poster" fill style={{ objectFit: "cover" }} />
-              <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ backgroundColor: "rgba(255,255,255,0.92)", backdropFilter: "blur(8px)", padding: "1.25rem 2rem", borderRadius: "12px", border: "1.5px solid #111111", textAlign: "center", boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}>
-                  <span style={{ fontSize: "1.3rem", fontWeight: "900", letterSpacing: "0.08em", color: "#111111", display: "block", lineHeight: "1.2" }}>UPLOAD YOUR</span>
-                  <span style={{ fontSize: "1.3rem", fontWeight: "900", letterSpacing: "0.08em", color: "#111111", display: "block", lineHeight: "1.2" }}>IMAGE HERE</span>
-                  <span style={{ fontSize: "1.1rem", fontWeight: "900", letterSpacing: "0.08em", color: "#111111", display: "block", marginTop: "4px" }}>2X2</span>
-                </div>
+              <div style={{ position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                <div style={{ width: "115px", height: "115px", backgroundColor: "#F5F5F0", border: "3px solid #E2DDD5", boxShadow: "0 10px 25px rgba(0,0,0,0.12)" }} />
+                <div style={{ width: "115px", height: "115px", backgroundColor: "#F5F5F0", border: "3px solid #E2DDD5", boxShadow: "0 10px 25px rgba(0,0,0,0.12)" }} />
+                <div style={{ width: "115px", height: "115px", backgroundColor: "#F5F5F0", border: "3px solid #E2DDD5", boxShadow: "0 10px 25px rgba(0,0,0,0.12)" }} />
+                <div style={{ width: "115px", height: "115px", backgroundColor: "#F5F5F0", border: "3px solid #E2DDD5", boxShadow: "0 10px 25px rgba(0,0,0,0.12)" }} />
+              </div>
+              <div style={{ position: "absolute", zIndex: 3, textAlign: "center" }}>
+                <span style={{ fontSize: "1.2rem", fontWeight: "900", color: "#333333", letterSpacing: "0.05em", display: "block", lineHeight: "1.2" }}>UPLOAD YOUR</span>
+                <span style={{ fontSize: "1.2rem", fontWeight: "900", color: "#333333", letterSpacing: "0.05em", display: "block", lineHeight: "1.2" }}>IMAGE HERE</span>
+                <span style={{ fontSize: "1.1rem", fontWeight: "900", color: "#333333", display: "block", marginTop: "4px" }}>2X2</span>
               </div>
             </div>
           </div>
