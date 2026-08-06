@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { AppContext } from "../features/cart/AppContext";
-import { Search, Heart, ShoppingBag, Menu, X, User, LogOut, Sparkles } from "lucide-react";
+import { Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 
 export const Navbar = () => {
   const { cartItemCount, wishlist, setCartOpen, siteSettings } = useContext(AppContext);
@@ -128,8 +128,7 @@ export const Navbar = () => {
           height: isScrolled ? "64px" : "74px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 1.5rem",
+          padding: "0 1.25rem",
           borderBottom: "1px solid rgba(17, 17, 17, 0.08)",
           backgroundColor: isScrolled ? "rgba(250, 250, 248, 0.95)" : "#FAFAF8",
           backdropFilter: "blur(20px)",
@@ -141,82 +140,111 @@ export const Navbar = () => {
           className="container"
           style={{
             width: "100%",
-            display: "flex",
-            justifyContent: "space-between",
+            display: "grid",
+            gridTemplateColumns: "1fr auto 1fr",
             alignItems: "center",
           }}
         >
-          {/* LOGO */}
-          <Link
-            href="/"
-            onClick={handleLinkClick}
-            style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "1.8rem",
-              fontWeight: "900",
-              letterSpacing: "-0.04em",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.2rem",
-              textDecoration: "none",
-            }}
-          >
-            <span style={{ color: "#111111" }}>POLA</span>
-            <span style={{ color: "#666666", fontWeight: "300" }}>CRAFT</span>
-            <span
-              style={{
-                width: "6px",
-                height: "6px",
-                backgroundColor: "#D4AF37",
-                borderRadius: "50%",
-                marginLeft: "2px",
-                display: "inline-block",
-              }}
-            />
-          </Link>
+          {/* LEFT SLOT: HAMBURGER ON MOBILE & NAV LINKS ON DESKTOP */}
+          <div style={{ display: "flex", alignItems: "center", gap: "1.2rem" }}>
+            {/* Mobile Menu Toggle on LEFT */}
+            <button
+              className="mobile-only"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
+              aria-label="Toggle Menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
 
-          {/* DESKTOP NAVIGATION LINKS */}
-          <div
-            style={{
-              display: "flex",
-              gap: "2.2rem",
-              alignItems: "center",
-            }}
-            className="desktop-only"
-          >
-            {[
-              { path: "/shop", label: "Shop Art" },
-              { path: "/custom", label: "Custom Print" },
-              { path: "/about", label: "Our Story" },
-              { path: "/journal", label: "Editorial Journal" },
-              { path: "/contact", label: "Contact Studio" },
-            ].map((item) => {
-              const isActive = pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  style={{
-                    fontWeight: isActive ? "800" : "600",
-                    color: isActive ? "#111111" : "#555555",
-                    fontSize: "0.88rem",
-                    textDecoration: "none",
-                    borderBottom: isActive ? "2px solid #D4AF37" : "2px solid transparent",
-                    paddingBottom: "4px",
-                    transition: "color 0.2s ease",
-                  }}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+            {/* Desktop Navigation Links */}
+            <div
+              className="desktop-only"
+              style={{
+                display: "flex",
+                gap: "1.8rem",
+                alignItems: "center",
+              }}
+            >
+              {[
+                { path: "/shop", label: "Shop Art" },
+                { path: "/custom", label: "Custom Print" },
+                { path: "/about", label: "Our Story" },
+                { path: "/journal", label: "Editorial Journal" },
+                { path: "/contact", label: "Contact" },
+              ].map((item) => {
+                const isActive = pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    href={item.path}
+                    style={{
+                      fontWeight: isActive ? "800" : "600",
+                      color: isActive ? "#111111" : "#555555",
+                      fontSize: "0.88rem",
+                      textDecoration: "none",
+                      borderBottom: isActive ? "2px solid #D4AF37" : "2px solid transparent",
+                      paddingBottom: "4px",
+                      transition: "color 0.2s ease",
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
-          {/* UTILITY ACTIONS */}
+          {/* CENTER SLOT: CENTERED BRAND LOGO WITH IMAGE MARK */}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Link
+              href="/"
+              onClick={handleLinkClick}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                textDecoration: "none",
+              }}
+            >
+              <Image
+                src="/assets/polacraft-logo-mark.png"
+                alt="Polacraft Logo Mark"
+                width={30}
+                height={30}
+                style={{ objectFit: "contain", borderRadius: "6px" }}
+              />
+              <span
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "1.7rem",
+                  fontWeight: "900",
+                  letterSpacing: "-0.04em",
+                  display: "inline-flex",
+                  alignItems: "center",
+                }}
+              >
+                <span style={{ color: "#111111" }}>POLA</span>
+                <span style={{ color: "#666666", fontWeight: "300" }}>CRAFT</span>
+                <span
+                  style={{
+                    width: "5px",
+                    height: "5px",
+                    backgroundColor: "#D4AF37",
+                    borderRadius: "50%",
+                    marginLeft: "2px",
+                    display: "inline-block",
+                  }}
+                />
+              </span>
+            </Link>
+          </div>
+
+          {/* RIGHT SLOT: UTILITY ACTIONS (WISHLIST, CART, ACCOUNT) */}
           <div
             style={{
               display: "flex",
+              justifyContent: "flex-end",
               alignItems: "center",
               gap: "1.2rem",
             }}
@@ -319,16 +347,6 @@ export const Navbar = () => {
                 Sign In
               </Link>
             )}
-
-            {/* Mobile Menu Toggle */}
-            <button
-              className="mobile-only"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
-              aria-label="Toggle Menu"
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </div>
         </div>
       </nav>
