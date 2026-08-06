@@ -6,7 +6,8 @@ import PosterRenderer from "../../components/PosterRenderer";
 import { collections as staticCollections, sizes } from "../../lib/cms/products";
 import { Product } from "../../types";
 import { StoreCollectionItem } from "@/lib/cms";
-import { Filter, Search, Heart, ShoppingBag, Eye, X, LayoutGrid, Compass, BookOpen, SlidersHorizontal, CornerDownRight, Layers } from "lucide-react";
+import { motion } from "framer-motion";
+import { Filter, Search, Heart, ShoppingBag, Eye, X, LayoutGrid, Compass, BookOpen, SlidersHorizontal, CornerDownRight, Layers, Check } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -292,11 +293,11 @@ export default function ShopClient({
 
   return (
     <div style={{ backgroundColor: "#FAFAF8", minHeight: "100vh", paddingBottom: "5rem" }}>
-            {/* 1. HERO HEADER SECTION (COMPACT, TEXTURED, FAST TO PRODUCTS) */}
+            {/* 1. HERO HEADER SECTION (ULTRA COMPACT, TEXTURED, FAST TO PRODUCTS) */}
       <section
         style={{
-          paddingTop: isMobile ? "1.5rem" : "2.5rem",
-          paddingBottom: "0.85rem",
+          paddingTop: isMobile ? "1rem" : "1.75rem",
+          paddingBottom: "0.5rem",
           backgroundColor: "#111111",
           backgroundImage: "radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.18), transparent 70%), url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
           color: "#FAFAF8",
@@ -306,30 +307,33 @@ export default function ShopClient({
         }}
       >
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.25rem", position: "relative", zIndex: 1 }}>
-          <span style={{ fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.22em", color: "#D4AF37", fontWeight: "800", opacity: 0.85 }}>
+          <span style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.22em", color: "#D4AF37", fontWeight: "800", opacity: 0.85 }}>
             The Polacraft Vault
           </span>
-          <h1 style={{ fontSize: isMobile ? "1.75rem" : "2.5rem", fontWeight: "900", letterSpacing: "-0.04em", margin: "0.15rem 0 0.25rem 0" }}>
+          <h1 style={{ fontSize: isMobile ? "1.6rem" : "2.25rem", fontWeight: "900", letterSpacing: "-0.04em", margin: "0.1rem 0 0.2rem 0" }}>
             SHOP POSTERS
           </h1>
-          <p style={{ maxWidth: "500px", margin: "0 auto", fontSize: "0.9rem", color: "#D1D5DB", fontWeight: "500" }}>
+          <p style={{ maxWidth: "500px", margin: "0 auto", fontSize: "0.88rem", color: "#D1D5DB", fontWeight: "500" }}>
             Museum-grade Malayalam cinema posters.
           </p>
         </div>
       </section>
 
       {/* 2. FILTER & SEARCH CONTROL BAR */}
-      <div style={{ maxWidth: "1350px", margin: "0 auto", padding: isMobile ? "0.75rem 0.85rem" : "1.25rem 1.5rem" }}>
+      <div style={{ maxWidth: "1350px", margin: "0 auto", padding: isMobile ? "0.6rem 0.75rem" : "1rem 1.5rem" }}>
         
-        {/* UNIFIED TOP TOOLBAR (OPTION A) */}
-        <div
+        {/* UNIFIED TOP TOOLBAR (OPTION A WITH FRAMER MOTION) */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
           style={{
             backgroundColor: "#FFFFFF",
             padding: "0.75rem 1.15rem",
             borderRadius: "18px",
-            border: "1px solid rgba(17,17,17,0.08)",
-            boxShadow: "0 8px 25px rgba(0,0,0,0.03)",
-            marginBottom: "1.25rem",
+            border: "1px solid rgba(17,17,17,0.06)",
+            boxShadow: "0 4px 18px rgba(0,0,0,0.03)",
+            marginBottom: "0.85rem",
             display: "flex",
             flexDirection: "column",
             gap: "0.75rem"
@@ -358,7 +362,7 @@ export default function ShopClient({
                 placeholder="Search posters..."
                 style={{
                   width: "100%",
-                  padding: "0.65rem 1rem 0.65rem 2.6rem",
+                  padding: "0.6rem 1rem 0.6rem 2.6rem",
                   borderRadius: "100px",
                   border: "1px solid rgba(17,17,17,0.15)",
                   fontSize: "0.88rem",
@@ -438,7 +442,7 @@ export default function ShopClient({
             </div>
           </div>
 
-          {/* ROW 2: SUB-BAR (FILTERS TOGGLE & SORT BY DROPDOWN) */}
+          {/* ROW 2: SUB-BAR (MATCHED VISUAL WEIGHT FOR FILTERS & SORT BY DROPDOWN) */}
           <div
             style={{
               display: "flex",
@@ -455,10 +459,10 @@ export default function ShopClient({
               style={{
                 padding: "0.45rem 0.95rem",
                 borderRadius: "100px",
-                border: "1.5px solid #111111",
-                backgroundColor: isFilterDrawerOpen ? "#111111" : "transparent",
+                border: "1px solid rgba(17,17,17,0.15)",
+                backgroundColor: isFilterDrawerOpen ? "#111111" : "#FAFAFA",
                 color: isFilterDrawerOpen ? "#FFFFFF" : "#111111",
-                fontWeight: "800",
+                fontWeight: "700",
                 fontSize: "0.82rem",
                 cursor: "pointer",
                 display: "flex",
@@ -481,24 +485,49 @@ export default function ShopClient({
                 value={activeFilters.sort}
                 onChange={(e) => handleFilterChange("sort", e.target.value)}
                 style={{
-                  padding: "0.45rem 0.85rem",
+                  padding: "0.45rem 0.95rem",
                   borderRadius: "100px",
                   border: "1px solid rgba(17,17,17,0.15)",
                   backgroundColor: "#FAFAFA",
                   color: "#111111",
                   fontWeight: "700",
-                  fontSize: "0.8rem",
+                  fontSize: "0.82rem",
                   outline: "none",
                   cursor: "pointer"
                 }}
               >
-                <option value="default">Featured / Default</option>
+                <option value="default">Featured</option>
                 <option value="year-desc">Newest Year</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
               </select>
             </div>
           </div>
+        </motion.div>
+
+        {/* 3 LUXURY TRUST BADGES */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: isMobile ? "0.85rem" : "2rem",
+            flexWrap: "wrap",
+            marginBottom: "1.5rem",
+            fontSize: "0.78rem",
+            fontWeight: "700",
+            color: "#4B5563"
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+            <Check size={14} style={{ color: "#16A34A" }} /> Museum-Grade Prints
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+            <Check size={14} style={{ color: "#16A34A" }} /> Fade Resistant (100+ Yrs)
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+            <Check size={14} style={{ color: "#16A34A" }} /> Insured Shipping Across India
+          </span>
         </div>
 
         {/* MAIN LAYOUT: SIDEBAR FILTERS + PRODUCTS GRID */}
@@ -811,32 +840,34 @@ export default function ShopClient({
                             >
                               <PosterRenderer poster={poster} selectedSize={selectedSize} />
 
-                              {/* WISHLIST BUTTON */}
-                              <button
+                              {/* WISHLIST BUTTON (TUCKED CLEANLY WITH MOTION) */}
+                              <motion.button
+                                whileTap={{ scale: 0.82 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   toggleWishlist(poster.id);
                                 }}
                                 style={{
                                   position: "absolute",
-                                  top: "0.4rem",
-                                  right: "0.4rem",
-                                  width: "32px",
-                                  height: "32px",
+                                  top: "6px",
+                                  right: "6px",
+                                  width: "28px",
+                                  height: "28px",
                                   borderRadius: "50%",
-                                  backgroundColor: "rgba(255,255,255,0.92)",
+                                  backgroundColor: "rgba(255,255,255,0.75)",
                                   backdropFilter: "blur(4px)",
                                   border: "none",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
                                   cursor: "pointer",
-                                  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                                  color: isWish ? "#EF4444" : "#111"
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+                                  color: isWish ? "#EF4444" : "#111111",
+                                  zIndex: 10
                                 }}
                               >
-                                <Heart size={16} fill={isWish ? "#EF4444" : "none"} />
-                              </button>
+                                <Heart size={14} fill={isWish ? "#EF4444" : "none"} />
+                              </motion.button>
 
                               {/* QUICK VIEW TRIGGER */}
                               <button

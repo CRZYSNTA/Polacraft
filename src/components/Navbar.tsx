@@ -22,10 +22,10 @@ export const Navbar = () => {
   const premiumThresh = siteSettings?.premiumRewardThreshold || 1499;
 
   const tickerMessages = [
-    `🚚 FREE Shipping on Orders ₹${freeShip}+`,
-    `🎁 Free Collector Poster Gift on ₹${rewardThresh}+`,
-    `🏆 Unlock Premium Status on ₹${premiumThresh}+`,
-    `✨ Museum-Quality Archival Cotton Prints`,
+    `COMPLIMENTARY SHIPPING ON ORDERS ₹${freeShip}+`,
+    `FREE COLLECTOR GIFT ON ORDERS ₹${rewardThresh}+`,
+    `MUSEUM-QUALITY 300 GSM COTTON PRINTS`,
+    `HANDCRAFTED ARCHIVAL MALAYALAM CINEMA ART`,
   ];
 
   useEffect(() => {
@@ -95,15 +95,17 @@ export const Navbar = () => {
             display: "flex",
             alignItems: "center",
             gap: "1.5rem",
+            fontSize: "0.7rem",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            fontWeight: "700",
           }}
         >
-          <span>🚚 <strong>FREE Shipping</strong> on ₹{freeShip}+</span>
-          <span style={{ opacity: 0.3 }}>|</span>
-          <span>🎁 <strong>Free Collector Gift</strong> on ₹{rewardThresh}+</span>
-          <span style={{ opacity: 0.3 }}>|</span>
-          <span>🏆 <strong>Premium Status</strong> on ₹{premiumThresh}+</span>
-          <span style={{ opacity: 0.3 }}>|</span>
-          <span style={{ color: "#F59E0B" }}>Handcrafted Malayalam Cinema Art</span>
+          <span style={{ color: "#FAFAFA" }}>Complimentary Shipping on ₹{freeShip}+</span>
+          <span style={{ opacity: 0.3, color: "#FFFFFF" }}>•</span>
+          <span style={{ color: "#FAFAFA" }}>Free Collector Gift on ₹{rewardThresh}+</span>
+          <span style={{ opacity: 0.3, color: "#FFFFFF" }}>•</span>
+          <span style={{ color: "#D4AF37" }}>Museum-Quality Archival Cotton Prints</span>
         </div>
 
         {/* Mobile Rotating Single Line Ticker */}
@@ -113,8 +115,11 @@ export const Navbar = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#F59E0B",
+            color: "#D4AF37",
             fontWeight: "800",
+            fontSize: "0.7rem",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
             transition: "opacity 0.4s ease",
           }}
         >
