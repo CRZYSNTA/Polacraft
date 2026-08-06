@@ -17,12 +17,13 @@ import NewsletterSection from "./NewsletterSection";
 
 interface HomeClientProps {
   initialPosters: Product[];
+  heroPosters?: Product[];
 }
 
-export default function HomeClient({ initialPosters }: HomeClientProps) {
+export default function HomeClient({ initialPosters, heroPosters }: HomeClientProps) {
   const { addToCart, wishlist, toggleWishlist, openQuickView, siteSettings } = useContext(AppContext);
 
-  const heroFanCards = initialPosters.slice(0, 6);
+  const heroFanCards = heroPosters && heroPosters.length > 0 ? heroPosters : initialPosters.slice(0, 6);
   const bestSellers = initialPosters.slice(0, 6);
 
   return (

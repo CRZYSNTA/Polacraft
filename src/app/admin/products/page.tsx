@@ -6,6 +6,7 @@ import {
   saveProductAction,
   deleteProductAction,
   updateStockAction,
+  toggleHeroProductAction,
   ProductInput,
 } from "@/features/admin/businessActions";
 import ImageUploader from "@/components/admin/ImageUploader";
@@ -27,6 +28,7 @@ import {
   Sparkles,
   CheckCircle2,
   Eye,
+  Star,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -88,6 +90,7 @@ export default function AdminProductsPage() {
   const [featured, setFeatured] = useState(false);
   const [newArrival, setNewArrival] = useState(true);
   const [bestSeller, setBestSeller] = useState(false);
+  const [isHero, setIsHero] = useState(false);
 
   // Colors & Paper
   const [primaryColor, setPrimaryColor] = useState("#1E1E1E");
@@ -230,6 +233,7 @@ export default function AdminProductsPage() {
     setFeatured(false);
     setNewArrival(true);
     setBestSeller(false);
+    setIsHero(false);
     setPrimaryColor("#1E1E1E");
     setAccentColor("#10B981");
     setBgColor("#FAFAF8");
@@ -264,6 +268,7 @@ export default function AdminProductsPage() {
     setFeatured(p.featured);
     setNewArrival(p.newArrival);
     setBestSeller(p.bestSeller);
+    setIsHero(Boolean(p.isHero));
     setPrimaryColor(p.primaryColor || "#1E1E1E");
     setAccentColor(p.accentColor || "#10B981");
     setBgColor(p.bgColor || "#FAFAF8");
@@ -374,6 +379,7 @@ export default function AdminProductsPage() {
         featured,
         newArrival,
         bestSeller,
+        isHero,
         primaryColor,
         accentColor,
         bgColor,
@@ -410,12 +416,23 @@ export default function AdminProductsPage() {
             p.id === id
               ? {
                   ...p,
-                  inventory: res.newInventory,
-                  isSoldOut: res.newInventory === 0 && !p.isPreorder,
+                  inventory: res.newInventory ?? p.inventory + delta,
+                  isSoldOut: (res.newInventory ?? p.inventory + delta) === 0 && !p.isPreorder,
                 }
               : p
           )
         );
+      }
+    });
+  };
+
+  const handleToggleHero = (id: string, currentIsHero: boolean) => {
+    startTransition(async () => {
+      const res = await toggleHeroProductAction(id, !currentIsHero);
+      if (res.success) {
+        fetchProducts();
+      } else {
+        alert("Failed to update Hero section status: " + res.error);
       }
     });
   };
@@ -515,6 +532,87 @@ export default function AdminProductsPage() {
         <span style={{ fontSize: "0.75rem", backgroundColor: "#E5E7EB", padding: "0.25rem 0.6rem", borderRadius: "6px", fontWeight: 700 }}>
           Global Pricing System
         </span>
+      </div>
+
+      {/* 🌟 HOMEPAGE HERO SECTION POSTERS SELECTOR CARD */}
+      <div
+        style={{
+          backgroundColor: "#FFF",
+          border: "1.5px solid #F59E0B",
+          borderRadius: "18px",
+          padding: "1.25rem 1.5rem",
+          boxShadow: "0 4px 16px rgba(245, 158, 11, 0.1)",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: "900", color: "#92400E", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <Star size={20} style={{ color: "#F59E0B", fill: "#F59E0B" }} /> Homepage Hero Section Posters ({products.filter((p) => p.isHero).length} Selected)
+            </h3>
+            <p style={{ margin: "2px 0 0 0", fontSize: "0.8rem", color: "#78350F" }}>
+              Selected posters appear in the animated fan carousel in your store's main Hero section. Click any poster below to add or remove it from the Hero section.
+            </p>
+          </div>
+          <span style={{ fontSize: "0.75rem", fontWeight: 800, backgroundColor: "#FEF3C7", color: "#B45309", padding: "0.3rem 0.75rem", borderRadius: "8px", border: "1px solid #FCD34D" }}>
+            {products.filter((p) => p.isHero).length > 0 ? `${products.filter((p) => p.isHero).length} Hero Posters Selected` : "Defaulting to Top 6 Latest Posters"}
+          </span>
+        </div>
+
+        {products.filter((p) => p.isHero).length === 0 ? (
+          <div style={{ padding: "1rem", textAlign: "center", backgroundColor: "#FEFCE8", borderRadius: "12px", border: "1px dashed #FDE047", color: "#A16207", fontSize: "0.82rem", fontWeight: 600 }}>
+            No specific posters selected for Hero section yet. Click the <strong>"🌟 Add to Hero"</strong> button on any poster row below!
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.85rem" }}>
+            {products
+              .filter((p) => p.isHero)
+              .map((p) => {
+                const imgUrl = p.images?.find((img: any) => img.type === "HERO")?.url || p.images?.[0]?.url;
+                return (
+                  <div
+                    key={p.id}
+                    style={{
+                      backgroundColor: "#FFFBEB",
+                      border: "1px solid #FCD34D",
+                      borderRadius: "12px",
+                      padding: "0.65rem 0.85rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
+                    }}
+                  >
+                    {imgUrl ? (
+                      <img src={imgUrl} alt={p.title} style={{ width: "38px", height: "50px", objectFit: "cover", borderRadius: "6px" }} />
+                    ) : (
+                      <div style={{ width: "38px", height: "50px", backgroundColor: "#CBD5E1", borderRadius: "6px" }} />
+                    )}
+                    <div style={{ flexGrow: 1, overflow: "hidden" }}>
+                      <strong style={{ fontSize: "0.82rem", color: "#92400E", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {p.title}
+                      </strong>
+                      <span style={{ fontSize: "0.72rem", color: "#B45309" }}>{p.film}</span>
+                    </div>
+                    <button
+                      onClick={() => handleToggleHero(p.id, true)}
+                      title="Remove from Hero"
+                      style={{
+                        background: "#FEE2E2",
+                        border: "1px solid #FCA5A5",
+                        color: "#DC2626",
+                        borderRadius: "6px",
+                        padding: "4px 8px",
+                        cursor: "pointer",
+                        fontSize: "0.7rem",
+                        fontWeight: 800,
+                      }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                );
+              })}
+          </div>
+        )}
       </div>
 
       {/* Products Table */}
@@ -644,7 +742,28 @@ export default function AdminProductsPage() {
                     </td>
 
                     <td style={{ padding: "1rem", textAlign: "right" }}>
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", alignItems: "center" }}>
+                        <button
+                          onClick={() => handleToggleHero(p.id, Boolean(p.isHero))}
+                          disabled={isPending}
+                          style={{
+                            border: p.isHero ? "1.5px solid #F59E0B" : "1px solid #CBD5E1",
+                            background: p.isHero ? "#FEF3C7" : "#FFF",
+                            color: p.isHero ? "#92400E" : "#475569",
+                            borderRadius: "8px",
+                            padding: "0.4rem 0.75rem",
+                            cursor: "pointer",
+                            fontSize: "0.75rem",
+                            fontWeight: 800,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                          title={p.isHero ? "Remove from Hero Section" : "Show in Homepage Hero Section"}
+                        >
+                          <Star size={14} style={{ color: p.isHero ? "#D97706" : "#94A3B8", fill: p.isHero ? "#D97706" : "none" }} />
+                          {p.isHero ? "Hero Active" : "Add to Hero"}
+                        </button>
                         <button
                           onClick={() => handleOpenEdit(p)}
                           style={{ border: "1px solid #E5E7EB", background: "#FFF", borderRadius: "8px", padding: "0.4rem 0.6rem", cursor: "pointer" }}
@@ -1087,7 +1206,10 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Checkboxes: Flags */}
-              <div style={{ display: "flex", gap: "2rem" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#D97706" }}>
+                  <input type="checkbox" checked={isHero} onChange={(e) => setIsHero(e.target.checked)} /> 🌟 Show in Homepage Hero Section
+                </label>
                 <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer" }}>
                   <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} /> Featured on Homepage
                 </label>

@@ -147,6 +147,8 @@ model Product {
   featured            Boolean        @default(false)
   newArrival          Boolean        @default(false)
   bestSeller          Boolean        @default(false)
+  isHero              Boolean        @default(false)
+  heroOrder           Int            @default(0)
   featuredOrder       Int            @default(0)
   averageRating       Float          @default(0.0)
   reviewCount         Int            @default(0)

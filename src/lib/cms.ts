@@ -89,6 +89,36 @@ export const getPosters = cache(async (): Promise<Product[]> => {
   return [];
 });
 
+export const getHeroPosters = cache(async (): Promise<Product[]> => {
+  try {
+    const heroDbProducts = await prisma.product.findMany({
+      where: { isHero: true },
+      include: {
+        images: { orderBy: { sortOrder: "asc" } },
+        collection: true,
+      },
+      orderBy: [{ heroOrder: "asc" }, { updatedAt: "desc" }],
+      take: 6,
+    });
+
+    if (heroDbProducts && heroDbProducts.length > 0) {
+      const heroPosters = heroDbProducts.map(mapDbProductToPoster);
+      if (heroPosters.length < 6) {
+        const allPosters = await getPosters();
+        const existingIds = new Set(heroPosters.map((p) => p.id));
+        const extra = allPosters.filter((p) => !existingIds.has(p.id)).slice(0, 6 - heroPosters.length);
+        return [...heroPosters, ...extra];
+      }
+      return heroPosters;
+    }
+  } catch (e) {
+    console.warn("Failed to fetch hero posters:", e);
+  }
+
+  const allPosters = await getPosters();
+  return allPosters.slice(0, 6);
+});
+
 export const getPosterBySlug = cache(async (slug: string): Promise<Product | null> => {
   try {
     const normalizedSlug = slug.toLowerCase().trim();

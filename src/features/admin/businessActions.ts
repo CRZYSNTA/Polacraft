@@ -29,6 +29,8 @@ export interface ProductInput {
   featured?: boolean;
   newArrival?: boolean;
   bestSeller?: boolean;
+  isHero?: boolean;
+  heroOrder?: number;
   primaryColor?: string;
   accentColor?: string;
   bgColor?: string;
@@ -98,6 +100,8 @@ export async function saveProductAction(input: ProductInput) {
       featured: Boolean(input.featured),
       newArrival: Boolean(input.newArrival),
       bestSeller: Boolean(input.bestSeller),
+      isHero: Boolean(input.isHero),
+      heroOrder: Number(input.heroOrder || 0),
       primaryColor: input.primaryColor || "#1E1E1E",
       accentColor: input.accentColor || "#10B981",
       bgColor: input.bgColor || "#FAFAF8",
@@ -171,6 +175,24 @@ export async function saveProductAction(input: ProductInput) {
   } catch (error: any) {
     console.error("[saveProductAction Error]:", error);
     return { success: false, error: error.message || "Failed to save product" };
+  }
+}
+
+export async function toggleHeroProductAction(id: string, isHero: boolean) {
+  const session = await requireAdminSession();
+  if (!session) return { success: false, error: "Unauthorized" };
+
+  try {
+    const updated = await prisma.product.update({
+      where: { id },
+      data: { isHero },
+    });
+
+    revalidatePath("/admin/products");
+    revalidatePath("/");
+    return { success: true, product: updated };
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
 }
 
