@@ -10,73 +10,75 @@ import { Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 
 const LogoVideoReveal = () => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  const [hasVideoError, setHasVideoError] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.defaultMuted = true;
       videoRef.current.muted = true;
-      videoRef.current.play().catch(() => {
-        // Suppress browser autoplay policy errors gracefully
-      });
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          if (videoRef.current) {
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(() => {});
+          }
+        });
+      }
     }
   }, []);
 
-  if (hasVideoError) {
-    return (
-      <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-        <Image
-          src="/assets/polacraft-logo-mark.png"
-          alt="Polacraft Logo Mark"
-          width={32}
-          height={32}
-          style={{ objectFit: "contain", borderRadius: "5px" }}
-        />
-        <span
-          style={{
-            fontFamily: "var(--font-serif)",
-            fontSize: "1.8rem",
-            fontWeight: "900",
-            letterSpacing: "-0.04em",
-            display: "inline-flex",
-            alignItems: "center",
-          }}
-        >
-          <span style={{ color: "#111111" }}>POLA</span>
-          <span style={{ color: "#666666", fontWeight: "300" }}>CRAFT</span>
-          <span
-            style={{
-              width: "5px",
-              height: "5px",
-              backgroundColor: "#D4AF37",
-              borderRadius: "50%",
-              marginLeft: "2px",
-              display: "inline-block",
-            }}
-          />
-        </span>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ display: "flex", alignItems: "center", height: "44px" }}>
+    <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
       <video
         ref={videoRef}
         autoPlay
         loop
         muted
         playsInline
-        onError={() => setHasVideoError(true)}
+        preload="auto"
         style={{
           height: "44px",
           width: "auto",
-          maxWidth: "180px",
+          maxHeight: "50px",
           objectFit: "contain",
-          display: "block"
+          display: "block",
+          borderRadius: "4px"
         }}
       >
         <source src="/assets/logo-reveal.mp4" type="video/mp4" />
+        {/* Native Fallback for unsupported browsers */}
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+          <Image
+            src="/assets/polacraft-logo-mark.png"
+            alt="Polacraft Logo Mark"
+            width={32}
+            height={32}
+            style={{ objectFit: "contain", borderRadius: "5px" }}
+          />
+          <span
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "1.8rem",
+              fontWeight: "900",
+              letterSpacing: "-0.04em",
+              display: "inline-flex",
+              alignItems: "center",
+            }}
+          >
+            <span style={{ color: "#111111" }}>POLA</span>
+            <span style={{ color: "#666666", fontWeight: "300" }}>CRAFT</span>
+            <span
+              style={{
+                width: "5px",
+                height: "5px",
+                backgroundColor: "#D4AF37",
+                borderRadius: "50%",
+                marginLeft: "2px",
+                display: "inline-block",
+              }}
+            />
+          </span>
+        </div>
       </video>
     </div>
   );
