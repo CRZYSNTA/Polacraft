@@ -18,11 +18,13 @@ import NewsletterSection from "./NewsletterSection";
 interface HomeClientProps {
   initialPosters: Product[];
   heroPosters?: Product[];
+  serverSiteSettings?: any;
 }
 
-export default function HomeClient({ initialPosters, heroPosters }: HomeClientProps) {
+export default function HomeClient({ initialPosters, heroPosters, serverSiteSettings }: HomeClientProps) {
   const { addToCart, wishlist, toggleWishlist, openQuickView, siteSettings } = useContext(AppContext);
 
+  const activeSettings = serverSiteSettings || siteSettings;
   const heroFanCards = heroPosters && heroPosters.length > 0 ? heroPosters : initialPosters.slice(0, 6);
   const bestSellers = initialPosters.slice(0, 6);
 
@@ -30,8 +32,8 @@ export default function HomeClient({ initialPosters, heroPosters }: HomeClientPr
     <main style={{ backgroundColor: "#FAFAFA", color: "#111111", minHeight: "100vh", overflowX: "hidden" }}>
       {/* 1. HERO SECTION */}
       <HeroSection
-        heroTitle={siteSettings.heroTitle}
-        heroSubtitle={siteSettings.heroSubtitle}
+        heroTitle={activeSettings?.heroTitle || siteSettings?.heroTitle || "Bring Cinema Home."}
+        heroSubtitle={activeSettings?.heroSubtitle || siteSettings?.heroSubtitle || "Museum-Quality Malayalam Cinema Posters Crafted For Collectors."}
         heroFanCards={heroFanCards}
         isLoading={false}
       />

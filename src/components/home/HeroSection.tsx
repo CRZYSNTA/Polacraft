@@ -116,10 +116,10 @@ export default function HeroSection({
               marginBottom: isMobile ? "0.85rem" : "1.25rem",
             }}
           >
-            Relive the Films That Defined Your Life.
+            {heroTitle || "Bring Cinema Home."}
           </motion.h1>
 
-          {/* 3. Emotional Subtitle */}
+          {/* 3. Subtitle */}
           <motion.p
             initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             animate={isLoading ? {} : { opacity: 1, y: 0 }}
@@ -132,7 +132,7 @@ export default function HeroSection({
               marginBottom: isMobile ? "1.75rem" : "2.5rem",
             }}
           >
-            Own iconic Malayalam cinema as museum-quality archival wall art. Printed on 300 GSM cotton archival paper with solid teak wood frames.
+            {heroSubtitle || "Museum-Quality Malayalam Cinema Posters Crafted For Collectors."}
           </motion.p>
 
           {/* 4. Action Buttons */}

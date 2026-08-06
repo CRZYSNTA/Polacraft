@@ -187,3 +187,19 @@ export const getStoreCollections = cache(async (): Promise<StoreCollectionItem[]
     return [];
   }
 });
+
+export const getSiteSettings = cache(async () => {
+  try {
+    const settings = await prisma.siteSettings.findFirst();
+    if (settings) return settings;
+  } catch (e) {
+    console.warn("Database lookup failed in getSiteSettings:", e);
+  }
+  return {
+    heroTitle: "Bring Cinema Home.",
+    heroSubtitle: "Museum-Quality Malayalam Cinema Posters Crafted For Collectors.",
+    freeShippingThreshold: 499,
+    collectorRewardThreshold: 899,
+    premiumRewardThreshold: 1499,
+  };
+});
