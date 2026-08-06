@@ -226,100 +226,63 @@ export const Navbar = () => {
           transition: "height 0.3s ease, background-color 0.3s ease",
         }}
       >
+        {/* DESKTOP NAVBAR ROW (DESKTOP ONLY) */}
         <div
-          className="container navbar-grid-container"
+          className="container desktop-only"
           style={{
             width: "100%",
             display: "grid",
+            gridTemplateColumns: "auto 1fr auto",
             alignItems: "center",
+            gap: "2.5rem"
           }}
         >
-          {/* LEFT SLOT: DESKTOP LOGO / MOBILE MENU */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1.2rem", justifyContent: "flex-start" }}>
-            {/* Mobile Menu Toggle on LEFT */}
-            <button
-              className="mobile-only"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
-              aria-label="Toggle Menu"
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-
-            {/* Desktop Brand Logo on LEFT */}
-            <div className="desktop-only">
-              <Link
-                href="/"
-                onClick={handleLinkClick}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  textDecoration: "none",
-                }}
-              >
-                <LogoVideoReveal />
-              </Link>
-            </div>
-          </div>
-
-          {/* CENTER SLOT: DESKTOP LINKS / MOBILE CENTERED LOGO */}
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            {/* Mobile Centered Brand Logo in MIDDLE */}
-            <div className="mobile-only">
-              <Link
-                href="/"
-                onClick={handleLinkClick}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  textDecoration: "none",
-                }}
-              >
-                <LogoVideoReveal />
-              </Link>
-            </div>
-
-            {/* Desktop Navigation Links in CENTER */}
-            <div
-              className="desktop-only"
+          {/* LEFT: DESKTOP BRAND LOGO */}
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Link
+              href="/"
+              onClick={handleLinkClick}
               style={{
-                display: "flex",
-                gap: "1.8rem",
+                display: "inline-flex",
                 alignItems: "center",
+                textDecoration: "none",
               }}
             >
-              {[
-                { path: "/shop", label: "Shop Art" },
-                { path: "/custom", label: "Custom Print" },
-                { path: "/about", label: "Our Story" },
-                { path: "/journal", label: "Editorial Journal" },
-                { path: "/contact", label: "Contact" },
-              ].map((item) => {
-                const isActive = pathname === item.path;
-                return (
-                  <Link
-                    key={item.path}
-                    href={item.path}
-                    style={{
-                      fontWeight: isActive ? "800" : "600",
-                      color: isActive ? "#111111" : "#555555",
-                      fontSize: "0.88rem",
-                      textDecoration: "none",
-                      borderBottom: isActive ? "2px solid #D4AF37" : "2px solid transparent",
-                      paddingBottom: "4px",
-                      transition: "color 0.2s ease",
-                    }}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
+              <LogoVideoReveal />
+            </Link>
           </div>
 
-          {/* RIGHT SLOT: CLEAN UTILITY ACTIONS */}
+          {/* CENTER: DESKTOP NAVIGATION LINKS */}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "2.2rem" }}>
+            {[
+              { path: "/shop", label: "Shop Art" },
+              { path: "/custom", label: "Custom Print" },
+              { path: "/about", label: "Our Story" },
+              { path: "/journal", label: "Editorial Journal" },
+              { path: "/contact", label: "Contact" },
+            ].map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  style={{
+                    fontWeight: isActive ? "800" : "600",
+                    color: isActive ? "#111111" : "#555555",
+                    fontSize: "0.88rem",
+                    textDecoration: "none",
+                    borderBottom: isActive ? "2px solid #D4AF37" : "2px solid transparent",
+                    paddingBottom: "4px",
+                    transition: "color 0.2s ease",
+                  }}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* RIGHT: DESKTOP UTILITY ACTIONS */}
           <div
             style={{
               display: "flex",
@@ -328,10 +291,9 @@ export const Navbar = () => {
               gap: "1.2rem",
             }}
           >
-            {/* Wishlist Link (Desktop Only to keep Mobile ultra-clean) */}
+            {/* Wishlist Link */}
             <Link
               href="/account/wishlist"
-              className="desktop-only"
               style={{ cursor: "pointer", color: "#111111", padding: "4px", position: "relative" }}
               aria-label="View Wishlist"
             >
@@ -359,7 +321,46 @@ export const Navbar = () => {
               )}
             </Link>
 
-            {/* Shopping Bag (Mobile & Desktop Main Icon) */}
+            {/* Account / Sign In */}
+            {session?.user ? (
+              <Link
+                href="/account"
+                style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", textDecoration: "none" }}
+                aria-label="User Account"
+              >
+                {session.user.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name || "User"}
+                    width={24}
+                    height={24}
+                    unoptimized={session.user.image.startsWith("http")}
+                    style={{ borderRadius: "50%", border: "1.5px solid #D4AF37", objectFit: "cover" }}
+                  />
+                ) : (
+                  <User size={20} style={{ color: "#111111" }} />
+                )}
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                style={{
+                  fontSize: "0.8rem",
+                  fontWeight: "800",
+                  color: "#111111",
+                  border: "1px solid #111111",
+                  padding: "0.4rem 0.9rem",
+                  borderRadius: "100px",
+                  textDecoration: "none",
+                  backgroundColor: "transparent",
+                  transition: "all 0.2s ease"
+                }}
+              >
+                Sign In
+              </Link>
+            )}
+
+            {/* Shopping Bag */}
             <button
               onClick={() => setCartOpen(true)}
               style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px", position: "relative" }}
@@ -388,45 +389,75 @@ export const Navbar = () => {
                 </span>
               )}
             </button>
+          </div>
+        </div>
 
-            {/* Account / Sign In (Desktop Only) */}
-            <div className="desktop-only">
-              {session?.user ? (
-                <Link
-                  href="/account"
-                  style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", textDecoration: "none" }}
-                  aria-label="User Account"
-                >
-                  {session.user.image ? (
-                    <Image
-                      src={session.user.image}
-                      alt={session.user.name || "User"}
-                      width={24}
-                      height={24}
-                      unoptimized={session.user.image.startsWith("http")}
-                      style={{ borderRadius: "50%", border: "1.5px solid #D4AF37", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <User size={20} style={{ color: "#111111" }} />
-                  )}
-                </Link>
-              ) : (
-                <Link
-                  href="/login"
+        {/* MOBILE NAVBAR ROW (MOBILE ONLY) */}
+        <div
+          className="container mobile-only"
+          style={{
+            width: "100%",
+            display: "grid",
+            gridTemplateColumns: "1fr auto 1fr",
+            alignItems: "center"
+          }}
+        >
+          {/* LEFT: HAMBURGER TOGGLE */}
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
+              aria-label="Toggle Menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
+          {/* CENTER: CENTERED LOGO */}
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Link
+              href="/"
+              onClick={handleLinkClick}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                textDecoration: "none",
+              }}
+            >
+              <LogoVideoReveal />
+            </Link>
+          </div>
+
+          {/* RIGHT: SHOPPING BAG */}
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              onClick={() => setCartOpen(true)}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px", position: "relative" }}
+              aria-label="Open Shopping Cart"
+            >
+              <ShoppingBag size={21} />
+              {cartItemCount > 0 && (
+                <span
                   style={{
-                    fontSize: "0.8rem",
-                    fontWeight: "800",
-                    color: "#111111",
-                    border: "1px solid #111111",
-                    padding: "0.35rem 0.75rem",
-                    borderRadius: "100px",
-                    textDecoration: "none",
+                    position: "absolute",
+                    top: "-2px",
+                    right: "-4px",
+                    backgroundColor: "#111111",
+                    color: "#FFFFFF",
+                    fontSize: "0.6rem",
+                    width: "15px",
+                    height: "15px",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: "900",
                   }}
                 >
-                  Sign In
-                </Link>
+                  {cartItemCount}
+                </span>
               )}
-            </div>
+            </button>
           </div>
         </div>
       </nav>
