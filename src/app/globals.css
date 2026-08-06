@@ -48,6 +48,19 @@
   --transition-fast: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Responsive Navbar Grid Layout */
+@media (min-width: 768px) {
+  .navbar-grid-container {
+    grid-template-columns: auto 1fr auto !important;
+    gap: 2.5rem !important;
+  }
+}
+@media (max-width: 767px) {
+  .navbar-grid-container {
+    grid-template-columns: 1fr auto 1fr !important;
+  }
+}
+
 /* Custom Base resets */
 body {
   background-color: var(--bg-warm);

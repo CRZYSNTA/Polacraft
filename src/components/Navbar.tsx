@@ -227,11 +227,10 @@ export const Navbar = () => {
         }}
       >
         <div
-          className="container"
+          className="container navbar-grid-container"
           style={{
             width: "100%",
             display: "grid",
-            gridTemplateColumns: "1fr auto 1fr",
             alignItems: "center",
           }}
         >
