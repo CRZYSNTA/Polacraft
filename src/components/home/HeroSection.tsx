@@ -62,12 +62,18 @@ export default function HeroSection({
           style={{
             width: "100%",
             maxWidth: "1240px",
+            backgroundColor: "rgba(255, 255, 255, 0.88)",
+            backdropFilter: "blur(30px)",
+            WebkitBackdropFilter: "blur(30px)",
+            borderRadius: isMobile ? "24px" : "36px",
+            border: "1px solid rgba(17, 17, 17, 0.08)",
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(212, 175, 55, 0.18)",
+            padding: isMobile ? "2.25rem 1.25rem 2.5rem 1.25rem" : "3.75rem 2.5rem 4.5rem 2.5rem",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
             position: "relative",
-            padding: isMobile ? "1rem 0" : "1.5rem 0",
           }}
         >
           {/* 1. Sleek Compact Badge */}
@@ -246,43 +252,21 @@ export default function HeroSection({
                     }}
                     style={{
                       position: "absolute",
-                      width: isMobile ? "135px" : "190px",
-                      height: isMobile ? "190px" : "265px",
+                      width: isMobile ? "135px" : "185px",
+                      height: isMobile ? "190px" : "260px",
                       borderRadius: isMobile ? "12px" : "16px",
-                      backgroundColor: posterObj.palette?.bg || "#FAFAF8",
+                      overflow: "hidden",
                       boxShadow: isHovered
-                        ? "0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 2px #D4AF37"
-                        : "0 12px 35px rgba(0, 0, 0, 0.12)",
+                        ? "0 25px 50px rgba(0, 0, 0, 0.3), 0 0 0 2.5px #D4AF37"
+                        : "0 14px 38px rgba(0, 0, 0, 0.16)",
                       cursor: "pointer",
-                      padding: isMobile ? "7px" : "10px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      border: "1px solid rgba(0,0,0,0.08)",
+                      border: "1px solid rgba(0,0,0,0.12)",
                       transformOrigin: "bottom center",
                       WebkitTapHighlightColor: "transparent",
                     }}
                   >
-                    <div style={{ width: "100%", height: "82%", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
+                    <div style={{ width: "100%", height: "100%", position: "relative" }}>
                       <PosterRenderer poster={posterObj} size="A5" interactive={false} />
-                    </div>
-
-                    <div style={{ height: "16%", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "left" }}>
-                      <span
-                        style={{
-                          fontSize: isMobile ? "0.62rem" : "0.74rem",
-                          fontWeight: "900",
-                          color: "#111111",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {posterObj.title}
-                      </span>
-                      <span style={{ fontSize: isMobile ? "0.55rem" : "0.65rem", color: "#666666" }}>
-                        {posterObj.film} ({posterObj.year})
-                      </span>
                     </div>
                   </motion.div>
                 );
