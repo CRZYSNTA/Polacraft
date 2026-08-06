@@ -235,8 +235,8 @@ export const Navbar = () => {
             alignItems: "center",
           }}
         >
-          {/* LEFT SLOT: HAMBURGER MENU TOGGLE */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1.2rem" }}>
+          {/* LEFT SLOT: DESKTOP LOGO / MOBILE MENU */}
+          <div style={{ display: "flex", alignItems: "center", gap: "1.2rem", justifyContent: "flex-start" }}>
             {/* Mobile Menu Toggle on LEFT */}
             <button
               className="mobile-only"
@@ -247,7 +247,42 @@ export const Navbar = () => {
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
-            {/* Desktop Navigation Links */}
+            {/* Desktop Brand Logo on LEFT */}
+            <div className="desktop-only">
+              <Link
+                href="/"
+                onClick={handleLinkClick}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  textDecoration: "none",
+                }}
+              >
+                <LogoVideoReveal />
+              </Link>
+            </div>
+          </div>
+
+          {/* CENTER SLOT: DESKTOP LINKS / MOBILE CENTERED LOGO */}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            {/* Mobile Centered Brand Logo in MIDDLE */}
+            <div className="mobile-only">
+              <Link
+                href="/"
+                onClick={handleLinkClick}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  textDecoration: "none",
+                }}
+              >
+                <LogoVideoReveal />
+              </Link>
+            </div>
+
+            {/* Desktop Navigation Links in CENTER */}
             <div
               className="desktop-only"
               style={{
@@ -283,23 +318,6 @@ export const Navbar = () => {
                 );
               })}
             </div>
-          </div>
-
-          {/* CENTER SLOT: CENTERED BRAND LOGO WITH VIDEO REVEAL SUPPORT */}
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <Link
-              href="/"
-              onClick={handleLinkClick}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                textDecoration: "none",
-              }}
-            >
-              {/* Logo Reveal Video (Auto-plays muted loop, falls back to brand logo if no video uploaded) */}
-              <LogoVideoReveal />
-            </Link>
           </div>
 
           {/* RIGHT SLOT: CLEAN UTILITY ACTIONS */}
