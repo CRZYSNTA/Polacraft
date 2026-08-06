@@ -10,11 +10,18 @@ import { Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 
 const LogoVideoReveal = () => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [videoSrc, setVideoSrc] = useState("/assets/logo-reveal.mp4");
+
+  useEffect(() => {
+    // Generate fresh timestamp on mount to force browser to drop disk cache
+    setVideoSrc(`/assets/logo-reveal.mp4?t=${Date.now()}`);
+  }, []);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.defaultMuted = true;
       videoRef.current.muted = true;
+      videoRef.current.load();
       const playPromise = videoRef.current.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {
@@ -25,11 +32,12 @@ const LogoVideoReveal = () => {
         });
       }
     }
-  }, []);
+  }, [videoSrc]);
 
   return (
     <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
       <video
+        key={videoSrc}
         ref={videoRef}
         autoPlay
         loop
@@ -37,15 +45,16 @@ const LogoVideoReveal = () => {
         playsInline
         preload="auto"
         style={{
-          height: "44px",
+          height: "56px",
           width: "auto",
-          maxHeight: "50px",
+          maxHeight: "60px",
+          maxWidth: "260px",
           objectFit: "contain",
           display: "block",
-          borderRadius: "4px"
+          borderRadius: "6px"
         }}
       >
-        <source src="/assets/logo-reveal.mp4?v=v3" type="video/mp4" />
+        <source src={videoSrc} type="video/mp4" />
         {/* Native Fallback for unsupported browsers */}
         <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
           <Image
