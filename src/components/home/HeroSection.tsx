@@ -62,18 +62,12 @@ export default function HeroSection({
           style={{
             width: "100%",
             maxWidth: "1240px",
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            backdropFilter: "blur(30px)",
-            WebkitBackdropFilter: "blur(30px)",
-            borderRadius: isMobile ? "24px" : "36px",
-            border: "1px solid rgba(17, 17, 17, 0.08)",
-            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(212, 175, 55, 0.18)",
-            padding: isMobile ? "2.25rem 1.25rem 2.5rem 1.25rem" : "3.75rem 2.5rem 4.5rem 2.5rem",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
             position: "relative",
+            padding: isMobile ? "1rem 0" : "1.5rem 0",
           }}
         >
           {/* 1. Sleek Compact Badge */}
