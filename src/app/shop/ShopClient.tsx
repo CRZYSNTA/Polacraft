@@ -1179,6 +1179,217 @@ export default function ShopClient({
           </main>
         </div>
       </div>
+
+      {/* 3. MOBILE & DESKTOP FILTER SLIDE-OVER DRAWER */}
+      {isFilterDrawerOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+          onClick={() => setIsFilterDrawerOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: "400px",
+              height: "100%",
+              backgroundColor: "#FFFFFF",
+              padding: "1.75rem 1.5rem",
+              boxShadow: "-10px 0 30px rgba(0,0,0,0.15)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              overflowY: "auto"
+            }}
+          >
+            <div>
+              {/* HEADER */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.75rem", borderBottom: "1px solid #F3F3F0", paddingBottom: "1rem" }}>
+                <h3 style={{ fontSize: "1.2rem", fontWeight: "900", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <SlidersHorizontal size={18} /> Filter and sort
+                </h3>
+                <button
+                  onClick={() => setIsFilterDrawerOpen(false)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#111", padding: "4px" }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* COLLECTIONS */}
+              <div style={{ marginBottom: "1.75rem" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.1em", color: "#888", display: "block", marginBottom: "0.75rem" }}>
+                  Collections
+                </label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                  <button
+                    onClick={() => handleFilterChange("collection", "All Collections")}
+                    style={{
+                      textAlign: "left",
+                      padding: "0.6rem 0.85rem",
+                      borderRadius: "100px",
+                      border: "none",
+                      backgroundColor: activeFilters.collection === "All Collections" ? "#111" : "#F8FAFC",
+                      color: activeFilters.collection === "All Collections" ? "#FFF" : "#444",
+                      fontSize: "0.85rem",
+                      fontWeight: activeFilters.collection === "All Collections" ? "700" : "500",
+                      cursor: "pointer"
+                    }}
+                  >
+                    All Collections
+                  </button>
+                  {topLevelCollections.map((col: any) => {
+                    const colName = typeof col === "string" ? col : col.name;
+                    const isSelected = activeFilters.collection === colName;
+                    return (
+                      <button
+                        key={colName}
+                        onClick={() => handleFilterChange("collection", colName)}
+                        style={{
+                          textAlign: "left",
+                          padding: "0.6rem 0.85rem",
+                          borderRadius: "100px",
+                          border: "none",
+                          backgroundColor: isSelected ? "#111" : "#F8FAFC",
+                          color: isSelected ? "#FFF" : "#444",
+                          fontSize: "0.85rem",
+                          fontWeight: isSelected ? "700" : "500",
+                          cursor: "pointer"
+                        }}
+                      >
+                        {colName}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* SORT BY */}
+              <div style={{ marginBottom: "1.75rem" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.1em", color: "#888", display: "block", marginBottom: "0.75rem" }}>
+                  Sort Artwork
+                </label>
+                <select
+                  value={activeFilters.sort}
+                  onChange={(e) => handleFilterChange("sort", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.7rem 0.85rem",
+                    borderRadius: "100px",
+                    border: "1px solid rgba(17,17,17,0.15)",
+                    fontSize: "0.88rem",
+                    outline: "none",
+                    backgroundColor: "#FAFAFA",
+                    fontWeight: "600"
+                  }}
+                >
+                  <option value="default">Featured</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="year-desc">Release: Newest First</option>
+                  <option value="year-asc">Release: Vintage Classics</option>
+                </select>
+              </div>
+
+              {/* ACTOR FILTER */}
+              <div style={{ marginBottom: "1.75rem" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.1em", color: "#888", display: "block", marginBottom: "0.75rem" }}>
+                  Lead Actor / Cast
+                </label>
+                <select
+                  value={activeFilters.actor}
+                  onChange={(e) => handleFilterChange("actor", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.7rem 0.85rem",
+                    borderRadius: "100px",
+                    border: "1px solid rgba(17,17,17,0.15)",
+                    fontSize: "0.88rem",
+                    outline: "none",
+                    backgroundColor: "#FAFAFA",
+                    fontWeight: "600"
+                  }}
+                >
+                  {uniqueActors.map((act) => (
+                    <option key={act} value={act}>{act}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* DIRECTOR FILTER */}
+              <div style={{ marginBottom: "1.75rem" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.1em", color: "#888", display: "block", marginBottom: "0.75rem" }}>
+                  Filmmaker / Director
+                </label>
+                <select
+                  value={activeFilters.director}
+                  onChange={(e) => handleFilterChange("director", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.7rem 0.85rem",
+                    borderRadius: "100px",
+                    border: "1px solid rgba(17,17,17,0.15)",
+                    fontSize: "0.88rem",
+                    outline: "none",
+                    backgroundColor: "#FAFAFA",
+                    fontWeight: "600"
+                  }}
+                >
+                  {uniqueDirectors.map((dir) => (
+                    <option key={dir} value={dir}>{dir}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* FOOTER ACTIONS */}
+            <div style={{ display: "flex", gap: "0.75rem", paddingTop: "1rem", borderTop: "1px solid #F3F3F0" }}>
+              <button
+                onClick={() => {
+                  clearFilters();
+                  setIsFilterDrawerOpen(false);
+                }}
+                style={{
+                  flex: 1,
+                  padding: "0.75rem",
+                  borderRadius: "100px",
+                  border: "1px solid #111",
+                  backgroundColor: "#FFF",
+                  color: "#111",
+                  fontWeight: "700",
+                  fontSize: "0.88rem",
+                  cursor: "pointer"
+                }}
+              >
+                Reset All
+              </button>
+              <button
+                onClick={() => setIsFilterDrawerOpen(false)}
+                style={{
+                  flex: 2,
+                  padding: "0.75rem",
+                  borderRadius: "100px",
+                  border: "none",
+                  backgroundColor: "#111",
+                  color: "#FFF",
+                  fontWeight: "700",
+                  fontSize: "0.88rem",
+                  cursor: "pointer"
+                }}
+              >
+                View ({filteredPosters.length}) Posters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
