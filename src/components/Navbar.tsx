@@ -125,7 +125,7 @@ export const Navbar = () => {
       {/* 2. MAIN NAVIGATION BAR */}
       <nav
         style={{
-          height: isScrolled ? "64px" : "74px",
+          height: isScrolled ? "62px" : "70px",
           display: "flex",
           alignItems: "center",
           padding: "0 1.25rem",
@@ -145,7 +145,7 @@ export const Navbar = () => {
             alignItems: "center",
           }}
         >
-          {/* LEFT SLOT: HAMBURGER ON MOBILE & NAV LINKS ON DESKTOP */}
+          {/* LEFT SLOT: HAMBURGER MENU TOGGLE */}
           <div style={{ display: "flex", alignItems: "center", gap: "1.2rem" }}>
             {/* Mobile Menu Toggle on LEFT */}
             <button
@@ -195,7 +195,7 @@ export const Navbar = () => {
             </div>
           </div>
 
-          {/* CENTER SLOT: CENTERED BRAND LOGO WITH IMAGE MARK */}
+          {/* CENTER SLOT: CENTERED BRAND LOGO WITH LOGO MARK */}
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Link
               href="/"
@@ -210,14 +210,14 @@ export const Navbar = () => {
               <Image
                 src="/assets/polacraft-logo-mark.png"
                 alt="Polacraft Logo Mark"
-                width={30}
-                height={30}
-                style={{ objectFit: "contain", borderRadius: "6px" }}
+                width={28}
+                height={28}
+                style={{ objectFit: "contain", borderRadius: "5px" }}
               />
               <span
                 style={{
                   fontFamily: "var(--font-serif)",
-                  fontSize: "1.7rem",
+                  fontSize: "1.65rem",
                   fontWeight: "900",
                   letterSpacing: "-0.04em",
                   display: "inline-flex",
@@ -240,7 +240,7 @@ export const Navbar = () => {
             </Link>
           </div>
 
-          {/* RIGHT SLOT: UTILITY ACTIONS (WISHLIST, CART, ACCOUNT) */}
+          {/* RIGHT SLOT: CLEAN UTILITY ACTIONS */}
           <div
             style={{
               display: "flex",
@@ -249,9 +249,10 @@ export const Navbar = () => {
               gap: "1.2rem",
             }}
           >
-            {/* Wishlist Link */}
+            {/* Wishlist Link (Desktop Only to keep Mobile ultra-clean) */}
             <Link
               href="/account/wishlist"
+              className="desktop-only"
               style={{ cursor: "pointer", color: "#111111", padding: "4px", position: "relative" }}
               aria-label="View Wishlist"
             >
@@ -279,13 +280,13 @@ export const Navbar = () => {
               )}
             </Link>
 
-            {/* Cart Bag */}
+            {/* Shopping Bag (Mobile & Desktop Main Icon) */}
             <button
               onClick={() => setCartOpen(true)}
               style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px", position: "relative" }}
               aria-label="Open Shopping Cart"
             >
-              <ShoppingBag size={20} />
+              <ShoppingBag size={21} />
               {cartItemCount > 0 && (
                 <span
                   style={{
@@ -309,9 +310,9 @@ export const Navbar = () => {
               )}
             </button>
 
-            {/* Account Link */}
-            {session?.user ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            {/* Account / Sign In (Desktop Only) */}
+            <div className="desktop-only">
+              {session?.user ? (
                 <Link
                   href="/account"
                   style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", textDecoration: "none" }}
@@ -330,28 +331,28 @@ export const Navbar = () => {
                     <User size={20} style={{ color: "#111111" }} />
                   )}
                 </Link>
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                style={{
-                  fontSize: "0.8rem",
-                  fontWeight: "800",
-                  color: "#111111",
-                  border: "1px solid #111111",
-                  padding: "0.35rem 0.75rem",
-                  borderRadius: "100px",
-                  textDecoration: "none",
-                }}
-              >
-                Sign In
-              </Link>
-            )}
+              ) : (
+                <Link
+                  href="/login"
+                  style={{
+                    fontSize: "0.8rem",
+                    fontWeight: "800",
+                    color: "#111111",
+                    border: "1px solid #111111",
+                    padding: "0.35rem 0.75rem",
+                    borderRadius: "100px",
+                    textDecoration: "none",
+                  }}
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* MOBILE MENU DROPDOWN */}
+      {/* SLEEK MOBILE DRAWER MENU */}
       {isMobileMenuOpen && (
         <div
           style={{
@@ -375,7 +376,6 @@ export const Navbar = () => {
             { path: "/about", label: "Our Craftsmanship" },
             { path: "/journal", label: "Editorial Journal" },
             { path: "/contact", label: "Contact Studio" },
-            { path: "/account", label: "Collector Account" },
           ].map((item) => (
             <Link
               key={item.path}
@@ -392,6 +392,44 @@ export const Navbar = () => {
               {item.label}
             </Link>
           ))}
+
+          <div style={{ height: "1px", backgroundColor: "rgba(17,17,17,0.1)", margin: "0.5rem 0" }} />
+
+          {/* Wishlist in Mobile Drawer */}
+          <Link
+            href="/account/wishlist"
+            onClick={handleLinkClick}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
+              fontSize: "1.1rem",
+              fontWeight: "700",
+              color: "#111111",
+              textDecoration: "none",
+            }}
+          >
+            <Heart size={18} fill={wishlist.length > 0 ? "#111111" : "none"} />
+            My Wishlist ({wishlist.length})
+          </Link>
+
+          {/* Account / Sign In in Mobile Drawer */}
+          <Link
+            href={session?.user ? "/account" : "/login"}
+            onClick={handleLinkClick}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
+              fontSize: "1.1rem",
+              fontWeight: "700",
+              color: "#111111",
+              textDecoration: "none",
+            }}
+          >
+            <User size={18} />
+            {session?.user ? `Account (${session.user.name || "Collector"})` : "Sign In / Register"}
+          </Link>
         </div>
       )}
 
