@@ -35,12 +35,18 @@ export default function DesignYourOwnSection() {
       title: "Custom MINI POCKET PHOTO",
       image: "/assets/custom_grid_pocket.png",
       link: "/custom"
+    },
+    {
+      id: "photobooth",
+      title: "Custom PHOTOBOOTH STRIP",
+      image: "/assets/custom_grid_photobooth.png",
+      link: "/custom"
     }
   ];
 
   return (
     <section style={{ padding: "4rem 1rem", backgroundColor: "#FFFFFF" }}>
-      <div className="container" style={{ maxWidth: "900px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 1rem" }}>
         
         {/* SECTION HEADER */}
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
@@ -52,14 +58,8 @@ export default function DesignYourOwnSection() {
           </div>
         </div>
 
-        {/* 2-COLUMN MOBILE GRID DISPLAYING EXACT UPLOADED IMAGES */}
-        <div 
-          style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(2, 1fr)", 
-            gap: "1.25rem 1rem" 
-          }}
-        >
+        {/* 6-COLUMN DESKTOP GRID / 2-COLUMN MOBILE GRID */}
+        <div className="design-your-own-grid">
           {customItems.map((item, index) => (
             <Link 
               key={index} 
@@ -69,7 +69,7 @@ export default function DesignYourOwnSection() {
               <div 
                 style={{ 
                   backgroundColor: "#FAFAF8", 
-                  borderRadius: "18px", 
+                  borderRadius: "14px", 
                   border: "1px solid rgba(17,17,17,0.08)", 
                   overflow: "hidden", 
                   boxShadow: "0 6px 20px rgba(0,0,0,0.03)",
@@ -83,7 +83,7 @@ export default function DesignYourOwnSection() {
                   src={item.image} 
                   alt={item.title} 
                   fill 
-                  sizes="(max-width: 768px) 50vw, 350px"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
                   style={{ objectFit: "cover" }} 
                 />
               </div>
@@ -92,6 +92,28 @@ export default function DesignYourOwnSection() {
         </div>
 
       </div>
+
+      <style>{`
+        .design-your-own-grid {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 1rem;
+        }
+
+        @media (max-width: 1023px) {
+          .design-your-own-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+          }
+        }
+
+        @media (max-width: 639px) {
+          .design-your-own-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.85rem;
+          }
+        }
+      `}</style>
     </section>
   );
 }
