@@ -5,7 +5,6 @@ import { AppContext } from "@/features/cart/AppContext";
 import { Product } from "@/types";
 
 import HeroSection from "./HeroSection";
-import FeaturedCollectionsSection from "./FeaturedCollectionsSection";
 import BestSellersSection from "./BestSellersSection";
 import CollectorRewardsSection from "./CollectorRewardsSection";
 import CraftsmanshipSection from "./CraftsmanshipSection";
@@ -37,9 +36,6 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
         heroFanCards={heroFanCards}
         isLoading={false}
       />
-
-      {/* 3. FEATURED CURATED COLLECTIONS */}
-      <FeaturedCollectionsSection />
 
       {/* 4. BEST SELLERS CAROUSEL */}
       <BestSellersSection
