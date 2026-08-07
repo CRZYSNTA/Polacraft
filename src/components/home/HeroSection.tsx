@@ -266,7 +266,7 @@ export default function HeroSection({
                     }}
                   >
                     <div style={{ width: "100%", height: "100%", position: "relative" }}>
-                      <PosterRenderer poster={posterObj} size="A5" interactive={false} />
+                      <PosterRenderer poster={posterObj} size="A5" isHovered={false} disableHoverPreview={true} />
                     </div>
                   </motion.div>
                 );

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import Image from "next/image";
 
-export const PosterRenderer = ({ poster, frame = "unframed", size = "A4", isHovered: externalHovered }: any) => {
+export const PosterRenderer = ({ poster, frame = "unframed", size = "A4", isHovered: externalHovered, disableHoverPreview = false }: any) => {
   const [imgError, setImgError] = useState(false);
   const [internalHovered, setInternalHovered] = useState(false);
 
-  const isHovered = externalHovered !== undefined ? externalHovered : internalHovered;
+  const isHovered = disableHoverPreview ? false : (externalHovered !== undefined ? externalHovered : internalHovered);
 
   if (!poster) return null;
 
