@@ -292,33 +292,7 @@ export default function ShopClient({
   };
 
   return (
-    <div style={{ backgroundColor: "#FAFAF8", minHeight: "100vh", paddingBottom: "5rem" }}>
-            {/* 1. HERO HEADER SECTION (ULTRA COMPACT, TEXTURED, FAST TO PRODUCTS) */}
-      <section
-        style={{
-          paddingTop: isMobile ? "1rem" : "1.75rem",
-          paddingBottom: "0.5rem",
-          backgroundColor: "#111111",
-          backgroundImage: "radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.18), transparent 70%), url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
-          color: "#FAFAF8",
-          textAlign: "center",
-          position: "relative",
-          overflow: "hidden"
-        }}
-      >
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.25rem", position: "relative", zIndex: 1 }}>
-          <span style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.22em", color: "#D4AF37", fontWeight: "800", opacity: 0.85 }}>
-            The Polacraft Vault
-          </span>
-          <h1 style={{ fontSize: isMobile ? "1.6rem" : "2.25rem", fontWeight: "900", letterSpacing: "-0.04em", margin: "0.1rem 0 0.2rem 0" }}>
-            SHOP POSTERS
-          </h1>
-          <p style={{ maxWidth: "500px", margin: "0 auto", fontSize: "0.88rem", color: "#D1D5DB", fontWeight: "500" }}>
-            Museum-grade Malayalam cinema posters.
-          </p>
-        </div>
-      </section>
-
+    <div style={{ backgroundColor: "#FAFAF8", minHeight: "100vh", paddingBottom: "5rem", paddingTop: isMobile ? "0.5rem" : "1.5rem" }}>
       {/* 2. FILTER & SEARCH CONTROL BAR */}
       <div style={{ maxWidth: "1350px", margin: "0 auto", padding: isMobile ? "0.6rem 0.75rem" : "1rem 1.5rem" }}>
         
