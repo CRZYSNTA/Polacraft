@@ -6,11 +6,14 @@ import { Product } from "@/types";
 
 import HeroSection from "./HeroSection";
 import BestSellersSection from "./BestSellersSection";
+import DesignYourOwnSection from "./DesignYourOwnSection";
+import CollectorWallsSection from "./CollectorWallsSection";
+import WhyChooseUsSection from "./WhyChooseUsSection";
+import HomeFaqSection from "./HomeFaqSection";
 import CollectorRewardsSection from "./CollectorRewardsSection";
 import CraftsmanshipSection from "./CraftsmanshipSection";
 import PackagingSection from "./PackagingSection";
 import LimitedEditionsSection from "./LimitedEditionsSection";
-import CollectorWallsSection from "./CollectorWallsSection";
 import TestimonialsSection from "./TestimonialsSection";
 import NewsletterSection from "./NewsletterSection";
 
@@ -28,7 +31,7 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
   const bestSellers = initialPosters.slice(0, 6);
 
   return (
-    <main style={{ backgroundColor: "#FAFAFA", color: "#111111", minHeight: "100vh", overflowX: "hidden" }}>
+    <main style={{ backgroundColor: "#FFFFFF", color: "#111111", minHeight: "100vh", overflowX: "hidden" }}>
       {/* 1. HERO SECTION */}
       <HeroSection
         heroTitle={activeSettings?.heroTitle || siteSettings?.heroTitle || "Bring Cinema Home."}
@@ -37,7 +40,7 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
         isLoading={false}
       />
 
-      {/* 4. BEST SELLERS CAROUSEL */}
+      {/* 2. BEST SELLING SECTION */}
       <BestSellersSection
         bestSellers={bestSellers}
         wishlist={wishlist}
@@ -46,24 +49,26 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
         addToCart={addToCart}
       />
 
-      {/* 5. COLLECTOR REWARDS PROGRAM */}
-      <CollectorRewardsSection
-        freeShippingThreshold={siteSettings.freeShippingThreshold}
-        collectorRewardThreshold={siteSettings.collectorRewardThreshold}
-        premiumRewardThreshold={siteSettings.premiumRewardThreshold}
-      />
+      {/* 3. DESIGN YOUR OWN PRINTS */}
+      <DesignYourOwnSection />
 
-      {/* 6. CRAFTSMANSHIP & FINE ART PAPERS */}
+      {/* 4. WALL SETUP PACKS */}
+      <CollectorWallsSection />
+
+      {/* 5. WHY CHOOSE US */}
+      <WhyChooseUsSection />
+
+      {/* 6. HOME FAQ SECTION */}
+      <HomeFaqSection />
+
+      {/* 7. CRAFTSMANSHIP & FINE ART PAPERS */}
       <CraftsmanshipSection />
 
-      {/* 7. UNBOXING & PACKAGING EXPERIENCE */}
+      {/* 8. UNBOXING & PACKAGING EXPERIENCE */}
       <PackagingSection />
 
-      {/* 8. LIMITED EDITIONS VAULT */}
+      {/* 9. LIMITED EDITIONS VAULT */}
       <LimitedEditionsSection posters={initialPosters} />
-
-      {/* 9. COLLECTOR WALL SHOWCASE */}
-      <CollectorWallsSection />
 
       {/* 10. TESTIMONIALS & PRESS REVIEWS */}
       <TestimonialsSection />

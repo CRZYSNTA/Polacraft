@@ -42,61 +42,22 @@ export default function BestSellersSection({
       <div className="container">
         {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
-          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
-          style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3.5rem" }}
+          transition={{ duration: 0.6 }}
+          style={{ textAlign: "center", marginBottom: "2.5rem" }}
         >
-          <div>
-            <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#666666", fontWeight: "700" }}>
-              Most Coveted Art
-            </span>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#111111", letterSpacing: "-0.03em", marginTop: "0.5rem" }}>
-              Best Sellers
+          <div style={{ display: "inline-block", position: "relative" }}>
+            <span style={{ position: "absolute", top: "-5px", left: "15px", width: "28px", height: "8px", backgroundColor: "#FF6B6B", opacity: 0.85, transform: "rotate(-15deg)" }} />
+            <span style={{ position: "absolute", top: "-5px", right: "25px", width: "28px", height: "8px", backgroundColor: "#FF6B6B", opacity: 0.85, transform: "rotate(12deg)" }} />
+            <h2 style={{ fontSize: "clamp(2rem, 5vw, 2.75rem)", fontWeight: "900", color: "#111111", letterSpacing: "0.04em", margin: 0, textTransform: "uppercase" }}>
+              BEST SELLING
             </h2>
           </div>
-
-          <div style={{ display: "flex", gap: "0.75rem" }}>
-            <motion.button
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => scrollCarousel("left")}
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "50%",
-                border: "1.5px solid rgba(17, 17, 17, 0.15)",
-                backgroundColor: "#FFFFFF",
-                color: "#111111",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer"
-              }}
-            >
-              <ArrowLeft size={18} />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => scrollCarousel("right")}
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "50%",
-                border: "1.5px solid #111111",
-                backgroundColor: "#111111",
-                color: "#FFFFFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer"
-              }}
-            >
-              <ArrowRight size={18} />
-            </motion.button>
-          </div>
+          <p style={{ fontSize: "0.72rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#666666", fontWeight: "700", marginTop: "0.4rem" }}>
+            FAN FAVORITES: THE POSTERS EVERYONE'S TALKING ABOUT!
+          </p>
         </motion.div>
 
         {/* Carousel Viewport */}
