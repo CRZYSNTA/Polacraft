@@ -11,7 +11,6 @@ import CollectorWallsSection from "./CollectorWallsSection";
 import WhyChooseUsSection from "./WhyChooseUsSection";
 import HomeFaqSection from "./HomeFaqSection";
 import CollectorRewardsSection from "./CollectorRewardsSection";
-import CraftsmanshipSection from "./CraftsmanshipSection";
 import PackagingSection from "./PackagingSection";
 import LimitedEditionsSection from "./LimitedEditionsSection";
 import TestimonialsSection from "./TestimonialsSection";
@@ -60,9 +59,6 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
 
       {/* 6. HOME FAQ SECTION */}
       <HomeFaqSection />
-
-      {/* 7. CRAFTSMANSHIP & FINE ART PAPERS */}
-      <CraftsmanshipSection />
 
       {/* 8. UNBOXING & PACKAGING EXPERIENCE */}
       <PackagingSection />
