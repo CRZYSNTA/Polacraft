@@ -37,6 +37,14 @@ export const metadata = {
   title: "Premium Malayalam Movie Posters | Polacraft",
   description: "Discover premium Malayalam cinema posters inspired by iconic films and legendary actors. Museum-quality prints with collector rewards and free shipping.",
   metadataBase: new URL("https://polacraft-1.vercel.app"),
+  icons: {
+    icon: [
+      { url: "/assets/polacraft-logo-mark.png", type: "image/png" },
+      { url: "/icon.png", type: "image/png" }
+    ],
+    shortcut: "/assets/polacraft-logo-mark.png",
+    apple: "/assets/polacraft-logo-mark.png",
+  },
   openGraph: {
     title: "Premium Malayalam Movie Posters | Polacraft",
     description: "Discover premium Malayalam cinema posters inspired by iconic films and legendary actors. Museum-quality prints with collector rewards and free shipping.",
