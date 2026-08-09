@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import PosterRenderer from "../PosterRenderer";
-import ImageGroup from "../originkit/ui/image-group-circle";
+import ImageGroup from "../originkit/ui/image-group-circle-custom-style";
 import { Product } from "@/types";
 
 interface HeroSectionProps {
