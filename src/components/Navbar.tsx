@@ -85,7 +85,7 @@ const LogoVideoReveal = () => {
     >
       <video
         ref={videoRef}
-        src="/assets/logo-reveal.MP4"
+        src="/assets/logo-reveal.mp4"
         autoPlay
         loop
         muted
