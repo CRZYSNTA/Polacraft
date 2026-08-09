@@ -57,6 +57,12 @@ import AuthSessionProvider from "../components/SessionProvider";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${bebasNeue.variable} ${syne.variable}`} suppressHydrationWarning>
+      <head>
+        <link rel="icon" type="image/png" sizes="32x32" href="/assets/polacraft-logo-mark.png?v=2" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/assets/polacraft-logo-mark.png?v=2" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/assets/polacraft-logo-mark.png?v=2" />
+        <link rel="shortcut icon" href="/assets/polacraft-logo-mark.png?v=2" />
+      </head>
       <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh", position: "relative" }} suppressHydrationWarning>
         <AuthSessionProvider>
           <AuthProvider>
