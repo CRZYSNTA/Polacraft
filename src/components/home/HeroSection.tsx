@@ -70,19 +70,72 @@ export default function HeroSection({
         alignItems: "center",
         justifyContent: "center",
         position: "relative",
-        paddingTop: isMobile ? "1.5rem" : "3rem",
-        paddingBottom: isMobile ? "2.5rem" : "5rem",
+        minHeight: isMobile ? "85vh" : "auto",
+        paddingTop: isMobile ? "2rem" : "3rem",
+        paddingBottom: isMobile ? "3rem" : "5rem",
         backgroundColor: "#FAFAFA",
         backgroundImage: "radial-gradient(circle at 50% 25%, rgba(212, 175, 55, 0.12) 0%, rgba(250, 250, 250, 0) 70%)",
         overflow: "hidden",
       }}
     >
-      <div className="container" style={{ width: "100%", display: "flex", justifyContent: "center", position: "relative", zIndex: 10 }}>
+      {/* MOBILE EXCLUSIVE FULL-BACKGROUND ROTATING CIRCULAR CANVASES */}
+      {isMobile && (
+        <div 
+          style={{ 
+            position: "absolute", 
+            inset: 0, 
+            width: "100%", 
+            height: "100%", 
+            zIndex: 1, 
+            opacity: 0.92,
+            pointerEvents: "auto"
+          }}
+        >
+          <ImageGroup 
+            images={mobileCircleImages}
+            count={56}
+            rings={4}
+            innerRadius={65}
+            ringGap={100}
+            cardWidth={80}
+            cardHeight={105}
+            speed={4}
+            direction="alternate"
+            rounded={8}
+          />
+        </div>
+      )}
+
+      {/* HERO CONTENT CARD (CENTERED WITH GLASSMORPHISM BLUR ON MOBILE) */}
+      <div 
+        className="container" 
+        style={{ 
+          width: "100%", 
+          display: "flex", 
+          justifyContent: "center", 
+          position: "relative", 
+          zIndex: 10,
+          padding: isMobile ? "0 1.25rem" : "0 2rem"
+        }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           animate={isLoading ? {} : { opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          style={{ textAlign: "center", maxWidth: "800px", display: "flex", flexDirection: "column", alignItems: "center" }}
+          style={{ 
+            textAlign: "center", 
+            maxWidth: "800px", 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center",
+            backgroundColor: isMobile ? "rgba(255, 255, 255, 0.88)" : "transparent",
+            backdropFilter: isMobile ? "blur(18px)" : "none",
+            WebkitBackdropFilter: isMobile ? "blur(18px)" : "none",
+            padding: isMobile ? "2.25rem 1.5rem" : "0",
+            borderRadius: isMobile ? "28px" : "0",
+            border: isMobile ? "1px solid rgba(255, 255, 255, 0.7)" : "none",
+            boxShadow: isMobile ? "0 20px 60px rgba(0,0,0,0.08)" : "none"
+          }}
         >
           {/* BADGE */}
           <div
@@ -122,11 +175,11 @@ export default function HeroSection({
           <p
             style={{
               fontSize: "clamp(0.95rem, 2vw, 1.15rem)",
-              color: "#666666",
+              color: "#555555",
               marginTop: "0.85rem",
               maxWidth: "52ch",
               lineHeight: 1.5,
-              fontWeight: "500"
+              fontWeight: "600"
             }}
           >
             {heroSubtitle}
@@ -178,72 +231,54 @@ export default function HeroSection({
         </motion.div>
       </div>
 
-      {/* MOBILE EXCLUSIVE: ORIGINKIT CIRCULAR ROTATING DECK WITH REAL POSTERS */}
-      {isMobile ? (
-        <div style={{ position: "relative", width: "100%", height: "270px", marginTop: "1.75rem" }}>
-          <ImageGroup 
-            images={mobileCircleImages}
-            count={32}
-            rings={2}
-            innerRadius={65}
-            ringGap={85}
-            cardWidth={72}
-            cardHeight={95}
-            speed={4.5}
-            direction="alternate"
-            rounded={6}
-          />
-        </div>
-      ) : (
-        /* DESKTOP EXCLUSIVE: FAN DECK CARDS CAROUSEL */
-        cardsToRender.length > 0 && (
-          <div style={{ position: "relative", width: "100%", height: "380px", marginTop: "3.5rem", display: "flex", justifyContent: "center", alignItems: "center" }}>
-            {cardsToRender.map((poster, index) => {
-              if (!poster) return null;
-              const rot = fanRotations[index] || 0;
-              const yPos = fanYPositions[index] || 0;
-              const xPos = fanXPositions[index] || 0;
-              const isHovered = hoveredCardId === poster.id;
+      {/* DESKTOP EXCLUSIVE: FAN DECK CARDS CAROUSEL */}
+      {!isMobile && cardsToRender.length > 0 && (
+        <div style={{ position: "relative", width: "100%", height: "380px", marginTop: "3.5rem", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          {cardsToRender.map((poster, index) => {
+            if (!poster) return null;
+            const rot = fanRotations[index] || 0;
+            const yPos = fanYPositions[index] || 0;
+            const xPos = fanXPositions[index] || 0;
+            const isHovered = hoveredCardId === poster.id;
 
-              return (
-                <motion.div
-                  key={poster.id || index}
-                  onMouseEnter={() => setHoveredCardId(poster.id)}
-                  onMouseLeave={() => setHoveredCardId(null)}
-                  style={{
-                    position: "absolute",
-                    width: "200px",
-                    transformOrigin: "bottom center",
-                    zIndex: isHovered ? 50 : index + 1,
-                    cursor: "pointer",
-                  }}
-                  animate={{
-                    rotate: isHovered ? 0 : rot,
-                    y: isHovered ? -20 : yPos,
-                    x: xPos,
-                    scale: isHovered ? 1.12 : 1,
-                  }}
-                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                >
-                  <Link href={`/product/${poster.slug}`} prefetch={true} style={{ display: "block", textDecoration: "none" }}>
-                    <div
-                      style={{
-                        borderRadius: "14px",
-                        overflow: "hidden",
-                        boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.25)" : "0 10px 30px rgba(0,0,0,0.1)",
-                        border: "1px solid rgba(17,17,17,0.08)",
-                        backgroundColor: "#EFECE6",
-                        padding: "0.5rem"
-                      }}
-                    >
-                      <PosterRenderer poster={poster} frame="unframed" />
-                    </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
-        )
+            return (
+              <motion.div
+                key={poster.id || index}
+                onMouseEnter={() => setHoveredCardId(poster.id)}
+                onMouseLeave={() => setHoveredCardId(null)}
+                style={{
+                  position: "absolute",
+                  width: "200px",
+                  transformOrigin: "bottom center",
+                  zIndex: isHovered ? 50 : index + 1,
+                  cursor: "pointer",
+                }}
+                animate={{
+                  rotate: isHovered ? 0 : rot,
+                  y: isHovered ? -20 : yPos,
+                  x: xPos,
+                  scale: isHovered ? 1.12 : 1,
+                }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+              >
+                <Link href={`/product/${poster.slug}`} prefetch={true} style={{ display: "block", textDecoration: "none" }}>
+                  <div
+                    style={{
+                      borderRadius: "14px",
+                      overflow: "hidden",
+                      boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.25)" : "0 10px 30px rgba(0,0,0,0.1)",
+                      border: "1px solid rgba(17,17,17,0.08)",
+                      backgroundColor: "#EFECE6",
+                      padding: "0.5rem"
+                    }}
+                  >
+                    <PosterRenderer poster={poster} frame="unframed" />
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
       )}
     </section>
   );
