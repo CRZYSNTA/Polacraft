@@ -74,7 +74,21 @@ export async function PUT(req: Request) {
       aiSocialCaptionsEnabled: body.aiSocialCaptionsEnabled !== undefined ? Boolean(body.aiSocialCaptionsEnabled) : true,
       aiDefaultTone: body.aiDefaultTone || "Collector Focused",
       aiDefaultLanguage: body.aiDefaultLanguage || "English",
-      aiMaxDescriptionLength: body.aiMaxDescriptionLength !== undefined ? parseInt(body.aiMaxDescriptionLength) : 120
+      aiMaxDescriptionLength: body.aiMaxDescriptionLength !== undefined ? parseInt(body.aiMaxDescriptionLength) : 120,
+
+      // Custom Print Studio Live Pricing Controls
+      customBasePriceA5: body.customBasePriceA5 !== undefined ? parseFloat(body.customBasePriceA5) : 45.0,
+      customBasePriceA4: body.customBasePriceA4 !== undefined ? parseFloat(body.customBasePriceA4) : 70.0,
+      customBasePriceA3: body.customBasePriceA3 !== undefined ? parseFloat(body.customBasePriceA3) : 100.0,
+      customMultSingle: body.customMultSingle !== undefined ? parseFloat(body.customMultSingle) : 1.0,
+      customMultSplit3: body.customMultSplit3 !== undefined ? parseFloat(body.customMultSplit3) : 2.5,
+      customMultSplit2x2: body.customMultSplit2x2 !== undefined ? parseFloat(body.customMultSplit2x2) : 3.2,
+      customMultRetro: body.customMultRetro !== undefined ? parseFloat(body.customMultRetro) : 1.5,
+      customMultPocket: body.customMultPocket !== undefined ? parseFloat(body.customMultPocket) : 0.8,
+      customMultPhotobooth: body.customMultPhotobooth !== undefined ? parseFloat(body.customMultPhotobooth) : 0.9,
+      customFrameAddonA5: body.customFrameAddonA5 !== undefined ? parseFloat(body.customFrameAddonA5) : 155.0,
+      customFrameAddonA4: body.customFrameAddonA4 !== undefined ? parseFloat(body.customFrameAddonA4) : 180.0,
+      customFrameAddonA3: body.customFrameAddonA3 !== undefined ? parseFloat(body.customFrameAddonA3) : 200.0,
     };
 
     if (settings) {

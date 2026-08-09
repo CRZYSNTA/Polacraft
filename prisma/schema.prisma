@@ -628,6 +628,20 @@ model SiteSettings {
   aiDefaultLanguage        String   @default("English")
   aiMaxDescriptionLength   Int      @default(120)
 
+  // Polacraft Custom Print Studio Live Pricing Controls
+  customBasePriceA5        Float    @default(45.0)
+  customBasePriceA4        Float    @default(70.0)
+  customBasePriceA3        Float    @default(100.0)
+  customMultSingle         Float    @default(1.0)
+  customMultSplit3         Float    @default(2.5)
+  customMultSplit2x2       Float    @default(3.2)
+  customMultRetro          Float    @default(1.5)
+  customMultPocket         Float    @default(0.8)
+  customMultPhotobooth     Float    @default(0.9)
+  customFrameAddonA5       Float    @default(155.0)
+  customFrameAddonA4       Float    @default(180.0)
+  customFrameAddonA3       Float    @default(200.0)
+
   updatedAt                DateTime @updatedAt
 
   @@map("site_settings")

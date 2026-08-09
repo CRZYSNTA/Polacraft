@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -46,35 +46,58 @@ export default function CustomPrintStudio() {
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  // Size Base Rates
-  const BASE_RATES: Record<string, number> = {
-    A5: 45,
-    A4: 70,
-    A3: 100
-  };
-
-  // Multipliers for Formats
-  const MULTIPLIERS: Record<string, number> = {
-    "single": 1,
+  // Dynamic Rates Managed by Admin Panel
+  const [baseRates, setBaseRates] = useState<Record<string, number>>({ A5: 45, A4: 70, A3: 100 });
+  const [multipliers, setMultipliers] = useState<Record<string, number>>({
+    "single": 1.0,
     "split-3": 2.5,
     "split-2x2": 3.2,
     "retro": 1.5,
     "pocket": 0.8,
     "photobooth": 0.9
-  };
+  });
+  const [framedTotals, setFramedTotals] = useState<Record<string, number>>({ A5: 200, A4: 250, A3: 300 });
 
-  // Frame Rates by Size
-  const FRAMED_TOTALS: Record<string, number> = {
-    A5: 200,
-    A4: 250,
-    A3: 300
-  };
+  useEffect(() => {
+    async function fetchCustomPricing() {
+      try {
+        const res = await fetch("/api/settings");
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.settings) {
+            const s = data.settings;
+            setBaseRates({
+              A5: s.customBasePriceA5 ?? 45,
+              A4: s.customBasePriceA4 ?? 70,
+              A3: s.customBasePriceA3 ?? 100,
+            });
+            setMultipliers({
+              "single": s.customMultSingle ?? 1.0,
+              "split-3": s.customMultSplit3 ?? 2.5,
+              "split-2x2": s.customMultSplit2x2 ?? 3.2,
+              "retro": s.customMultRetro ?? 1.5,
+              "pocket": s.customMultPocket ?? 0.8,
+              "photobooth": s.customMultPhotobooth ?? 0.9,
+            });
+            setFramedTotals({
+              A5: s.customFrameAddonA5 ?? 200,
+              A4: s.customFrameAddonA4 ?? 250,
+              A3: s.customFrameAddonA3 ?? 300,
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load custom pricing:", e);
+      }
+    }
+    fetchCustomPricing();
+  }, []);
 
   // Calculate Unit Price
-  const multiplier = MULTIPLIERS[activeLayout] || 1;
-  const basePrice = Math.round((BASE_RATES[selectedSize] || 70) * multiplier);
+  const multiplier = multipliers[activeLayout] || 1;
+  const basePrice = Math.round((baseRates[selectedSize] || 70) * multiplier);
   const isFramed = selectedFrame !== "unframed";
-  const unitPrice = isFramed ? Math.round((FRAMED_TOTALS[selectedSize] || 250) * multiplier) : basePrice;
+  const unitPrice = isFramed ? Math.round((framedTotals[selectedSize] || 250) * multiplier) : basePrice;
   const subtotal = unitPrice * quantity;
   const shippingCost = subtotal >= 800 ? 0 : 60;
   const grandTotal = subtotal + shippingCost;
