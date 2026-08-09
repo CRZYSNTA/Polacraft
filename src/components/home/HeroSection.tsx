@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Sparkles, ShieldCheck, Star, Award, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import PosterRenderer from "../PosterRenderer";
+import ImageGroup from "../originkit/ui/image-group-circle";
 import { Product } from "@/types";
 
 interface HeroSectionProps {
@@ -34,11 +35,23 @@ export default function HeroSection({
   }, []);
 
   const safeCards = Array.isArray(heroFanCards) ? heroFanCards : [];
-  const fanRotations = isMobile ? [-12, -4, 4, 12] : [-15, -8, -2, 6, 12, 18];
-  const fanYPositions = isMobile ? [20, 5, 5, 20] : [40, 15, 0, 10, 30, 50];
-  const fanXPositions = isMobile ? [-65, -22, 22, 65] : [-160, -80, 0, 80, 160, 240];
+  const fanRotations = [-15, -8, -2, 6, 12, 18];
+  const fanYPositions = [40, 15, 0, 10, 30, 50];
+  const fanXPositions = [-160, -80, 0, 80, 160, 240];
 
-  const cardsToRender = isMobile ? safeCards.slice(0, 4) : safeCards.slice(0, 6);
+  const cardsToRender = safeCards.slice(0, 6);
+
+  // Formatted image items for mobile Originkit circle animation
+  const mobileCircleImages = useMemo(() => {
+    const items = safeCards.map((p) => ({
+      image: {
+        src: p.heroImage || p.galleryImages?.[0] || "/assets/custom_grid_poster.png",
+        alt: p.title
+      },
+      focusY: 50
+    }));
+    return { items };
+  }, [safeCards]);
 
   return (
     <section
@@ -156,54 +169,72 @@ export default function HeroSection({
         </motion.div>
       </div>
 
-      {/* FAN DECK CARDS CAROUSEL */}
-      {cardsToRender.length > 0 && (
-        <div style={{ position: "relative", width: "100%", height: isMobile ? "280px" : "380px", marginTop: isMobile ? "2rem" : "3.5rem", display: "flex", justifyContent: "center", alignItems: "center" }}>
-          {cardsToRender.map((poster, index) => {
-            if (!poster) return null;
-            const rot = fanRotations[index] || 0;
-            const yPos = fanYPositions[index] || 0;
-            const xPos = fanXPositions[index] || 0;
-            const isHovered = hoveredCardId === poster.id;
-
-            return (
-              <motion.div
-                key={poster.id || index}
-                onMouseEnter={() => setHoveredCardId(poster.id)}
-                onMouseLeave={() => setHoveredCardId(null)}
-                style={{
-                  position: "absolute",
-                  width: isMobile ? "130px" : "200px",
-                  transformOrigin: "bottom center",
-                  zIndex: isHovered ? 50 : index + 1,
-                  cursor: "pointer",
-                }}
-                animate={{
-                  rotate: isHovered ? 0 : rot,
-                  y: isHovered ? -20 : yPos,
-                  x: xPos,
-                  scale: isHovered ? 1.12 : 1,
-                }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              >
-                <Link href={`/product/${poster.slug}`} prefetch={true} style={{ display: "block", textDecoration: "none" }}>
-                  <div
-                    style={{
-                      borderRadius: "14px",
-                      overflow: "hidden",
-                      boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.25)" : "0 10px 30px rgba(0,0,0,0.1)",
-                      border: "1px solid rgba(17,17,17,0.08)",
-                      backgroundColor: "#EFECE6",
-                      padding: "0.5rem"
-                    }}
-                  >
-                    <PosterRenderer poster={poster} frame="unframed" />
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
+      {/* MOBILE EXCLUSIVE: ORIGINKIT CIRCULAR ROTATING DECK */}
+      {isMobile ? (
+        <div style={{ position: "relative", width: "100%", height: "260px", marginTop: "1.75rem" }}>
+          <ImageGroup 
+            images={mobileCircleImages}
+            count={24}
+            rings={2}
+            innerRadius={65}
+            ringGap={85}
+            cardWidth={70}
+            cardHeight={92}
+            speed={5}
+            direction="alternate"
+            rounded={6}
+          />
         </div>
+      ) : (
+        /* DESKTOP EXCLUSIVE: FAN DECK CARDS CAROUSEL */
+        cardsToRender.length > 0 && (
+          <div style={{ position: "relative", width: "100%", height: "380px", marginTop: "3.5rem", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            {cardsToRender.map((poster, index) => {
+              if (!poster) return null;
+              const rot = fanRotations[index] || 0;
+              const yPos = fanYPositions[index] || 0;
+              const xPos = fanXPositions[index] || 0;
+              const isHovered = hoveredCardId === poster.id;
+
+              return (
+                <motion.div
+                  key={poster.id || index}
+                  onMouseEnter={() => setHoveredCardId(poster.id)}
+                  onMouseLeave={() => setHoveredCardId(null)}
+                  style={{
+                    position: "absolute",
+                    width: "200px",
+                    transformOrigin: "bottom center",
+                    zIndex: isHovered ? 50 : index + 1,
+                    cursor: "pointer",
+                  }}
+                  animate={{
+                    rotate: isHovered ? 0 : rot,
+                    y: isHovered ? -20 : yPos,
+                    x: xPos,
+                    scale: isHovered ? 1.12 : 1,
+                  }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                >
+                  <Link href={`/product/${poster.slug}`} prefetch={true} style={{ display: "block", textDecoration: "none" }}>
+                    <div
+                      style={{
+                        borderRadius: "14px",
+                        overflow: "hidden",
+                        boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.25)" : "0 10px 30px rgba(0,0,0,0.1)",
+                        border: "1px solid rgba(17,17,17,0.08)",
+                        backgroundColor: "#EFECE6",
+                        padding: "0.5rem"
+                      }}
+                    >
+                      <PosterRenderer poster={poster} frame="unframed" />
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        )
       )}
     </section>
   );
