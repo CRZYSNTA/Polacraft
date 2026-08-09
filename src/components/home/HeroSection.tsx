@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import PosterRenderer from "../PosterRenderer";
 import ImageGroup from "../originkit/ui/image-group-circle-custom-style";
+import RoundCarousel from "../originkit/ui/roundcarousel";
 import { Product } from "@/types";
 
 interface HeroSectionProps {
@@ -39,12 +40,6 @@ export default function HeroSection({
   const safeCards = Array.isArray(heroFanCards) ? heroFanCards : [];
   const catalogPosters = Array.isArray(allPosters) && allPosters.length > 0 ? allPosters : safeCards;
 
-  const fanRotations = [-15, -8, -2, 6, 12, 18];
-  const fanYPositions = [40, 15, 0, 10, 30, 50];
-  const fanXPositions = [-160, -80, 0, 80, 160, 240];
-
-  const cardsToRender = safeCards.slice(0, 6);
-
   // Formatted real cinema posters for mobile Originkit circle animation
   const mobileCircleImages = useMemo(() => {
     const items = catalogPosters.map((p) => {
@@ -62,6 +57,15 @@ export default function HeroSection({
     return { items };
   }, [catalogPosters]);
 
+  // Formatted real cinema posters for Desktop Originkit 3D RoundCarousel
+  const desktopCarouselImages = useMemo(() => {
+    return catalogPosters.map((p) => {
+      const rawImg = p.heroImage || p.galleryImages?.[0] || (p as any).images?.[0]?.url;
+      const validSrc = (rawImg && typeof rawImg === "string" && rawImg.trim() !== "") ? rawImg : "/assets/custom_grid_poster.png";
+      return { src: validSrc };
+    });
+  }, [catalogPosters]);
+
   return (
     <section
       style={{
@@ -71,8 +75,8 @@ export default function HeroSection({
         justifyContent: "center",
         position: "relative",
         minHeight: isMobile ? "85vh" : "auto",
-        paddingTop: isMobile ? "2rem" : "3rem",
-        paddingBottom: isMobile ? "3rem" : "5rem",
+        paddingTop: isMobile ? "2rem" : "3.5rem",
+        paddingBottom: isMobile ? "3rem" : "4.5rem",
         backgroundColor: "#FAFAFA",
         backgroundImage: "radial-gradient(circle at 50% 25%, rgba(212, 175, 55, 0.12) 0%, rgba(250, 250, 250, 0) 70%)",
         overflow: "hidden",
@@ -106,7 +110,7 @@ export default function HeroSection({
         </div>
       )}
 
-      {/* HERO CONTENT CARD (ULTRA-TRANSPARENT CRYSTAL GLASS BANNER ON MOBILE) */}
+      {/* HERO CONTENT CARD */}
       <div 
         className="container" 
         style={{ 
@@ -239,53 +243,23 @@ export default function HeroSection({
         </motion.div>
       </div>
 
-      {/* DESKTOP EXCLUSIVE: FAN DECK CARDS CAROUSEL */}
-      {!isMobile && cardsToRender.length > 0 && (
-        <div style={{ position: "relative", width: "100%", height: "380px", marginTop: "3.5rem", display: "flex", justifyContent: "center", alignItems: "center" }}>
-          {cardsToRender.map((poster, index) => {
-            if (!poster) return null;
-            const rot = fanRotations[index] || 0;
-            const yPos = fanYPositions[index] || 0;
-            const xPos = fanXPositions[index] || 0;
-            const isHovered = hoveredCardId === poster.id;
-
-            return (
-              <motion.div
-                key={poster.id || index}
-                onMouseEnter={() => setHoveredCardId(poster.id)}
-                onMouseLeave={() => setHoveredCardId(null)}
-                style={{
-                  position: "absolute",
-                  width: "200px",
-                  transformOrigin: "bottom center",
-                  zIndex: isHovered ? 50 : index + 1,
-                  cursor: "pointer",
-                }}
-                animate={{
-                  rotate: isHovered ? 0 : rot,
-                  y: isHovered ? -20 : yPos,
-                  x: xPos,
-                  scale: isHovered ? 1.12 : 1,
-                }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              >
-                <Link href={`/product/${poster.slug}`} prefetch={true} style={{ display: "block", textDecoration: "none" }}>
-                  <div
-                    style={{
-                      borderRadius: "14px",
-                      overflow: "hidden",
-                      boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.25)" : "0 10px 30px rgba(0,0,0,0.1)",
-                      border: "1px solid rgba(17,17,17,0.08)",
-                      backgroundColor: "#EFECE6",
-                      padding: "0.5rem"
-                    }}
-                  >
-                    <PosterRenderer poster={poster} frame="unframed" />
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
+      {/* DESKTOP EXCLUSIVE: ORIGINKIT 3D ROUND CAROUSEL */}
+      {!isMobile && (
+        <div style={{ position: "relative", width: "100%", height: "420px", marginTop: "2.5rem" }}>
+          <RoundCarousel 
+            images={desktopCarouselImages}
+            imageWidth={210}
+            imageHeight={290}
+            spacing={4}
+            speed={4.5}
+            direction="right"
+            drag={true}
+            sensitivity={4}
+            tilt={-6}
+            perspective={2200}
+            cornerRadius={16}
+            background="transparent"
+          />
         </div>
       )}
     </section>
