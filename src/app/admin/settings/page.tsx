@@ -50,6 +50,8 @@ export default function AdminSettingsPage() {
   const [heroSelectedPosterIdsDesktop, setHeroSelectedPosterIdsDesktop] = useState<string[]>([]);
   const [heroSpeedMobile, setHeroSpeedMobile] = useState<number>(4.0);
   const [heroSpeedDesktop, setHeroSpeedDesktop] = useState<number>(2.7);
+  const [heroCircleInnerRadius, setHeroCircleInnerRadius] = useState<number>(25);
+  const [heroCircleRingGap, setHeroCircleRingGap] = useState<number>(95);
   const [availableProducts, setAvailableProducts] = useState<any[]>([]);
 
   // AI Assistant Settings
@@ -128,6 +130,8 @@ export default function AdminSettingsPage() {
             setHeroSelectedPosterIdsDesktop(data.settings.heroSelectedPosterIdsDesktop || []);
             setHeroSpeedMobile(data.settings.heroSpeedMobile ?? 4.0);
             setHeroSpeedDesktop(data.settings.heroSpeedDesktop ?? 2.7);
+            setHeroCircleInnerRadius(data.settings.heroCircleInnerRadius ?? 25);
+            setHeroCircleRingGap(data.settings.heroCircleRingGap ?? 95);
 
             setAiSettings({
               aiEnabled: data.settings.aiEnabled !== undefined ? Boolean(data.settings.aiEnabled) : true,
@@ -202,6 +206,8 @@ export default function AdminSettingsPage() {
           heroSelectedPosterIdsDesktop,
           heroSpeedMobile: Number(heroSpeedMobile),
           heroSpeedDesktop: Number(heroSpeedDesktop),
+          heroCircleInnerRadius: Number(heroCircleInnerRadius),
+          heroCircleRingGap: Number(heroCircleRingGap),
 
           ...aiSettings
         })
@@ -315,6 +321,42 @@ export default function AdminSettingsPage() {
                   value={heroSpeedDesktop}
                   onChange={(e) => setHeroSpeedDesktop(parseFloat(e.target.value))}
                   style={{ width: "100%", accentColor: "#111111", cursor: "pointer" }}
+                />
+              </div>
+
+              {/* Mobile Inner Radius Control */}
+              <div style={{ backgroundColor: "#F0F4FF", padding: "1.25rem", borderRadius: "12px", border: "1px solid rgba(99,102,241,0.15)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                  <label style={{ fontSize: "0.88rem", fontWeight: "700", color: "#111111" }}>🔵 Circle Inner Radius</label>
+                  <span style={{ fontSize: "0.85rem", fontWeight: "800", backgroundColor: "#6366F1", color: "#FFFFFF", padding: "0.25rem 0.6rem", borderRadius: "100px" }}>{heroCircleInnerRadius}px</span>
+                </div>
+                <p style={{ fontSize: "0.78rem", color: "#666666", margin: "0 0 0.85rem 0" }}>Innermost ring radius on mobile (5 = very tight centre, 120 = wide spread).</p>
+                <input
+                  type="range"
+                  min="5"
+                  max="120"
+                  step="1"
+                  value={heroCircleInnerRadius}
+                  onChange={(e) => setHeroCircleInnerRadius(parseFloat(e.target.value))}
+                  style={{ width: "100%", accentColor: "#6366F1", cursor: "pointer" }}
+                />
+              </div>
+
+              {/* Mobile Ring Gap Control */}
+              <div style={{ backgroundColor: "#F0F4FF", padding: "1.25rem", borderRadius: "12px", border: "1px solid rgba(99,102,241,0.15)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                  <label style={{ fontSize: "0.88rem", fontWeight: "700", color: "#111111" }}>🔵 Ring Gap (Spacing)</label>
+                  <span style={{ fontSize: "0.85rem", fontWeight: "800", backgroundColor: "#6366F1", color: "#FFFFFF", padding: "0.25rem 0.6rem", borderRadius: "100px" }}>{heroCircleRingGap}px</span>
+                </div>
+                <p style={{ fontSize: "0.78rem", color: "#666666", margin: "0 0 0.85rem 0" }}>Gap between each concentric ring (30 = dense, 200 = very spread out).</p>
+                <input
+                  type="range"
+                  min="30"
+                  max="200"
+                  step="1"
+                  value={heroCircleRingGap}
+                  onChange={(e) => setHeroCircleRingGap(parseFloat(e.target.value))}
+                  style={{ width: "100%", accentColor: "#6366F1", cursor: "pointer" }}
                 />
               </div>
             </div>

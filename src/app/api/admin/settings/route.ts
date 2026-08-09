@@ -96,6 +96,8 @@ export async function PUT(req: Request) {
       heroSelectedPosterIdsDesktop: Array.isArray(body.heroSelectedPosterIdsDesktop) ? body.heroSelectedPosterIdsDesktop : [],
       heroSpeedMobile: body.heroSpeedMobile !== undefined ? parseFloat(body.heroSpeedMobile) : 4.0,
       heroSpeedDesktop: body.heroSpeedDesktop !== undefined ? parseFloat(body.heroSpeedDesktop) : 2.7,
+      heroCircleInnerRadius: body.heroCircleInnerRadius !== undefined ? parseFloat(body.heroCircleInnerRadius) : 25.0,
+      heroCircleRingGap: body.heroCircleRingGap !== undefined ? parseFloat(body.heroCircleRingGap) : 95.0,
     };
 
     if (settings) {

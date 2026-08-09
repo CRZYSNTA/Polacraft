@@ -649,6 +649,9 @@ model SiteSettings {
   // Per-view poster selections (override heroSelectedPosterIds when non-empty)
   heroSelectedPosterIdsMobile  String[] @default([])
   heroSelectedPosterIdsDesktop String[] @default([])
+  // Mobile Image Group Circle geometry
+  heroCircleInnerRadius        Float    @default(25.0)
+  heroCircleRingGap            Float    @default(95.0)
 
   updatedAt                DateTime @updatedAt
 

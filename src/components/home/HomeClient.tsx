@@ -39,6 +39,8 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
         heroSelectedPosterIdsDesktop={activeSettings?.heroSelectedPosterIdsDesktop}
         heroSpeedMobile={activeSettings?.heroSpeedMobile ?? 4.0}
         heroSpeedDesktop={activeSettings?.heroSpeedDesktop ?? 2.7}
+        heroCircleInnerRadius={activeSettings?.heroCircleInnerRadius ?? 25}
+        heroCircleRingGap={activeSettings?.heroCircleRingGap ?? 95}
         isLoading={false}
       />
 

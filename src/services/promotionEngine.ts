@@ -13,6 +13,8 @@ export interface StorePromotionSettings {
   heroSelectedPosterIdsDesktop?: string[];
   heroSpeedMobile?: number;
   heroSpeedDesktop?: number;
+  heroCircleInnerRadius?: number;
+  heroCircleRingGap?: number;
 }
 
 export const DEFAULT_STORE_SETTINGS: StorePromotionSettings = {
@@ -29,7 +31,9 @@ export const DEFAULT_STORE_SETTINGS: StorePromotionSettings = {
   heroSelectedPosterIdsMobile: [],
   heroSelectedPosterIdsDesktop: [],
   heroSpeedMobile: 4.0,
-  heroSpeedDesktop: 2.7
+  heroSpeedDesktop: 2.7,
+  heroCircleInnerRadius: 25.0,
+  heroCircleRingGap: 95.0
 };
 
 export interface RewardTierStatus {

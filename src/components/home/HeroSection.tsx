@@ -19,6 +19,9 @@ interface HeroSectionProps {
   heroSelectedPosterIdsDesktop?: string[];
   heroSpeedMobile?: number;
   heroSpeedDesktop?: number;
+  // Mobile Image Group Circle geometry
+  heroCircleInnerRadius?: number;
+  heroCircleRingGap?: number;
   isLoading: boolean;
 }
 
@@ -31,6 +34,8 @@ export default function HeroSection({
   heroSelectedPosterIdsDesktop = [],
   heroSpeedMobile = 4.0,
   heroSpeedDesktop = 2.7,
+  heroCircleInnerRadius = 25,
+  heroCircleRingGap = 95,
   isLoading,
 }: HeroSectionProps) {
   const shouldReduceMotion = useReducedMotion();
@@ -150,8 +155,8 @@ export default function HeroSection({
             images={mobileCircleImages}
             count={56}
             rings={4}
-            innerRadius={25}
-            ringGap={95}
+            innerRadius={heroCircleInnerRadius}
+            ringGap={heroCircleRingGap}
             cardWidth={78}
             cardHeight={102}
             speed={heroSpeedMobile}
