@@ -582,7 +582,7 @@ export default function AdminProductsPage() {
                     }}
                   >
                     {imgUrl ? (
-                      <img src={imgUrl} alt={p.title} style={{ width: "38px", height: "50px", objectFit: "cover", borderRadius: "6px" }} />
+                      <Image src={imgUrl} alt={p.title} width={38} height={50} unoptimized style={{ objectFit: "cover", borderRadius: "6px" }} />
                     ) : (
                       <div style={{ width: "38px", height: "50px", backgroundColor: "#CBD5E1", borderRadius: "6px" }} />
                     )}
@@ -1285,7 +1285,7 @@ export default function AdminProductsPage() {
             {/* Existing Poster Info Card */}
             <div style={{ backgroundColor: "#FEF3C7", border: "1px solid #FDE68A", borderRadius: "14px", padding: "1rem", marginBottom: "1.5rem", display: "flex", gap: "1rem", alignItems: "center" }}>
               {duplicateFoundMatch.heroImage ? (
-                <img src={duplicateFoundMatch.heroImage} alt="Existing Poster" style={{ width: "54px", height: "70px", objectFit: "cover", borderRadius: "8px" }} />
+                <Image src={duplicateFoundMatch.heroImage} alt="Existing Poster" width={54} height={70} unoptimized style={{ objectFit: "cover", borderRadius: "8px" }} />
               ) : (
                 <div style={{ width: "54px", height: "70px", backgroundColor: "#CBD5E1", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <ImageIcon size={20} style={{ color: "#64748B" }} />
