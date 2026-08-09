@@ -25,7 +25,7 @@ export default async function AdminLayout({
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#FAFAF8" }}>
-      {/* Shared Persistent Sidebar */}
+      {/* Shared Persistent Sidebar (Desktop) / Bottom Grid Nav (Mobile) */}
       <Sidebar />
 
       {/* Main Content Area with Topbar */}
@@ -40,10 +40,27 @@ export default async function AdminLayout({
         />
 
         {/* Dynamic Admin View */}
-        <main style={{ flexGrow: 1, padding: "2.5rem 3rem", overflowY: "auto" }}>
+        <main className="admin-main-content" style={{ flexGrow: 1, padding: "2.5rem 3rem", overflowY: "auto" }}>
           {children}
         </main>
       </div>
+
+      <style>{`
+        /* Responsive main content padding & bottom clearance for mobile grid nav */
+        @media (max-width: 1024px) {
+          .admin-main-content {
+            padding: 1.5rem 1.25rem !important;
+            /* Reserve space for sticky bottom nav (~70px) */
+            padding-bottom: 82px !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .admin-main-content {
+            padding: 1rem 0.85rem !important;
+            padding-bottom: 82px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -17,8 +17,7 @@ import {
   Settings,
   ShieldCheck,
   ArrowLeft,
-  Menu,
-  X,
+  LogOut,
 } from "lucide-react";
 
 export const NAV_ITEMS = [
@@ -26,7 +25,7 @@ export const NAV_ITEMS = [
   { path: "/admin/products", label: "Products", icon: Package },
   { path: "/admin/collections", label: "Collections", icon: FolderKanban },
   { path: "/admin/orders", label: "Orders", icon: ShoppingBag },
-  { path: "/admin/expenses", label: "Expense Manager", icon: DollarSign },
+  { path: "/admin/expenses", label: "Expenses", icon: DollarSign },
   { path: "/admin/customers", label: "Customers", icon: Users },
   { path: "/admin/reviews", label: "Reviews", icon: Star },
   { path: "/admin/blog", label: "Blog", icon: BookOpen },
@@ -36,7 +35,6 @@ export const NAV_ITEMS = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   const sidebarContent = (
     <div
@@ -78,21 +76,6 @@ export default function Sidebar() {
             </span>
           </div>
         </div>
-
-        {/* Mobile close button */}
-        <button
-          onClick={() => setMobileOpen(false)}
-          className="admin-mobile-close"
-          style={{
-            background: "none",
-            border: "none",
-            color: "#FFF",
-            cursor: "pointer",
-            display: "none",
-          }}
-        >
-          <X size={20} />
-        </button>
       </div>
 
       {/* Navigation Menu */}
@@ -108,7 +91,6 @@ export default function Sidebar() {
             <Link
               key={item.path}
               href={item.path}
-              onClick={() => setMobileOpen(false)}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -175,33 +157,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Toggle Bar */}
-      <div
-        className="admin-mobile-toggle"
-        style={{
-          display: "none",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "60px",
-          backgroundColor: "#1E1E1E",
-          color: "#FFFFFF",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 1.25rem",
-          zIndex: 50,
-        }}
-      >
-        <span style={{ fontWeight: 800, fontSize: "1rem" }}>POLACRAFT ADMIN</span>
-        <button
-          onClick={() => setMobileOpen(true)}
-          style={{ background: "none", border: "none", color: "#FFF", cursor: "pointer" }}
-        >
-          <Menu size={24} />
-        </button>
-      </div>
-
       {/* Desktop Permanent Sidebar */}
       <aside
         className="admin-desktop-sidebar"
@@ -222,47 +177,110 @@ export default function Sidebar() {
         {sidebarContent}
       </aside>
 
-      {/* Mobile Backdrop & Drawer */}
-      {mobileOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.7)",
-            backdropFilter: "blur(4px)",
-            zIndex: 999,
-            display: "flex",
-          }}
-          onClick={() => setMobileOpen(false)}
-        >
-          <div
-            style={{
-              width: "280px",
-              backgroundColor: "#1E1E1E",
-              height: "100%",
-              padding: "2rem 1.5rem",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {sidebarContent}
-          </div>
+      {/* ===== MOBILE BOTTOM GRID NAV ===== */}
+      <nav className="admin-mobile-bottom-nav">
+        {/* First row: 5 items */}
+        <div className="admin-mobile-nav-grid">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive =
+              item.path === "/admin"
+                ? pathname === "/admin"
+                : pathname.startsWith(item.path);
+            return (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={`admin-mobile-nav-item${isActive ? " active" : ""}`}
+              >
+                <Icon size={20} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
-      )}
+      </nav>
 
       <style>{`
+        /* ---- Desktop sidebar nav link hover ---- */
         .admin-nav-link:hover {
           color: #FFFFFF !important;
           background-color: rgba(255, 255, 255, 0.08) !important;
         }
+
+        /* ---- Hide desktop sidebar on mobile ---- */
         @media (max-width: 1024px) {
           .admin-desktop-sidebar {
             display: none !important;
           }
-          .admin-mobile-toggle {
-            display: flex !important;
+        }
+
+        /* ---- Mobile bottom grid nav: hidden on desktop ---- */
+        .admin-mobile-bottom-nav {
+          display: none;
+        }
+
+        @media (max-width: 1024px) {
+          .admin-mobile-bottom-nav {
+            display: block;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1A1A1A;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            z-index: 100;
+            padding: 6px 4px env(safe-area-inset-bottom, 6px);
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.25);
           }
-          .admin-mobile-close {
-            display: block !important;
+
+          .admin-mobile-nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+          }
+
+          .admin-mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 6px 2px;
+            border-radius: 10px;
+            color: rgba(250,250,248,0.45);
+            text-decoration: none;
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: all 0.15s ease;
+            min-height: 52px;
+          }
+
+          .admin-mobile-nav-item span {
+            font-size: 0.58rem;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+          }
+
+          .admin-mobile-nav-item.active {
+            color: #10B981;
+            background: rgba(16, 185, 129, 0.12);
+          }
+
+          .admin-mobile-nav-item:not(.active):hover {
+            color: rgba(250,250,248,0.8);
+            background: rgba(255,255,255,0.06);
+          }
+        }
+
+        @media (max-width: 480px) {
+          .admin-mobile-nav-item span {
+            font-size: 0.55rem;
           }
         }
       `}</style>
