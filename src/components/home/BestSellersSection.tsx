@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { Eye, Heart, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Heart, ShoppingBag } from "lucide-react";
 import PosterRenderer from "../PosterRenderer";
 import { Product } from "@/types";
 
@@ -26,11 +26,47 @@ export default function BestSellersSection({
   const router = useRouter();
   const carouselRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
+  const [activeSlide, setActiveSlide] = useState(1);
+
+  const scroll = (direction: "left" | "right") => {
+    if (carouselRef.current) {
+      const cardWidth = carouselRef.current.firstElementChild?.clientWidth || 200;
+      const scrollAmount = cardWidth + 12;
+      carouselRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth"
+      });
+      setActiveSlide((prev) => {
+        if (direction === "left") return Math.max(1, prev - 1);
+        return Math.min(bestSellers.length, prev + 1);
+      });
+    }
+  };
 
   return (
-    <section id="best-sellers" className="bestsellers-section" style={{ padding: "5rem 0", backgroundColor: "#FAFAFA", position: "relative" }}>
+    <section id="best-sellers" className="bestsellers-section" style={{ padding: "4rem 0 5rem 0", backgroundColor: "#FFFFFF", position: "relative" }}>
       <div className="container">
-        {/* Section Header */}
+        
+        {/* TOP CAROUSEL CONTROLLER COUNTER (< 1/8 >) */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", fontSize: "0.85rem", color: "#666666", fontWeight: "600" }}>
+          <button 
+            onClick={() => scroll("left")}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
+            aria-label="Previous"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <span>{activeSlide}/{bestSellers.length || 8}</span>
+          <button 
+            onClick={() => scroll("right")}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
+            aria-label="Next"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+
+        {/* SECTION HEADER (BEST SELLING WITH DIAGONAL RED TAPE ACCENTS) */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -39,169 +75,233 @@ export default function BestSellersSection({
           style={{ textAlign: "center", marginBottom: "2.5rem" }}
         >
           <div style={{ display: "inline-block", position: "relative" }}>
-            <span style={{ position: "absolute", top: "-5px", left: "15px", width: "28px", height: "8px", backgroundColor: "#FF6B6B", opacity: 0.85, transform: "rotate(-15deg)" }} />
-            <span style={{ position: "absolute", top: "-5px", right: "25px", width: "28px", height: "8px", backgroundColor: "#FF6B6B", opacity: 0.85, transform: "rotate(12deg)" }} />
-            <h2 style={{ fontSize: "clamp(1.75rem, 4.5vw, 2.75rem)", fontWeight: "900", color: "#111111", letterSpacing: "0.04em", margin: 0, textTransform: "uppercase" }}>
+            <span style={{ position: "absolute", top: "-4px", left: "12px", width: "26px", height: "7px", backgroundColor: "#FF5533", opacity: 0.9, transform: "rotate(-18deg)", borderRadius: "1px" }} />
+            <span style={{ position: "absolute", top: "-4px", right: "20px", width: "26px", height: "7px", backgroundColor: "#FF5533", opacity: 0.9, transform: "rotate(14deg)", borderRadius: "1px" }} />
+            <h2 style={{ fontSize: "clamp(2.2rem, 6vw, 3.2rem)", fontWeight: "900", color: "#111111", letterSpacing: "0.06em", margin: 0, textTransform: "uppercase", fontFamily: "sans-serif" }}>
               BEST SELLING
             </h2>
           </div>
-          <p style={{ fontSize: "0.72rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#666666", fontWeight: "700", marginTop: "0.4rem" }}>
-            FAN FAVORITES: THE POSTERS EVERYONE'S TALKING ABOUT!
+          <p style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#666666", fontWeight: "700", marginTop: "0.5rem" }}>
+            FAN FAVORITES : THE POSTERS EVERYONE'S TALKING ABOUT!
           </p>
         </motion.div>
 
-        {/* Carousel Viewport */}
-        <div ref={carouselRef} className="bestsellers-carousel">
+        {/* CAROUSEL VIEWPORT (MATCHING POSTERIZED.IN EXACT MOBILE CARD RATIO & PEEK) */}
+        <div ref={carouselRef} className="posterized-carousel-viewport">
           {bestSellers.map((poster, index) => {
             const isWish = wishlist.includes(poster.id);
+            const originalPrice = Math.round(poster.price * 1.25);
+
             return (
-              <motion.div
-                key={poster.id}
-                initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.08 }}
-                className="bestseller-item"
-              >
-                <motion.div
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  transition={{ duration: 0.25 }}
-                  className="best-seller-art-wrapper"
-                  style={{
-                    position: "relative",
-                    borderRadius: "16px",
-                    overflow: "hidden",
-                    backgroundColor: "#EFECE6",
-                    border: "1px solid rgba(17, 17, 17, 0.08)",
-                    cursor: "pointer"
-                  }}
-                >
+              <div key={poster.id} className="posterized-card-item">
+                <div className="posterized-image-container">
                   <Link href={`/product/${poster.slug}`} prefetch={true} style={{ display: "block", textDecoration: "none" }}>
-                    <motion.div
-                      whileHover={{ scale: 1.04 }}
-                      transition={{ duration: 0.35 }}
-                    >
+                    <div style={{ transform: "scale(1.02)", transition: "transform 0.3s ease" }}>
                       <PosterRenderer poster={poster} frame="unframed" />
-                    </motion.div>
+                    </div>
                   </Link>
 
-                  {/* Quick Actions overlay */}
-                  <div className="quick-actions-overlay">
-                    <button
-                      onClick={() => openQuickView(poster)}
-                      className="quick-action-btn"
-                      title="Quick View"
-                    >
+                  {/* BLACK SALE BADGE (BOTTOM-LEFT OF IMAGE LIKE POSTERIZED.IN) */}
+                  <span className="posterized-sale-badge">
+                    Sale
+                  </span>
+
+                  {/* QUICK HOVER BUTTONS */}
+                  <div className="quick-hover-actions">
+                    <button onClick={() => openQuickView(poster)} title="Quick View">
                       <Eye size={14} />
                     </button>
-                    <button
-                      onClick={() => addToCart(poster, "A4", "unframed", 1)}
-                      className="quick-action-btn dark-btn"
-                      title="Add to Cart"
-                    >
+                    <button onClick={() => addToCart(poster, "A4", "unframed", 1)} title="Add to Cart">
                       <ShoppingBag size={14} />
                     </button>
-                    <button
-                      onClick={() => toggleWishlist(poster.id)}
-                      className={`quick-action-btn ${isWish ? "wish-active" : ""}`}
-                      title="Add to Wishlist"
-                    >
-                      <Heart size={14} fill={isWish ? "red" : "none"} />
+                    <button onClick={() => toggleWishlist(poster.id)} title="Wishlist">
+                      <Heart size={14} fill={isWish ? "red" : "none"} color={isWish ? "red" : "#111"} />
                     </button>
                   </div>
-                </motion.div>
-
-                {/* Metadata Title & Price */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 0.2rem", marginTop: "0.5rem" }}>
-                  <div style={{ minWidth: 0, flexGrow: 1, paddingRight: "0.4rem" }}>
-                    <h4 style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {poster.title}
-                    </h4>
-                    <p style={{ fontSize: "0.72rem", color: "#666666", margin: "2px 0 0 0" }}>{poster.collection}</p>
-                  </div>
-                  <span style={{ fontSize: "0.9rem", fontWeight: "800", color: "#111111", flexShrink: 0 }}>
-                    ₹{poster.price.toLocaleString("en-IN")}
-                  </span>
                 </div>
-              </motion.div>
+
+                {/* PRODUCT TITLE (CENTERED BELOW IMAGE) */}
+                <h4 className="posterized-card-title">
+                  <Link href={`/product/${poster.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    {poster.title}
+                  </Link>
+                </h4>
+
+                {/* ORIGINAL & SALE PRICE (CENTERED LIKE POSTERIZED.IN) */}
+                <div className="posterized-card-price">
+                  <span className="original-price">Rs. {originalPrice}.00</span>
+                  <span className="sale-price">From Rs. {poster.price}.00</span>
+                </div>
+              </div>
             );
           })}
         </div>
+
+        {/* BOTTOM PAGINATION COUNTER & VIEW ALL BUTTON */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem", marginTop: "2.5rem" }}>
+          
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", fontSize: "0.82rem", color: "#666666", fontWeight: "600" }}>
+            <button 
+              onClick={() => scroll("left")}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
+              aria-label="Previous"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span>{activeSlide}/24</span>
+            <button 
+              onClick={() => scroll("right")}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
+              aria-label="Next"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+
+          <Link href="/shop" style={{ textDecoration: "none" }}>
+            <button style={{
+              backgroundColor: "#111111",
+              color: "#FFFFFF",
+              fontSize: "0.92rem",
+              fontWeight: "700",
+              padding: "0.85rem 2.5rem",
+              borderRadius: "14px",
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+              transition: "transform 0.2s ease"
+            }}>
+              View all
+            </button>
+          </Link>
+
+        </div>
+
       </div>
 
       <style jsx>{`
-        .bestsellers-carousel {
+        .posterized-carousel-viewport {
           display: flex;
-          gap: 1.5rem;
+          gap: 1.25rem;
           overflow-x: auto;
           scroll-snap-type: x mandatory;
-          padding-bottom: 1.5rem;
+          padding: 0.5rem 0 1.5rem 0;
           scrollbar-width: none;
         }
-        .bestsellers-carousel::-webkit-scrollbar {
+        .posterized-carousel-viewport::-webkit-scrollbar {
           display: none;
         }
-        .bestseller-item {
-          flex: 0 0 250px;
+        .posterized-card-item {
+          flex: 0 0 280px;
           scroll-snap-align: start;
           display: flex;
           flex-direction: column;
         }
-        .best-seller-art-wrapper {
-          padding: 1.25rem 0.85rem;
+        .posterized-image-container {
+          position: relative;
+          background-color: #EFECE6;
+          border-radius: 12px;
+          overflow: hidden;
+          padding: 1.5rem 1rem;
+          border: 1px solid rgba(17,17,17,0.06);
         }
-        .quick-actions-overlay {
+        .posterized-sale-badge {
           position: absolute;
-          bottom: 0.85rem;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          gap: 0.4rem;
-          z-index: 10;
+          bottom: 12px;
+          left: 12px;
+          background-color: #111111;
+          color: #FFFFFF;
+          font-size: 0.72rem;
+          font-weight: 700;
+          padding: 0.3rem 0.75rem;
+          border-radius: 100px;
+          z-index: 5;
         }
-        .quick-action-btn {
-          background-color: #FAFAF8;
-          color: #111111;
-          width: 34px;
-          height: 34px;
-          border-radius: 50%;
+        .quick-hover-actions {
+          position: absolute;
+          bottom: 12px;
+          right: 12px;
+          display: flex;
+          gap: 0.35rem;
+          z-index: 5;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        }
+        .posterized-image-container:hover .quick-hover-actions {
+          opacity: 1;
+        }
+        .quick-hover-actions button {
+          background: #FFFFFF;
           border: none;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        .quick-action-btn.dark-btn {
-          background-color: #111111;
-          color: #FAFAF8;
+        .posterized-card-title {
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: #111111;
+          text-align: center;
+          margin: 0.85rem 0 0.35rem 0;
+          line-height: 1.35;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
-        .quick-action-btn.wish-active {
-          background-color: #FFF5F5;
-          color: red;
+        .posterized-card-price {
+          text-align: center;
+          font-size: 0.85rem;
+        }
+        .original-price {
+          text-decoration: line-through;
+          color: #888888;
+          font-size: 0.78rem;
+          margin-right: 0.5rem;
+        }
+        .sale-price {
+          color: #111111;
+          font-weight: 700;
         }
 
+        /* MOBILE VIEW (MATCHING POSTERIZED.IN SCREENSHOT: 2 FULL CARDS + 3RD PEEKING) */
         @media (max-width: 640px) {
-          .bestsellers-section {
-            padding: 3rem 0 !important;
+          .posterized-carousel-viewport {
+            gap: 0.75rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
           }
-          .bestsellers-carousel {
-            gap: 0.6rem !important;
-            padding: 0 0.5rem 1rem 0.5rem !important;
+          .posterized-card-item {
+            flex: 0 0 45vw !important;
+            min-width: 150px !important;
+            max-width: 180px !important;
           }
-          .bestseller-item {
-            flex: 0 0 calc(50% - 0.3rem) !important;
-            width: calc(50% - 0.3rem) !important;
-            min-width: 140px !important;
-            max-width: 190px !important;
+          .posterized-image-container {
+            padding: 0.75rem 0.5rem !important;
+            border-radius: 8px !important;
           }
-          .best-seller-art-wrapper {
-            padding: 0.6rem 0.4rem !important;
-            border-radius: 12px !important;
+          .posterized-sale-badge {
+            bottom: 8px !important;
+            left: 8px !important;
+            font-size: 0.65rem !important;
+            padding: 0.2rem 0.5rem !important;
           }
-          .quick-action-btn {
-            width: 28px !important;
-            height: 28px !important;
+          .posterized-card-title {
+            font-size: 0.78rem !important;
+            margin-top: 0.6rem !important;
+          }
+          .original-price {
+            display: block !important;
+            margin-right: 0 !important;
+            font-size: 0.72rem !important;
+          }
+          .sale-price {
+            font-size: 0.8rem !important;
           }
         }
       `}</style>
