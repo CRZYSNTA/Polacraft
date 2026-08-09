@@ -257,15 +257,8 @@ export default function CustomPrintStudio() {
           </div>
         </div>
 
-        {/* 2. 6-CARD SELECTION GRID (MATCHING POSTERIZED.IN) */}
-        <div 
-          style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", 
-            gap: "2rem", 
-            marginBottom: "5rem" 
-          }}
-        >
+        {/* 2. 6-CARD SELECTION GRID (2-COLUMN GRID ON MOBILE / 6-COLUMN ON DESKTOP) */}
+        <div className="custom-selection-grid" style={{ marginBottom: "4rem" }}>
           {[
             { id: "single", title: "Custom Single Poster", image: "/assets/custom_grid_poster.png" },
             { id: "split-3", title: "Custom 3-Panel Split Poster", image: "/assets/custom_grid_split_3.png" },
@@ -279,7 +272,7 @@ export default function CustomPrintStudio() {
               onClick={() => openStudio(card.id as any)}
               style={{ 
                 backgroundColor: "#FAFAF8", 
-                borderRadius: "20px", 
+                borderRadius: "16px", 
                 border: activeLayout === card.id && isStudioOpen ? "2px solid #111111" : "1px solid rgba(17,17,17,0.08)", 
                 overflow: "hidden", 
                 boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
@@ -288,13 +281,13 @@ export default function CustomPrintStudio() {
                 aspectRatio: "3 / 4",
                 transition: "transform 0.25s ease, border-color 0.25s ease"
               }}
-              className="hover-card"
+              className="hover-card custom-option-card"
             >
               <Image 
                 src={card.image} 
                 alt={card.title} 
                 fill 
-                sizes="(max-width: 768px) 100vw, 400px"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
                 style={{ objectFit: "cover" }} 
               />
             </div>
@@ -302,22 +295,22 @@ export default function CustomPrintStudio() {
         </div>
 
         {/* 3. INTERACTIVE CUSTOM STUDIO SECTION */}
-        <div ref={studioRef} style={{ paddingTop: "2rem" }}>
+        <div ref={studioRef} style={{ paddingTop: "1rem" }}>
           
-          <div style={{ backgroundColor: "#FAFAF8", borderRadius: "28px", padding: "3rem 2.5rem", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 15px 40px rgba(0,0,0,0.03)" }}>
+          <div style={{ backgroundColor: "#FAFAF8", borderRadius: "28px", padding: "2.5rem 2rem", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 15px 40px rgba(0,0,0,0.03)" }} className="custom-studio-box">
             
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem", flexWrap: "wrap", gap: "1rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
               <div>
-                <span style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "#666", fontWeight: "700" }}>
+                <span style={{ fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "#666", fontWeight: "700" }}>
                   Polacraft Archival Studio
                 </span>
-                <h2 style={{ fontSize: "1.85rem", fontWeight: "900", color: "#111111", margin: "0.25rem 0 0 0" }}>
+                <h2 style={{ fontSize: "1.65rem", fontWeight: "900", color: "#111111", margin: "0.2rem 0 0 0" }}>
                   Customizing: {layoutLabel}
                 </h2>
               </div>
 
               {/* Layout Switcher Tabs */}
-              <div style={{ display: "flex", backgroundColor: "#EFECE6", borderRadius: "100px", padding: "4px", flexWrap: "wrap", gap: "2px" }}>
+              <div className="layout-switcher-tabs" style={{ display: "flex", backgroundColor: "#EFECE6", borderRadius: "100px", padding: "4px", flexWrap: "wrap", gap: "2px" }}>
                 {[
                   { id: "single", label: "Single Poster" },
                   { id: "split-3", label: "3-Panel Split" },
@@ -330,13 +323,13 @@ export default function CustomPrintStudio() {
                     key={tab.id}
                     onClick={() => setActiveLayout(tab.id as any)}
                     style={{
-                      padding: "0.55rem 1.1rem",
+                      padding: "0.5rem 0.95rem",
                       borderRadius: "100px",
                       border: "none",
                       backgroundColor: activeLayout === tab.id ? "#111111" : "transparent",
                       color: activeLayout === tab.id ? "#FFFFFF" : "#555555",
                       fontWeight: "700",
-                      fontSize: "0.82rem",
+                      fontSize: "0.8rem",
                       cursor: "pointer",
                       transition: "all 0.2s ease"
                     }}
@@ -781,11 +774,44 @@ export default function CustomPrintStudio() {
 
       </div>
 
-      <style>{`
-        @media (max-width: 900px) {
+      <style jsx>{`
+        .custom-selection-grid {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 1.25rem;
+        }
+
+        @media (max-width: 1024px) {
+          .custom-selection-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 1rem !important;
+          }
           .customizer-studio-grid {
             grid-template-columns: 1fr !important;
-            gap: 3rem !important;
+            gap: 2.5rem !important;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .custom-selection-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.75rem !important;
+          }
+          .custom-studio-box {
+            padding: 1.5rem 1rem !important;
+            border-radius: 20px !important;
+          }
+          .layout-switcher-tabs {
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 4px !important;
+            border-radius: 16px !important;
+          }
+          .layout-switcher-tabs button {
+            width: 100% !important;
+            font-size: 0.75rem !important;
+            padding: 0.5rem 0.4rem !important;
           }
         }
       `}</style>
