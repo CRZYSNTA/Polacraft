@@ -82,6 +82,33 @@ export default function HeroSection({
         overflow: "hidden",
       }}
     >
+      <style jsx>{`
+        @media (max-width: 767px) {
+          .hero-mobile-blended-banner {
+            background-color: transparent !important;
+            background-image: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.5) 45%, rgba(255, 255, 255, 0) 80%) !important;
+            backdrop-filter: blur(2px) !important;
+            -webkit-backdrop-filter: blur(2px) !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 40px !important;
+            padding: 2.25rem 1rem !important;
+          }
+          .hero-mobile-badge {
+            background-color: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(6px) !important;
+            -webkit-backdrop-filter: blur(6px) !important;
+            border: 1px solid rgba(17, 17, 17, 0.1) !important;
+          }
+          .hero-mobile-secondary-btn {
+            background-color: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(6px) !important;
+            -webkit-backdrop-filter: blur(6px) !important;
+            border: 1.5px solid rgba(17, 17, 17, 0.18) !important;
+          }
+        }
+      `}</style>
+
       {/* MOBILE EXCLUSIVE FULL-BACKGROUND ROTATING CIRCULAR CANVASES */}
       {isMobile && (
         <div 
@@ -110,7 +137,7 @@ export default function HeroSection({
         </div>
       )}
 
-      {/* HERO CONTENT CARD (SEAMLESSLY BLENDED SOFT RADIAL GLOW BANNER ON MOBILE) */}
+      {/* HERO CONTENT CARD (SEAMLESSLY BLENDED VIGNETTED RADIAL GLOW BANNER ON MOBILE) */}
       <div 
         className="container" 
         style={{ 
@@ -119,39 +146,31 @@ export default function HeroSection({
           justifyContent: "center", 
           position: "relative", 
           zIndex: 10,
-          padding: isMobile ? "0 1rem" : "0 2rem"
+          padding: isMobile ? "0 0.75rem" : "0 2rem"
         }}
       >
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           animate={isLoading ? {} : { opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
+          className="hero-mobile-blended-banner"
           style={{ 
             textAlign: "center", 
             maxWidth: "800px", 
             display: "flex", 
             flexDirection: "column", 
             alignItems: "center",
-            backgroundColor: isMobile ? "transparent" : "transparent",
-            backgroundImage: isMobile ? "radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.45) 55%, rgba(255, 255, 255, 0) 82%)" : "none",
-            backdropFilter: isMobile ? "blur(3px)" : "none",
-            WebkitBackdropFilter: isMobile ? "blur(3px)" : "none",
-            padding: isMobile ? "2.25rem 1.25rem" : "0",
-            borderRadius: isMobile ? "36px" : "0",
-            border: isMobile ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
-            boxShadow: "none",
             pointerEvents: "auto"
           }}
         >
           {/* BADGE */}
           <div
+            className="hero-mobile-badge"
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              backgroundColor: isMobile ? "rgba(255, 255, 255, 0.65)" : "#FFFFFF",
-              backdropFilter: isMobile ? "blur(4px)" : "none",
-              WebkitBackdropFilter: isMobile ? "blur(4px)" : "none",
+              backgroundColor: "#FFFFFF",
               border: "1px solid rgba(17,17,17,0.12)",
               boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
               padding: "0.4rem 1rem",
@@ -220,10 +239,9 @@ export default function HeroSection({
             </Link>
             <Link href="/custom" style={{ textDecoration: "none" }}>
               <button
+                className="hero-mobile-secondary-btn"
                 style={{
-                  backgroundColor: isMobile ? "rgba(255, 255, 255, 0.75)" : "#FFFFFF",
-                  backdropFilter: isMobile ? "blur(4px)" : "none",
-                  WebkitBackdropFilter: isMobile ? "blur(4px)" : "none",
+                  backgroundColor: "#FFFFFF",
                   color: "#111111",
                   padding: "0.9rem 2rem",
                   borderRadius: "100px",
