@@ -252,7 +252,7 @@ export default function HeroSection({
             imageWidth={210}
             imageHeight={290}
             spacing={4}
-            speed={4.5}
+            speed={2.7}
             direction="right"
             drag={true}
             sensitivity={4}
