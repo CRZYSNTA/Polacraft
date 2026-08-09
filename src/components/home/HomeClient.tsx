@@ -35,6 +35,9 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
         heroSubtitle={activeSettings?.heroSubtitle || siteSettings?.heroSubtitle || "Museum-Quality Malayalam Cinema Posters Crafted For Collectors."}
         heroFanCards={heroFanCards}
         allPosters={initialPosters}
+        heroSelectedPosterIds={activeSettings?.heroSelectedPosterIds}
+        heroSpeedMobile={activeSettings?.heroSpeedMobile ?? 4.0}
+        heroSpeedDesktop={activeSettings?.heroSpeedDesktop ?? 2.7}
         isLoading={false}
       />
 

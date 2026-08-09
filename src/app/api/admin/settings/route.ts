@@ -89,6 +89,11 @@ export async function PUT(req: Request) {
       customFrameAddonA5: body.customFrameAddonA5 !== undefined ? parseFloat(body.customFrameAddonA5) : 155.0,
       customFrameAddonA4: body.customFrameAddonA4 !== undefined ? parseFloat(body.customFrameAddonA4) : 180.0,
       customFrameAddonA3: body.customFrameAddonA3 !== undefined ? parseFloat(body.customFrameAddonA3) : 200.0,
+
+      // Originkit Hero Carousel Controls
+      heroSelectedPosterIds: Array.isArray(body.heroSelectedPosterIds) ? body.heroSelectedPosterIds : [],
+      heroSpeedMobile: body.heroSpeedMobile !== undefined ? parseFloat(body.heroSpeedMobile) : 4.0,
+      heroSpeedDesktop: body.heroSpeedDesktop !== undefined ? parseFloat(body.heroSpeedDesktop) : 2.7,
     };
 
     if (settings) {

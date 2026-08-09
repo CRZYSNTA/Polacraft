@@ -45,6 +45,12 @@ export default function AdminSettingsPage() {
   const [customFrameAddonA4, setCustomFrameAddonA4] = useState<number>(180);
   const [customFrameAddonA3, setCustomFrameAddonA3] = useState<number>(200);
 
+  // Originkit Hero Section Manual Controls
+  const [heroSelectedPosterIds, setHeroSelectedPosterIds] = useState<string[]>([]);
+  const [heroSpeedMobile, setHeroSpeedMobile] = useState<number>(4.0);
+  const [heroSpeedDesktop, setHeroSpeedDesktop] = useState<number>(2.7);
+  const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+
   // AI Assistant Settings
   const [aiSettings, setAiSettings] = useState({
     aiEnabled: true,
@@ -62,12 +68,21 @@ export default function AdminSettingsPage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
-    async function loadSettings() {
+    async function loadData() {
       try {
         setLoading(true);
-        const res = await fetch("/api/admin/settings");
-        if (res.ok) {
-          const data = await res.json();
+        const [settingsRes, productsRes] = await Promise.all([
+          fetch("/api/admin/settings"),
+          fetch("/api/admin/products")
+        ]);
+
+        if (productsRes.ok) {
+          const prodData = await productsRes.json();
+          setAvailableProducts(prodData.products || []);
+        }
+
+        if (settingsRes.ok) {
+          const data = await settingsRes.json();
           if (data.settings) {
             setShippingFee(data.settings.shippingFee ?? DEFAULT_STORE_SETTINGS.shippingFee);
             setFreeShippingThreshold(data.settings.freeShippingThreshold ?? DEFAULT_STORE_SETTINGS.freeShippingThreshold);
@@ -107,6 +122,11 @@ export default function AdminSettingsPage() {
             setCustomFrameAddonA4(data.settings.customFrameAddonA4 ?? 180);
             setCustomFrameAddonA3(data.settings.customFrameAddonA3 ?? 200);
 
+            // Hero Section Controls
+            setHeroSelectedPosterIds(data.settings.heroSelectedPosterIds || []);
+            setHeroSpeedMobile(data.settings.heroSpeedMobile ?? 4.0);
+            setHeroSpeedDesktop(data.settings.heroSpeedDesktop ?? 2.7);
+
             setAiSettings({
               aiEnabled: data.settings.aiEnabled !== undefined ? Boolean(data.settings.aiEnabled) : true,
               aiProvider: data.settings.aiProvider || "openai",
@@ -125,7 +145,7 @@ export default function AdminSettingsPage() {
         setLoading(false);
       }
     }
-    loadSettings();
+    loadData();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,6 +195,11 @@ export default function AdminSettingsPage() {
           customFrameAddonA4: Number(customFrameAddonA4),
           customFrameAddonA3: Number(customFrameAddonA3),
 
+          // Originkit Hero Controls Payload
+          heroSelectedPosterIds,
+          heroSpeedMobile: Number(heroSpeedMobile),
+          heroSpeedDesktop: Number(heroSpeedDesktop),
+
           ...aiSettings
         })
       });
@@ -198,272 +223,346 @@ export default function AdminSettingsPage() {
       {/* Page Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: "900", color: "#0F172A", margin: 0, display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <Settings size={28} style={{ color: "#D4AF37" }} /> Store Strategy & Pricing Controls
+          <h1 style={{ fontSize: "1.75rem", fontWeight: "900", color: "#111111", margin: 0, display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <Settings style={{ color: "#111111" }} /> Store & System Settings
           </h1>
-          <p style={{ color: "#64748B", fontSize: "0.9rem", marginTop: "0.25rem" }}>
-            Manage custom print prices, shipping rates, reward thresholds, unit costs, and AI controls.
+          <p style={{ fontSize: "0.9rem", color: "#666666", marginTop: "0.25rem" }}>
+            Configure store policies, Originkit hero section, custom print pricing, reward thresholds & AI tools.
           </p>
         </div>
 
-        {savedSuccess && (
-          <div style={{ backgroundColor: "#DCFCE7", border: "1px solid #86EFAC", color: "#166534", padding: "0.6rem 1.2rem", borderRadius: "100px", fontSize: "0.85rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <CheckCircle2 size={16} /> Strategy & Custom Pricing Updated!
-          </div>
-        )}
+        <button
+          onClick={handleSubmit}
+          disabled={saving || loading}
+          style={{
+            backgroundColor: "#111111",
+            color: "#FFFFFF",
+            padding: "0.75rem 1.75rem",
+            borderRadius: "100px",
+            fontSize: "0.9rem",
+            fontWeight: "800",
+            border: "none",
+            cursor: saving || loading ? "not-allowed" : "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.1)"
+          }}
+        >
+          {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+          {saving ? "Saving Changes..." : "Save All Settings"}
+        </button>
       </div>
 
+      {savedSuccess && (
+        <div style={{ backgroundColor: "#ECFDF5", border: "1px solid #10B981", borderRadius: "12px", padding: "1rem 1.25rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.75rem", color: "#065F46", fontWeight: "700" }}>
+          <CheckCircle2 size={20} /> All store settings and custom print pricing controls saved successfully!
+        </div>
+      )}
+
       {loading ? (
-        <div style={{ padding: "4rem", textAlign: "center" }}>
-          <Loader2 size={32} className="animate-spin" style={{ color: "#111111", margin: "0 auto" }} />
-          <p style={{ marginTop: "1rem", color: "#64748B", fontSize: "0.9rem" }}>Loading store configuration...</p>
+        <div style={{ padding: "4rem", textAlign: "center", color: "#666666" }}>
+          <Loader2 size={32} className="animate-spin" style={{ margin: "0 auto 1rem auto" }} />
+          Loading store configurations...
         </div>
       ) : (
-        <form onSubmit={handleSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "2rem" }}>
-          
-          {/* Main Controls Panel */}
-          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "20px", padding: "2rem", border: "1px solid #EFECE6", boxShadow: "0 4px 18px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", gap: "2rem" }}>
-            
-            {/* SECTION 1: CUSTOM PRINT STUDIO PRICING MANAGEMENT */}
-            <div>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: "900", color: "#0F172A", margin: "0 0 0.5rem 0", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <ImageIcon size={22} style={{ color: "#10B981" }} /> Custom Print Studio Price Controls
-              </h3>
-              <p style={{ fontSize: "0.82rem", color: "#64748B", margin: "0 0 1.25rem 0" }}>
-                Set real-time rates for custom uploads on <code>/custom</code>. Base paper prices are multiplied by format multipliers, with frame add-on totals.
-              </p>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
 
-              {/* 1A. BASE PAPER PRICES */}
-              <div style={{ backgroundColor: "#F8FAFC", borderRadius: "14px", padding: "1.25rem", border: "1px solid #E2E8F0", marginBottom: "1.25rem" }}>
-                <h4 style={{ fontSize: "0.85rem", fontWeight: "800", color: "#334155", margin: "0 0 0.75rem 0", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  1. Base Paper Print Prices (Unframed)
-                </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#475569" }}>A5 Base Rate (₹)</label>
-                    <input type="number" step="1" value={customBasePriceA5} onChange={(e) => setCustomBasePriceA5(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#475569" }}>A4 Base Rate (₹)</label>
-                    <input type="number" step="1" value={customBasePriceA4} onChange={(e) => setCustomBasePriceA4(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#475569" }}>A3 Base Rate (₹)</label>
-                    <input type="number" step="1" value={customBasePriceA3} onChange={(e) => setCustomBasePriceA3(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* 1B. FORMAT MULTIPLIERS */}
-              <div style={{ backgroundColor: "#F8FAFC", borderRadius: "14px", padding: "1.25rem", border: "1px solid #E2E8F0", marginBottom: "1.25rem" }}>
-                <h4 style={{ fontSize: "0.85rem", fontWeight: "800", color: "#334155", margin: "0 0 0.75rem 0", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  2. Custom Format Price Multipliers
-                </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#475569" }}>Single Poster Multiplier</label>
-                    <input type="number" step="0.1" value={customMultSingle} onChange={(e) => setCustomMultSingle(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#475569" }}>3-Panel Split Multiplier</label>
-                    <input type="number" step="0.1" value={customMultSplit3} onChange={(e) => setCustomMultSplit3(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#475569" }}>2x2 Grid Multiplier</label>
-                    <input type="number" step="0.1" value={customMultSplit2x2} onChange={(e) => setCustomMultSplit2x2(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#475569" }}>Retro Prints Multiplier</label>
-                    <input type="number" step="0.1" value={customMultRetro} onChange={(e) => setCustomMultRetro(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#475569" }}>Mini Pocket Multiplier</label>
-                    <input type="number" step="0.1" value={customMultPocket} onChange={(e) => setCustomMultPocket(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#475569" }}>Photobooth Multiplier</label>
-                    <input type="number" step="0.1" value={customMultPhotobooth} onChange={(e) => setCustomMultPhotobooth(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* 1C. FRAME ADD-ONS & LIVE CALCULATOR PREVIEW */}
-              <div style={{ backgroundColor: "#FEF3C7", borderRadius: "14px", padding: "1.25rem", border: "1px solid #FDE68A" }}>
-                <h4 style={{ fontSize: "0.85rem", fontWeight: "800", color: "#92400E", margin: "0 0 0.75rem 0", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  3. Framing Option Add-On Rates & Live Preview
-                </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#B45309" }}>A5 Framed Add-On Total (₹)</label>
-                    <input type="number" step="1" value={customFrameAddonA5} onChange={(e) => setCustomFrameAddonA5(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #FCD34D", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#B45309" }}>A4 Framed Add-On Total (₹)</label>
-                    <input type="number" step="1" value={customFrameAddonA4} onChange={(e) => setCustomFrameAddonA4(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #FCD34D", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#B45309" }}>A3 Framed Add-On Total (₹)</label>
-                    <input type="number" step="1" value={customFrameAddonA3} onChange={(e) => setCustomFrameAddonA3(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #FCD34D", fontSize: "0.88rem", fontWeight: "700" }} />
-                  </div>
-                </div>
-
-                {/* Real-time Calculation Sample Table */}
-                <div style={{ backgroundColor: "#FFFFFF", borderRadius: "10px", padding: "0.85rem", fontSize: "0.78rem", color: "#333" }}>
-                  <strong style={{ display: "block", color: "#92400E", marginBottom: "0.4rem" }}>Live Price Calculation Preview for Customers:</strong>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem" }}>
-                    <div>• Single A4 Unframed: <strong>₹{Math.round(customBasePriceA4 * customMultSingle)}</strong></div>
-                    <div>• Single A4 Framed: <strong>₹{Math.round(customFrameAddonA4 * customMultSingle)}</strong></div>
-                    <div>• 3-Panel Split A4 Framed: <strong>₹{Math.round(customFrameAddonA4 * customMultSplit3)}</strong></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* SECTION 2: PROMOTIONS & THRESHOLDS */}
-            <div>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: "900", color: "#0F172A", margin: "0 0 1rem 0", paddingBottom: "0.75rem", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Gift size={22} style={{ color: "#D4AF37" }} /> Free Shipping & Reward Thresholds
-              </h3>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Flat Shipping Fee (₹) *</label>
-                  <input type="number" required value={shippingFee} onChange={(e) => setShippingFee(Number(e.target.value))} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>FREE Shipping Threshold (₹) *</label>
-                  <input type="number" required value={freeShippingThreshold} onChange={(e) => setFreeShippingThreshold(Number(e.target.value))} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Collector Gift Threshold (₹) *</label>
-                  <input type="number" required value={collectorRewardThreshold} onChange={(e) => setCollectorRewardThreshold(Number(e.target.value))} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Premium Pack Threshold (₹) *</label>
-                  <input type="number" required value={premiumRewardThreshold} onChange={(e) => setPremiumRewardThreshold(Number(e.target.value))} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
-                </div>
-              </div>
-            </div>
-
-            {/* SECTION 3: ENTERPRISE EXPENSES */}
-            <div>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: "900", color: "#0F172A", margin: "0 0 1rem 0", paddingBottom: "0.75rem", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <DollarSign size={22} style={{ color: "#10B981" }} /> Unit Costs & COGS Matrix
-              </h3>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem", marginBottom: "1rem" }}>
-                <div>
-                  <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>A5 Paper Cost (₹)</label>
-                  <input type="number" step="0.1" value={costA5} onChange={(e) => setCostA5(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>A4 Paper Cost (₹)</label>
-                  <input type="number" step="0.1" value={costA4} onChange={(e) => setCostA4(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>A3 Paper Cost (₹)</label>
-                  <input type="number" step="0.1" value={costA3} onChange={(e) => setCostA3(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#333" }}>Black Frame Cost (₹)</label>
-                  <input type="number" step="0.1" value={costBlackFrame} onChange={(e) => setCostBlackFrame(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
-                </div>
-              </div>
-            </div>
-
-            {/* SECTION 4: CMS HERO TEXT */}
-            <div>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: "900", color: "#0F172A", margin: "0 0 1rem 0", paddingBottom: "0.75rem", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Layout size={22} style={{ color: "#3B82F6" }} /> CMS Homepage Hero Content
-              </h3>
-
-              <div style={{ marginBottom: "1rem" }}>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Hero Headline Title *</label>
-                <input type="text" required value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Bring Cinema Home." style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
-              </div>
-
+          {/* 🚀 ORIGINKIT HERO CAROUSEL & SPEED CONTROLS */}
+          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "16px", padding: "1.75rem", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem", borderBottom: "1px solid rgba(17,17,17,0.06)", paddingBottom: "1rem" }}>
+              <Sparkles style={{ color: "#D4AF37" }} size={22} />
               <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Hero Subheadline Description *</label>
-                <textarea required value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} rows={2} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E5E7EB", fontSize: "0.9rem" }} />
+                <h2 style={{ fontSize: "1.15rem", fontWeight: "800", color: "#111111", margin: 0 }}>Hero Section Originkit Controls</h2>
+                <p style={{ fontSize: "0.85rem", color: "#666666", margin: "0.2rem 0 0 0" }}>Select specific posters to display and configure separate mobile & desktop carousel rotation speeds.</p>
               </div>
             </div>
 
-            {/* AI ASSISTANT SETTINGS PANEL */}
-            <AISettingsPanel
-              settings={aiSettings}
-              onChange={(field, val) => setAiSettings((prev) => ({ ...prev, [field]: val }))}
-            />
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem", marginBottom: "1.75rem" }}>
+              {/* Mobile Speed Control */}
+              <div style={{ backgroundColor: "#F9F9F7", padding: "1.25rem", borderRadius: "12px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                  <label style={{ fontSize: "0.88rem", fontWeight: "700", color: "#111111" }}>📱 Mobile Rotation Speed</label>
+                  <span style={{ fontSize: "0.85rem", fontWeight: "800", backgroundColor: "#111111", color: "#FFFFFF", padding: "0.25rem 0.6rem", borderRadius: "100px" }}>{heroSpeedMobile}x</span>
+                </div>
+                <p style={{ fontSize: "0.78rem", color: "#666666", margin: "0 0 0.85rem 0" }}>Speed for mobile Image Group circular deck (1.0 = ultra slow, 15.0 = fast).</p>
+                <input 
+                  type="range" 
+                  min="1.0" 
+                  max="15.0" 
+                  step="0.5" 
+                  value={heroSpeedMobile}
+                  onChange={(e) => setHeroSpeedMobile(parseFloat(e.target.value))}
+                  style={{ width: "100%", accentColor: "#111111", cursor: "pointer" }}
+                />
+              </div>
 
-            <button type="submit" disabled={saving} style={{ marginTop: "1rem", padding: "1rem", borderRadius: "14px", border: "none", backgroundColor: "#111111", color: "#FFF", fontWeight: 900, fontSize: "1rem", cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}>
-              {saving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
-              {saving ? "Saving Changes..." : "Save Custom Pricing & Store Configuration"}
+              {/* Desktop Speed Control */}
+              <div style={{ backgroundColor: "#F9F9F7", padding: "1.25rem", borderRadius: "12px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                  <label style={{ fontSize: "0.88rem", fontWeight: "700", color: "#111111" }}>💻 Desktop Rotation Speed</label>
+                  <span style={{ fontSize: "0.85rem", fontWeight: "800", backgroundColor: "#111111", color: "#FFFFFF", padding: "0.25rem 0.6rem", borderRadius: "100px" }}>{heroSpeedDesktop}x</span>
+                </div>
+                <p style={{ fontSize: "0.78rem", color: "#666666", margin: "0 0 0.85rem 0" }}>Speed for desktop 3D Round Carousel ring (0.5 = smooth slow, 10.0 = fast).</p>
+                <input 
+                  type="range" 
+                  min="0.5" 
+                  max="10.0" 
+                  step="0.1" 
+                  value={heroSpeedDesktop}
+                  onChange={(e) => setHeroSpeedDesktop(parseFloat(e.target.value))}
+                  style={{ width: "100%", accentColor: "#111111", cursor: "pointer" }}
+                />
+              </div>
+            </div>
+
+            {/* Poster Picker List */}
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                <label style={{ fontSize: "0.92rem", fontWeight: "800", color: "#111111" }}>🖼 Select Featured Hero Posters ({heroSelectedPosterIds.length} Selected)</label>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button 
+                    type="button" 
+                    onClick={() => setHeroSelectedPosterIds(availableProducts.map(p => p.id))}
+                    style={{ fontSize: "0.78rem", fontWeight: "700", color: "#111111", background: "#EFECE6", border: "none", padding: "0.3rem 0.75rem", borderRadius: "6px", cursor: "pointer" }}
+                  >
+                    Select All
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setHeroSelectedPosterIds([])}
+                    style={{ fontSize: "0.78rem", fontWeight: "700", color: "#D97706", background: "#FEF3C7", border: "none", padding: "0.3rem 0.75rem", borderRadius: "6px", cursor: "pointer" }}
+                  >
+                    Clear Selection
+                  </button>
+                </div>
+              </div>
+              <p style={{ fontSize: "0.8rem", color: "#666666", marginBottom: "1rem" }}>Toggle posters to feature in the Hero Carousel. (If none selected, all store posters are shown automatically).</p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.85rem", maxHeight: "360px", overflowY: "auto", padding: "0.75rem", border: "1px solid rgba(17,17,17,0.08)", borderRadius: "12px", backgroundColor: "#FAF9F6" }}>
+                {availableProducts.map((poster) => {
+                  const isSelected = heroSelectedPosterIds.includes(poster.id);
+                  const posterImg = poster.heroImage || poster.galleryImages?.[0] || poster.images?.[0]?.url || "/assets/custom_grid_poster.png";
+                  return (
+                    <div 
+                      key={poster.id}
+                      onClick={() => {
+                        if (isSelected) {
+                          setHeroSelectedPosterIds(heroSelectedPosterIds.filter(id => id !== poster.id));
+                        } else {
+                          setHeroSelectedPosterIds([...heroSelectedPosterIds, poster.id]);
+                        }
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.6rem",
+                        padding: "0.5rem",
+                        borderRadius: "8px",
+                        border: isSelected ? "2px solid #111111" : "1px solid rgba(17,17,17,0.1)",
+                        backgroundColor: isSelected ? "#FFFFFF" : "rgba(255,255,255,0.6)",
+                        cursor: "pointer",
+                        boxShadow: isSelected ? "0 4px 12px rgba(0,0,0,0.08)" : "none",
+                        transition: "all 0.15s ease"
+                      }}
+                    >
+                      <img src={posterImg} alt={poster.title} style={{ width: "40px", height: "52px", objectFit: "cover", borderRadius: "4px" }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#111111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{poster.title}</div>
+                        <div style={{ fontSize: "0.72rem", color: "#666666" }}>{poster.film || poster.collectionName}</div>
+                      </div>
+                      <input type="checkbox" checked={isSelected} readOnly style={{ accentColor: "#111111", cursor: "pointer" }} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* 🖼 CUSTOM PRINT STUDIO LIVE PRICING CONTROLS */}
+          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "16px", padding: "1.75rem", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem", borderBottom: "1px solid rgba(17,17,17,0.06)", paddingBottom: "1rem" }}>
+              <SlidersHorizontal style={{ color: "#111111" }} size={22} />
+              <div>
+                <h2 style={{ fontSize: "1.15rem", fontWeight: "800", color: "#111111", margin: 0 }}>Custom Print Studio Live Pricing Controls</h2>
+                <p style={{ fontSize: "0.85rem", color: "#666666", margin: "0.2rem 0 0 0" }}>Configure dynamic base print prices, layout multipliers, and frame addon costs for /custom.</p>
+              </div>
+            </div>
+
+            {/* Base Print Prices */}
+            <div style={{ marginBottom: "1.5rem" }}>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "#111111", marginBottom: "0.75rem" }}>Base Print Prices (Unframed, Single Layout)</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "1rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.82rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.4rem" }}>A5 Base Price (₹)</label>
+                  <input type="number" value={customBasePriceA5} onChange={(e) => setCustomBasePriceA5(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "1rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.82rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.4rem" }}>A4 Base Price (₹)</label>
+                  <input type="number" value={customBasePriceA4} onChange={(e) => setCustomBasePriceA4(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "1rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.82rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.4rem" }}>A3 Base Price (₹)</label>
+                  <input type="number" value={customBasePriceA3} onChange={(e) => setCustomBasePriceA3(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Layout Multipliers */}
+            <div style={{ marginBottom: "1.5rem" }}>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "#111111", marginBottom: "0.75rem" }}>Layout Price Multipliers</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "0.85rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>Single Poster (x)</label>
+                  <input type="number" step="0.1" value={customMultSingle} onChange={(e) => setCustomMultSingle(parseFloat(e.target.value) || 1)} style={{ width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "0.85rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>3-Panel Split (x)</label>
+                  <input type="number" step="0.1" value={customMultSplit3} onChange={(e) => setCustomMultSplit3(parseFloat(e.target.value) || 1)} style={{ width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "0.85rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>2x2 Grid (x)</label>
+                  <input type="number" step="0.1" value={customMultSplit2x2} onChange={(e) => setCustomMultSplit2x2(parseFloat(e.target.value) || 1)} style={{ width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "0.85rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>Retro Card (x)</label>
+                  <input type="number" step="0.1" value={customMultRetro} onChange={(e) => setCustomMultRetro(parseFloat(e.target.value) || 1)} style={{ width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "0.85rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>Pocket Print (x)</label>
+                  <input type="number" step="0.1" value={customMultPocket} onChange={(e) => setCustomMultPocket(parseFloat(e.target.value) || 1)} style={{ width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "0.85rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>Photobooth Strip (x)</label>
+                  <input type="number" step="0.1" value={customMultPhotobooth} onChange={(e) => setCustomMultPhotobooth(parseFloat(e.target.value) || 1)} style={{ width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Frame Addon Costs */}
+            <div>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "#111111", marginBottom: "0.75rem" }}>Frame Addon Price Upcharges</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "1rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.82rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.4rem" }}>A5 Frame Addon (+₹)</label>
+                  <input type="number" value={customFrameAddonA5} onChange={(e) => setCustomFrameAddonA5(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "1rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.82rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.4rem" }}>A4 Frame Addon (+₹)</label>
+                  <input type="number" value={customFrameAddonA4} onChange={(e) => setCustomFrameAddonA4(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+                <div style={{ backgroundColor: "#F9F9F7", padding: "1rem", borderRadius: "10px", border: "1px solid rgba(17,17,17,0.06)" }}>
+                  <label style={{ fontSize: "0.82rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.4rem" }}>A3 Frame Addon (+₹)</label>
+                  <input type="number" value={customFrameAddonA3} onChange={(e) => setCustomFrameAddonA3(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* AI ASSISTANT SETTINGS */}
+          <AISettingsPanel settings={aiSettings} onChange={(field, val) => setAiSettings(prev => ({ ...prev, [field]: val }))} />
+
+          {/* STORE POLICIES & THRESHOLDS */}
+          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "16px", padding: "1.75rem", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem", borderBottom: "1px solid rgba(17,17,17,0.06)", paddingBottom: "1rem" }}>
+              <Gift style={{ color: "#111111" }} size={22} />
+              <div>
+                <h2 style={{ fontSize: "1.15rem", fontWeight: "800", color: "#111111", margin: 0 }}>Store Shipping & Free Gift Thresholds</h2>
+                <p style={{ fontSize: "0.85rem", color: "#666666", margin: "0.2rem 0 0 0" }}>Set thresholds for automatic free shipping and free collector poster rewards.</p>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.25rem" }}>
+              <div>
+                <label style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111", display: "block", marginBottom: "0.4rem" }}>Flat Shipping Fee (₹)</label>
+                <input type="number" value={shippingFee} onChange={(e) => setShippingFee(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111", display: "block", marginBottom: "0.4rem" }}>Free Shipping Threshold (₹)</label>
+                <input type="number" value={freeShippingThreshold} onChange={(e) => setFreeShippingThreshold(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111", display: "block", marginBottom: "0.4rem" }}>Tier 1 Collector Reward Threshold (₹)</label>
+                <input type="number" value={collectorRewardThreshold} onChange={(e) => setCollectorRewardThreshold(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111", display: "block", marginBottom: "0.4rem" }}>Tier 2 Premium Reward Threshold (₹)</label>
+                <input type="number" value={premiumRewardThreshold} onChange={(e) => setPremiumRewardThreshold(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.65rem 0.85rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+            </div>
+          </div>
+
+          {/* UNIT EXPENSES & MARGINS */}
+          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "16px", padding: "1.75rem", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem", borderBottom: "1px solid rgba(17,17,17,0.06)", paddingBottom: "1rem" }}>
+              <DollarSign style={{ color: "#10B981" }} size={22} />
+              <div>
+                <h2 style={{ fontSize: "1.15rem", fontWeight: "800", color: "#111111", margin: 0 }}>Unit Print & Framing COGS Expenses</h2>
+                <p style={{ fontSize: "0.85rem", color: "#666666", margin: "0.2rem 0 0 0" }}>Default unit cost variables used for automatic net profit calculation across all orders.</p>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>A5 Print Cost (₹)</label>
+                <input type="number" value={costA5} onChange={(e) => setCostA5(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.55rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>A4 Print Cost (₹)</label>
+                <input type="number" value={costA4} onChange={(e) => setCostA4(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.55rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>A3 Print Cost (₹)</label>
+                <input type="number" value={costA3} onChange={(e) => setCostA3(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.55rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>A2 Print Cost (₹)</label>
+                <input type="number" value={costA2} onChange={(e) => setCostA2(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.55rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>Black Frame Cost (₹)</label>
+                <input type="number" value={costBlackFrame} onChange={(e) => setCostBlackFrame(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.55rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>Wood Frame Cost (₹)</label>
+                <input type="number" value={costWoodFrame} onChange={(e) => setCostWoodFrame(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.55rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>Packaging Cost / Order (₹)</label>
+                <input type="number" value={packagingCostPerOrder} onChange={(e) => setPackagingCostPerOrder(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.55rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: "700", color: "#666666", display: "block", marginBottom: "0.3rem" }}>Payment Gateway Fee (%)</label>
+                <input type="number" step="0.1" value={gatewayFeePercent} onChange={(e) => setGatewayFeePercent(parseFloat(e.target.value) || 0)} style={{ width: "100%", padding: "0.55rem", borderRadius: "8px", border: "1px solid rgba(17,17,17,0.15)", fontWeight: "700" }} />
+              </div>
+            </div>
+          </div>
+
+          {/* BOTTOM SAVE BUTTON */}
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              type="submit"
+              disabled={saving || loading}
+              style={{
+                backgroundColor: "#111111",
+                color: "#FFFFFF",
+                padding: "0.85rem 2.25rem",
+                borderRadius: "100px",
+                fontSize: "0.95rem",
+                fontWeight: "800",
+                border: "none",
+                cursor: saving || loading ? "not-allowed" : "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.6rem",
+                boxShadow: "0 8px 25px rgba(0,0,0,0.15)"
+              }}
+            >
+              {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+              {saving ? "Saving All Settings..." : "Save All Settings"}
             </button>
           </div>
 
-          {/* Right Toggles & Operational Panel */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <div style={{ backgroundColor: "#FFF", borderRadius: "20px", padding: "1.5rem", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-              <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <ShieldCheck size={18} style={{ color: "#10B981" }} /> System Feature Toggles
-              </h4>
-
-              <div style={{ padding: "1rem", backgroundColor: "#F9FAFB", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div>
-                  <strong style={{ fontSize: "0.85rem", display: "block" }}>Rewards Program</strong>
-                  <span style={{ fontSize: "0.75rem", color: "#666" }}>Enable Collector & Premium rewards</span>
-                </div>
-                <input type="checkbox" checked={rewardsEnabled} onChange={(e) => setRewardsEnabled(e.target.checked)} style={{ width: "20px", height: "20px", cursor: "pointer" }} />
-              </div>
-
-              <div style={{ padding: "1rem", backgroundColor: "#F9FAFB", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div>
-                  <strong style={{ fontSize: "0.85rem", display: "block" }}>Limited Edition Counter</strong>
-                  <span style={{ fontSize: "0.75rem", color: "#666" }}>Display print numbers (e.g. 17/100)</span>
-                </div>
-                <input type="checkbox" checked={limitedEditionsEnabled} onChange={(e) => setLimitedEditionsEnabled(e.target.checked)} style={{ width: "20px", height: "20px", cursor: "pointer" }} />
-              </div>
-            </div>
-
-            <div style={{ backgroundColor: "#FFF", borderRadius: "20px", padding: "1.5rem", border: "1px solid #EFECE6", boxShadow: "0 4px 12px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Business Contact Info</h4>
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700 }}>Support Email</label>
-                <input type="email" value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
-              </div>
-              <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700 }}>GSTIN Number</label>
-                <input type="text" value={gstNumber} onChange={(e) => setGstNumber(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #E5E7EB", fontSize: "0.85rem" }} />
-              </div>
-
-              <button
-                type="submit"
-                disabled={saving}
-                style={{
-                  marginTop: "0.5rem",
-                  width: "100%",
-                  padding: "0.85rem",
-                  borderRadius: "12px",
-                  backgroundColor: "#0F172A",
-                  color: "#FFF",
-                  fontWeight: 800,
-                  fontSize: "0.9rem",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.5rem",
-                  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.2)",
-                }}
-              >
-                {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                {saving ? "Saving Changes..." : "Save All Settings"}
-              </button>
-            </div>
-          </div>
         </form>
       )}
     </div>

@@ -8,6 +8,9 @@ export interface StorePromotionSettings {
   heroSubtitle: string;
   rewardsEnabled: boolean;
   limitedEditionsEnabled: boolean;
+  heroSelectedPosterIds?: string[];
+  heroSpeedMobile?: number;
+  heroSpeedDesktop?: number;
 }
 
 export const DEFAULT_STORE_SETTINGS: StorePromotionSettings = {
@@ -19,7 +22,10 @@ export const DEFAULT_STORE_SETTINGS: StorePromotionSettings = {
   heroTitle: "Bring Cinema Home.",
   heroSubtitle: "Premium Malayalam Cinema Posters Crafted For Collectors.",
   rewardsEnabled: true,
-  limitedEditionsEnabled: true
+  limitedEditionsEnabled: true,
+  heroSelectedPosterIds: [],
+  heroSpeedMobile: 4.0,
+  heroSpeedDesktop: 2.7
 };
 
 export interface RewardTierStatus {

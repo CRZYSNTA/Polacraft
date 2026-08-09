@@ -14,6 +14,9 @@ interface HeroSectionProps {
   heroSubtitle: string;
   heroFanCards: Product[];
   allPosters?: Product[];
+  heroSelectedPosterIds?: string[];
+  heroSpeedMobile?: number;
+  heroSpeedDesktop?: number;
   isLoading: boolean;
 }
 
@@ -22,6 +25,9 @@ export default function HeroSection({
   heroSubtitle,
   heroFanCards = [],
   allPosters = [],
+  heroSelectedPosterIds = [],
+  heroSpeedMobile = 4.0,
+  heroSpeedDesktop = 2.7,
   isLoading,
 }: HeroSectionProps) {
   const shouldReduceMotion = useReducedMotion();
@@ -38,7 +44,16 @@ export default function HeroSection({
   }, []);
 
   const safeCards = Array.isArray(heroFanCards) ? heroFanCards : [];
-  const catalogPosters = Array.isArray(allPosters) && allPosters.length > 0 ? allPosters : safeCards;
+  const rawPosters = Array.isArray(allPosters) && allPosters.length > 0 ? allPosters : safeCards;
+
+  // Filter posters based on Admin selected poster IDs
+  const catalogPosters = useMemo(() => {
+    if (Array.isArray(heroSelectedPosterIds) && heroSelectedPosterIds.length > 0) {
+      const selected = rawPosters.filter((p) => heroSelectedPosterIds.includes(p.id));
+      return selected.length > 0 ? selected : rawPosters;
+    }
+    return rawPosters;
+  }, [rawPosters, heroSelectedPosterIds]);
 
   // Formatted real cinema posters for mobile Originkit circle animation
   const mobileCircleImages = useMemo(() => {
@@ -130,7 +145,7 @@ export default function HeroSection({
             ringGap={95}
             cardWidth={78}
             cardHeight={102}
-            speed={4}
+            speed={heroSpeedMobile}
             direction="alternate"
             rounded={8}
           />
@@ -270,7 +285,7 @@ export default function HeroSection({
             imageWidth={210}
             imageHeight={290}
             spacing={4}
-            speed={2.7}
+            speed={heroSpeedDesktop}
             direction="right"
             drag={true}
             sensitivity={4}
