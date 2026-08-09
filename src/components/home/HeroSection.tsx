@@ -115,25 +115,35 @@ export default function HeroSection({
         @media (max-width: 767px) {
           .hero-mobile-blended-banner {
             background-color: transparent !important;
-            background-image: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.5) 45%, rgba(255, 255, 255, 0) 80%) !important;
-            backdrop-filter: blur(2px) !important;
-            -webkit-backdrop-filter: blur(2px) !important;
+            background-image: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0) 88%) !important;
+            backdrop-filter: blur(12px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
             border: none !important;
             box-shadow: none !important;
-            border-radius: 40px !important;
-            padding: 2.25rem 1rem !important;
+            border-radius: 48px !important;
+            padding: 2.25rem 1.25rem !important;
           }
           .hero-mobile-badge {
-            background-color: rgba(255, 255, 255, 0.7) !important;
-            backdrop-filter: blur(6px) !important;
-            -webkit-backdrop-filter: blur(6px) !important;
-            border: 1px solid rgba(17, 17, 17, 0.1) !important;
+            background-color: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(17, 17, 17, 0.12) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+          }
+          .hero-mobile-title {
+            color: #0F0F0F !important;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 1), 0 0 12px rgba(255, 255, 255, 1), 0 2px 6px rgba(255, 255, 255, 0.95) !important;
+            letter-spacing: -0.04em !important;
+          }
+          .hero-mobile-subtitle {
+            color: #1C1C1C !important;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 1), 0 1px 4px rgba(255, 255, 255, 0.95) !important;
           }
           .hero-mobile-secondary-btn {
-            background-color: rgba(255, 255, 255, 0.7) !important;
-            backdrop-filter: blur(6px) !important;
-            -webkit-backdrop-filter: blur(6px) !important;
-            border: 1.5px solid rgba(17, 17, 17, 0.18) !important;
+            background-color: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1.5px solid rgba(17, 17, 17, 0.22) !important;
           }
         }
       `}</style>
@@ -215,6 +225,7 @@ export default function HeroSection({
 
           {/* TITLE */}
           <h1
+            className="hero-mobile-title"
             style={{
               fontSize: "clamp(2.25rem, 5.5vw, 4rem)",
               fontWeight: "900",
@@ -222,7 +233,7 @@ export default function HeroSection({
               letterSpacing: "-0.03em",
               margin: 0,
               lineHeight: 1.1,
-              textShadow: isMobile ? "0 2px 16px rgba(255,255,255,1), 0 1px 4px rgba(255,255,255,0.9)" : "none"
+              textShadow: isMobile ? "0 0 25px rgba(255,255,255,1), 0 0 12px rgba(255,255,255,1), 0 2px 6px rgba(255,255,255,0.95)" : "none"
             }}
           >
             {heroTitle}
@@ -230,6 +241,7 @@ export default function HeroSection({
 
           {/* SUBTITLE */}
           <p
+            className="hero-mobile-subtitle"
             style={{
               fontSize: "clamp(0.95rem, 2vw, 1.15rem)",
               color: "#111111",
@@ -237,7 +249,7 @@ export default function HeroSection({
               maxWidth: "52ch",
               lineHeight: 1.5,
               fontWeight: "800",
-              textShadow: isMobile ? "0 2px 12px rgba(255,255,255,1), 0 1px 3px rgba(255,255,255,0.9)" : "none"
+              textShadow: isMobile ? "0 0 20px rgba(255,255,255,1), 0 0 10px rgba(255,255,255,1), 0 1px 4px rgba(255,255,255,0.95)" : "none"
             }}
           >
             {heroSubtitle}
