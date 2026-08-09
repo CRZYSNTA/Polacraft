@@ -61,7 +61,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       .then((res) => res.json())
       .then((data) => {
         if (data.settings) {
+          // Spread all raw settings fields so hero controls and future fields pass through automatically
           setSiteSettings({
+            ...DEFAULT_STORE_SETTINGS,
+            ...data.settings,
+            // Ensure critical numeric fields are properly typed
             shippingFee: Number(data.settings.shippingFee ?? DEFAULT_STORE_SETTINGS.shippingFee),
             freeShippingThreshold: Number(data.settings.freeShippingThreshold ?? DEFAULT_STORE_SETTINGS.freeShippingThreshold),
             collectorRewardThreshold: Number(data.settings.collectorRewardThreshold ?? DEFAULT_STORE_SETTINGS.collectorRewardThreshold),
@@ -70,7 +74,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             heroTitle: data.settings.heroTitle || DEFAULT_STORE_SETTINGS.heroTitle,
             heroSubtitle: data.settings.heroSubtitle || DEFAULT_STORE_SETTINGS.heroSubtitle,
             rewardsEnabled: data.settings.rewardsEnabled !== undefined ? Boolean(data.settings.rewardsEnabled) : true,
-            limitedEditionsEnabled: data.settings.limitedEditionsEnabled !== undefined ? Boolean(data.settings.limitedEditionsEnabled) : true
+            limitedEditionsEnabled: data.settings.limitedEditionsEnabled !== undefined ? Boolean(data.settings.limitedEditionsEnabled) : true,
+            heroSpeedMobile: Number(data.settings.heroSpeedMobile ?? DEFAULT_STORE_SETTINGS.heroSpeedMobile),
+            heroSpeedDesktop: Number(data.settings.heroSpeedDesktop ?? DEFAULT_STORE_SETTINGS.heroSpeedDesktop),
+            heroCircleInnerRadius: Number(data.settings.heroCircleInnerRadius ?? DEFAULT_STORE_SETTINGS.heroCircleInnerRadius),
+            heroCircleRingGap: Number(data.settings.heroCircleRingGap ?? DEFAULT_STORE_SETTINGS.heroCircleRingGap),
+            heroSelectedPosterIdsMobile: Array.isArray(data.settings.heroSelectedPosterIdsMobile) ? data.settings.heroSelectedPosterIdsMobile : [],
+            heroSelectedPosterIdsDesktop: Array.isArray(data.settings.heroSelectedPosterIdsDesktop) ? data.settings.heroSelectedPosterIdsDesktop : [],
           });
         }
       })
