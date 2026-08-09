@@ -87,7 +87,7 @@ export default function HeroSection({
             width: "100%", 
             height: "100%", 
             zIndex: 1, 
-            opacity: 0.95,
+            opacity: 0.98,
             pointerEvents: "auto"
           }}
         >
@@ -95,7 +95,7 @@ export default function HeroSection({
             images={mobileCircleImages}
             count={56}
             rings={4}
-            innerRadius={30}
+            innerRadius={25}
             ringGap={95}
             cardWidth={78}
             cardHeight={102}
@@ -106,7 +106,7 @@ export default function HeroSection({
         </div>
       )}
 
-      {/* HERO CONTENT CARD (TRANSLUCENT GLASSMORPHISM SEE-THROUGH BANNER ON MOBILE) */}
+      {/* HERO CONTENT CARD (ULTRA-TRANSPARENT CRYSTAL GLASS BANNER ON MOBILE) */}
       <div 
         className="container" 
         style={{ 
@@ -128,13 +128,13 @@ export default function HeroSection({
             display: "flex", 
             flexDirection: "column", 
             alignItems: "center",
-            backgroundColor: isMobile ? "rgba(255, 255, 255, 0.35)" : "transparent",
-            backdropFilter: isMobile ? "blur(14px)" : "none",
-            WebkitBackdropFilter: isMobile ? "blur(14px)" : "none",
+            backgroundColor: isMobile ? "rgba(255, 255, 255, 0.14)" : "transparent",
+            backdropFilter: isMobile ? "blur(6px)" : "none",
+            WebkitBackdropFilter: isMobile ? "blur(6px)" : "none",
             padding: isMobile ? "2.25rem 1.5rem" : "0",
             borderRadius: isMobile ? "28px" : "0",
-            border: isMobile ? "1px solid rgba(255, 255, 255, 0.55)" : "none",
-            boxShadow: isMobile ? "0 12px 40px rgba(0,0,0,0.12)" : "none",
+            border: isMobile ? "1.5px solid rgba(255, 255, 255, 0.65)" : "none",
+            boxShadow: isMobile ? "0 8px 32px rgba(0,0,0,0.08)" : "none",
             pointerEvents: "auto"
           }}
         >
@@ -144,10 +144,10 @@ export default function HeroSection({
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              backgroundColor: isMobile ? "rgba(255, 255, 255, 0.75)" : "#FFFFFF",
-              backdropFilter: isMobile ? "blur(8px)" : "none",
-              WebkitBackdropFilter: isMobile ? "blur(8px)" : "none",
-              border: "1px solid rgba(17,17,17,0.1)",
+              backgroundColor: isMobile ? "rgba(255, 255, 255, 0.55)" : "#FFFFFF",
+              backdropFilter: isMobile ? "blur(4px)" : "none",
+              WebkitBackdropFilter: isMobile ? "blur(4px)" : "none",
+              border: "1px solid rgba(17,17,17,0.12)",
               boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
               padding: "0.4rem 1rem",
               borderRadius: "100px",
@@ -169,7 +169,7 @@ export default function HeroSection({
               letterSpacing: "-0.03em",
               margin: 0,
               lineHeight: 1.1,
-              textShadow: isMobile ? "0 2px 10px rgba(255,255,255,0.8)" : "none"
+              textShadow: isMobile ? "0 2px 14px rgba(255,255,255,0.95), 0 1px 3px rgba(255,255,255,0.8)" : "none"
             }}
           >
             {heroTitle}
@@ -183,8 +183,8 @@ export default function HeroSection({
               marginTop: "0.85rem",
               maxWidth: "52ch",
               lineHeight: 1.5,
-              fontWeight: "700",
-              textShadow: isMobile ? "0 1px 8px rgba(255,255,255,0.9)" : "none"
+              fontWeight: "800",
+              textShadow: isMobile ? "0 2px 10px rgba(255,255,255,0.95), 0 1px 2px rgba(255,255,255,0.9)" : "none"
             }}
           >
             {heroSubtitle}
@@ -216,15 +216,15 @@ export default function HeroSection({
             <Link href="/custom" style={{ textDecoration: "none" }}>
               <button
                 style={{
-                  backgroundColor: isMobile ? "rgba(255, 255, 255, 0.85)" : "#FFFFFF",
-                  backdropFilter: isMobile ? "blur(8px)" : "none",
-                  WebkitBackdropFilter: isMobile ? "blur(8px)" : "none",
+                  backgroundColor: isMobile ? "rgba(255, 255, 255, 0.65)" : "#FFFFFF",
+                  backdropFilter: isMobile ? "blur(4px)" : "none",
+                  WebkitBackdropFilter: isMobile ? "blur(4px)" : "none",
                   color: "#111111",
                   padding: "0.9rem 2rem",
                   borderRadius: "100px",
                   fontSize: "0.95rem",
                   fontWeight: "800",
-                  border: "1.5px solid rgba(17,17,17,0.18)",
+                  border: "1.5px solid rgba(17,17,17,0.2)",
                   cursor: "pointer",
                   display: "inline-flex",
                   alignItems: "center",
