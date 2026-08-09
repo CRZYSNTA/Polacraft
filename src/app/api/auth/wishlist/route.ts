@@ -51,11 +51,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "productId is required" }, { status: 400 });
     }
 
+    const dbProduct = await prisma.product.findFirst({
+      where: { OR: [{ id: productId }, { slug: productId }] }
+    });
+
+    if (!dbProduct) {
+      // Local fallback item sync for non-db posters
+      return NextResponse.json({ success: true, guest: true });
+    }
+
     const existing = await prisma.wishlist.findUnique({
       where: {
         userId_productId: {
           userId: targetUserId,
-          productId: productId
+          productId: dbProduct.id
         }
       }
     });
@@ -69,7 +78,7 @@ export async function POST(req: Request) {
       await prisma.wishlist.create({
         data: {
           userId: targetUserId,
-          productId: productId
+          productId: dbProduct.id
         }
       });
       return NextResponse.json({ success: true, action: "added" });

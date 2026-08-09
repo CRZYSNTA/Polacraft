@@ -6,6 +6,8 @@ import { Heart, ArrowLeft, Loader2, ShoppingBag, Trash2 } from "lucide-react";
 import PosterRenderer from "@/components/PosterRenderer";
 import { AppContext } from "@/features/cart/AppContext";
 
+import { posters as cmsPosters } from "@/lib/cms/products";
+
 export default function AccountWishlistPage() {
   const context = useContext(AppContext);
   const wishlistIds = context?.wishlist || [];
@@ -18,23 +20,47 @@ export default function AccountWishlistPage() {
     async function loadWishlistProducts() {
       try {
         setLoading(true);
-        const res = await fetch("/api/admin/products");
+
+        // Fetch public products from search API
+        let allProducts: any[] = [];
+        const res = await fetch("/api/search");
         if (res.ok) {
           const data = await res.json();
-          const allProducts = data.products || [];
-          
-          // Also check server wishlist endpoint
-          const dbRes = await fetch("/api/auth/wishlist");
-          let dbProductIds: string[] = [];
-          if (dbRes.ok) {
-            const dbData = await dbRes.json();
-            dbProductIds = (dbData.wishlists || []).map((w: any) => w.productId);
-          }
-
-          const combinedIds = Array.from(new Set([...wishlistIds, ...dbProductIds]));
-          const matched = allProducts.filter((p: any) => combinedIds.includes(p.id) || combinedIds.includes(p.slug));
-          setSavedProducts(matched);
+          allProducts = data.products || [];
         }
+
+        // Fallback/merge with local CMS posters if DB is empty or missing items
+        const mergedCatalogMap = new Map();
+        [...allProducts, ...cmsPosters].forEach((p) => {
+          if (p && p.id && !mergedCatalogMap.has(p.id)) {
+            mergedCatalogMap.set(p.id, p);
+          }
+          if (p && p.slug && !mergedCatalogMap.has(p.slug)) {
+            mergedCatalogMap.set(p.slug, p);
+          }
+        });
+
+        // Also check server user wishlist endpoint
+        const dbRes = await fetch("/api/auth/wishlist");
+        let dbProductIds: string[] = [];
+        if (dbRes.ok) {
+          const dbData = await dbRes.json();
+          dbProductIds = (dbData.wishlists || []).map((w: any) => w.productId);
+        }
+
+        const combinedIds = Array.from(new Set([...wishlistIds, ...dbProductIds]));
+        const matched: any[] = [];
+        const addedSet = new Set();
+
+        combinedIds.forEach((id) => {
+          const found = mergedCatalogMap.get(id);
+          if (found && !addedSet.has(found.id)) {
+            addedSet.add(found.id);
+            matched.push(found);
+          }
+        });
+
+        setSavedProducts(matched);
       } catch (e) {
         console.warn("[Wishlist Load Error]:", e);
       } finally {
@@ -43,7 +69,7 @@ export default function AccountWishlistPage() {
     }
 
     loadWishlistProducts();
-  }, [wishlistIds.length]);
+  }, [wishlistIds]);
 
   const handleRemove = (productId: string) => {
     if (toggleWishlist) {

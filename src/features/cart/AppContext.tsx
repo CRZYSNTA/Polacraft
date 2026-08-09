@@ -101,6 +101,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
       const savedRew = localStorage.getItem("polacraft_rewards");
       if (savedRew) setSelectedRewards(JSON.parse(savedRew));
+
+      // Sync server-persisted wishlist items for logged-in users
+      fetch("/api/auth/wishlist")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.wishlists && Array.isArray(data.wishlists)) {
+            const dbIds = data.wishlists.map((w: any) => w.productId).filter(Boolean);
+            if (dbIds.length > 0) {
+              setWishlist((prev) => Array.from(new Set([...prev, ...dbIds])));
+            }
+          }
+        })
+        .catch(() => {});
     } catch (e) {
       console.error("Failed to parse storage", e);
     }
