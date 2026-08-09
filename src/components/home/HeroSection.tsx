@@ -157,16 +157,16 @@ export default function HeroSection({
             width: "100%", 
             height: "100%", 
             zIndex: 1, 
-            opacity: 0.98,
+            opacity: 0.95,
             pointerEvents: "auto"
           }}
         >
           <ImageGroup 
             images={mobileCircleImages}
-            count={16}
-            rings={3}
-            innerRadius={Math.max(105, heroCircleInnerRadius)}
-            ringGap={heroCircleRingGap}
+            count={12}
+            rings={2}
+            innerRadius={Math.max(220, heroCircleInnerRadius)}
+            ringGap={120}
             cardWidth={78}
             cardHeight={102}
             speed={heroSpeedMobile}
