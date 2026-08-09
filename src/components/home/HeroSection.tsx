@@ -110,7 +110,7 @@ export default function HeroSection({
         </div>
       )}
 
-      {/* HERO CONTENT CARD */}
+      {/* HERO CONTENT CARD (SEAMLESSLY BLENDED SOFT RADIAL GLOW BANNER ON MOBILE) */}
       <div 
         className="container" 
         style={{ 
@@ -119,7 +119,7 @@ export default function HeroSection({
           justifyContent: "center", 
           position: "relative", 
           zIndex: 10,
-          padding: isMobile ? "0 1.25rem" : "0 2rem"
+          padding: isMobile ? "0 1rem" : "0 2rem"
         }}
       >
         <motion.div
@@ -132,13 +132,14 @@ export default function HeroSection({
             display: "flex", 
             flexDirection: "column", 
             alignItems: "center",
-            backgroundColor: isMobile ? "rgba(255, 255, 255, 0.14)" : "transparent",
-            backdropFilter: isMobile ? "blur(6px)" : "none",
-            WebkitBackdropFilter: isMobile ? "blur(6px)" : "none",
-            padding: isMobile ? "2.25rem 1.5rem" : "0",
-            borderRadius: isMobile ? "28px" : "0",
-            border: isMobile ? "1.5px solid rgba(255, 255, 255, 0.65)" : "none",
-            boxShadow: isMobile ? "0 8px 32px rgba(0,0,0,0.08)" : "none",
+            backgroundColor: isMobile ? "transparent" : "transparent",
+            backgroundImage: isMobile ? "radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.45) 55%, rgba(255, 255, 255, 0) 82%)" : "none",
+            backdropFilter: isMobile ? "blur(3px)" : "none",
+            WebkitBackdropFilter: isMobile ? "blur(3px)" : "none",
+            padding: isMobile ? "2.25rem 1.25rem" : "0",
+            borderRadius: isMobile ? "36px" : "0",
+            border: isMobile ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
+            boxShadow: "none",
             pointerEvents: "auto"
           }}
         >
@@ -148,7 +149,7 @@ export default function HeroSection({
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              backgroundColor: isMobile ? "rgba(255, 255, 255, 0.55)" : "#FFFFFF",
+              backgroundColor: isMobile ? "rgba(255, 255, 255, 0.65)" : "#FFFFFF",
               backdropFilter: isMobile ? "blur(4px)" : "none",
               WebkitBackdropFilter: isMobile ? "blur(4px)" : "none",
               border: "1px solid rgba(17,17,17,0.12)",
@@ -173,7 +174,7 @@ export default function HeroSection({
               letterSpacing: "-0.03em",
               margin: 0,
               lineHeight: 1.1,
-              textShadow: isMobile ? "0 2px 14px rgba(255,255,255,0.95), 0 1px 3px rgba(255,255,255,0.8)" : "none"
+              textShadow: isMobile ? "0 2px 16px rgba(255,255,255,1), 0 1px 4px rgba(255,255,255,0.9)" : "none"
             }}
           >
             {heroTitle}
@@ -188,7 +189,7 @@ export default function HeroSection({
               maxWidth: "52ch",
               lineHeight: 1.5,
               fontWeight: "800",
-              textShadow: isMobile ? "0 2px 10px rgba(255,255,255,0.95), 0 1px 2px rgba(255,255,255,0.9)" : "none"
+              textShadow: isMobile ? "0 2px 12px rgba(255,255,255,1), 0 1px 3px rgba(255,255,255,0.9)" : "none"
             }}
           >
             {heroSubtitle}
@@ -210,7 +211,7 @@ export default function HeroSection({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "0.6rem",
-                  boxShadow: "0 8px 25px rgba(0,0,0,0.25)",
+                  boxShadow: "0 8px 25px rgba(0,0,0,0.22)",
                   transition: "transform 0.2s ease"
                 }}
               >
@@ -220,7 +221,7 @@ export default function HeroSection({
             <Link href="/custom" style={{ textDecoration: "none" }}>
               <button
                 style={{
-                  backgroundColor: isMobile ? "rgba(255, 255, 255, 0.65)" : "#FFFFFF",
+                  backgroundColor: isMobile ? "rgba(255, 255, 255, 0.75)" : "#FFFFFF",
                   backdropFilter: isMobile ? "blur(4px)" : "none",
                   WebkitBackdropFilter: isMobile ? "blur(4px)" : "none",
                   color: "#111111",
