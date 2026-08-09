@@ -1,129 +1,136 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const query = searchParams.get("query")?.trim() || searchParams.get("orderId")?.trim() || "";
+  const rawQuery = searchParams.get("query")?.trim() || searchParams.get("orderId")?.trim() || "";
 
-  if (!query) {
+  if (!rawQuery) {
     return NextResponse.json(
-      { error: "Order ID, Consignment Number (AWB), or Mobile Number is required" },
+      { error: "Order ID, Consignment Number (AWB), or Phone Number is required" },
       { status: 400 }
     );
   }
 
-  const cleanQuery = query.toUpperCase().replace("#", "");
+  const cleanQuery = rawQuery.toUpperCase().replace("#", "").trim();
 
-  // Simulated Live Logistics Database with Professional Couriers Integration
-  const trackingDatabase: Record<string, any> = {
-    "POL-1082": {
-      orderId: "#POL-1082",
-      awbNumber: "COK948172938",
-      carrier: "The Professional Couriers (TPC India)",
-      carrierWebsite: "https://www.tpcindia.com/",
-      carrierTrackingUrl: "https://www.tpcindia.com/tracking.aspx",
-      customerName: "Gowtham S",
-      destination: "Bengaluru, Karnataka - 560001",
-      estimatedDelivery: "August 11, 2026 (Tomorrow by 7 PM)",
-      currentStatus: "IN_TRANSIT",
-      statusLabel: "In Transit via Professional Couriers",
-      statusDescription: "Consignment dispatched from Ernakulam Main Hub to Destination Branch.",
-      items: [
-        { title: "Lionel Messi Argentina 2022 World Cup Print", size: "A4", frame: "Matte Black Frame", qty: 1, image: "/assets/custom_grid_poster.png" },
-        { title: "Interstellar Gargantua Hole Frame", size: "A3", frame: "Print Only", qty: 1, image: "/assets/custom_grid_split_3.png" }
-      ],
-      paymentStatus: "PAID",
-      paymentMethod: "Prepaid (UPI)",
-      subtotal: 1249,
-      timeline: [
-        { title: "Consignment Booked & Picked Up", location: "TPC Branch, Kochi", timestamp: "Aug 08, 2026 • 11:30 AM", completed: true },
-        { title: "Received at Main Sorting Hub", location: "Ernakulam Hub, Kerala", timestamp: "Aug 08, 2026 • 04:15 PM", completed: true },
-        { title: "Dispatched to Destination State Hub", location: "In Transit (Inter-state Surface Air)", timestamp: "Aug 09, 2026 • 08:30 AM", completed: true, active: true },
-        { title: "Arrived at Destination Branch", location: "TPC Bengaluru Central Office", timestamp: "Expected Aug 10 • Evening", completed: false },
-        { title: "Out for Delivery with Delivery Executive", location: "Local Area Delivery", timestamp: "Expected Aug 11 • Morning", completed: false },
-        { title: "Delivered & Signed by Consignee", location: "Destination Address", timestamp: "Expected Aug 11 • By 7 PM", completed: false }
-      ]
-    },
-    "POL-1090": {
-      orderId: "#POL-1090",
-      awbNumber: "KCH83920194",
-      carrier: "The Professional Couriers (TPC India)",
-      carrierWebsite: "https://www.tpcindia.com/",
-      carrierTrackingUrl: "https://www.tpcindia.com/tracking.aspx",
-      customerName: "Rahul V",
-      destination: "Chennai, Tamil Nadu - 600028",
-      estimatedDelivery: "August 10, 2026 (Today)",
-      currentStatus: "OUT_FOR_DELIVERY",
-      statusLabel: "Out for Delivery",
-      statusDescription: "Professional Couriers delivery executive is out for delivery.",
-      items: [
-        { title: "Custom 3-Panel Split Poster", size: "A3", frame: "Teak Wood Frame", qty: 1, image: "/assets/custom_grid_split_3.png" }
-      ],
-      paymentStatus: "PAID",
-      paymentMethod: "Prepaid (Credit Card)",
-      subtotal: 899,
-      timeline: [
-        { title: "Consignment Booked", location: "TPC Kochi Branch", timestamp: "Aug 07, 2026 • 10:00 AM", completed: true },
-        { title: "Dispatched to Chennai", location: "TPC South India Line", timestamp: "Aug 07, 2026 • 06:00 PM", completed: true },
-        { title: "Received at Chennai Delivery Office", location: "TPC Chennai Central Branch", timestamp: "Aug 09, 2026 • 04:30 AM", completed: true },
-        { title: "Out for Delivery with Executive", location: "Chennai Area Delivery", timestamp: "Aug 09, 2026 • 09:15 AM", completed: true, active: true },
-        { title: "Delivered", location: "Chennai, Tamil Nadu", timestamp: "Expected Today by 6 PM", completed: false }
-      ]
-    },
-    "POL-1075": {
-      orderId: "#POL-1075",
-      awbNumber: "COK38492018",
-      carrier: "The Professional Couriers (TPC India)",
-      carrierWebsite: "https://www.tpcindia.com/",
-      carrierTrackingUrl: "https://www.tpcindia.com/tracking.aspx",
-      customerName: "Ananya M",
-      destination: "Mumbai, Maharashtra - 400001",
-      estimatedDelivery: "August 08, 2026 (Delivered)",
-      currentStatus: "DELIVERED",
-      statusLabel: "Delivered",
-      statusDescription: "Consignment delivered and signature captured at destination.",
-      items: [
-        { title: "Manichitrathazhu Nagavalli Classic Poster", size: "A4", frame: "Matte Black Frame", qty: 2, image: "/assets/custom_grid_poster.png" }
-      ],
-      paymentStatus: "PAID",
-      paymentMethod: "Prepaid (Razorpay UPI)",
-      subtotal: 699,
-      timeline: [
-        { title: "Consignment Booked", location: "TPC Kochi Branch", timestamp: "Aug 05, 2026 • 09:00 AM", completed: true },
-        { title: "In Transit via Air Cargo", location: "Mumbai Air Hub", timestamp: "Aug 06, 2026 • 02:00 PM", completed: true },
-        { title: "Received at Destination Branch", location: "TPC Mumbai Central", timestamp: "Aug 07, 2026 • 08:30 AM", completed: true },
-        { title: "Out for Delivery", location: "Mumbai Local Delivery", timestamp: "Aug 08, 2026 • 09:00 AM", completed: true },
-        { title: "Delivered & Signed", location: "Mumbai, Maharashtra", timestamp: "Aug 08, 2026 • 01:45 PM", completed: true, active: true }
-      ]
+  try {
+    // 1. Query Real Database for Order matching orderNumber, AWB number, or Phone number
+    const realOrder = await prisma.order.findFirst({
+      where: {
+        OR: [
+          { orderNumber: { equals: cleanQuery, mode: "insensitive" } },
+          { orderNumber: { equals: `POL-${cleanQuery}`, mode: "insensitive" } },
+          { awbNumber: { equals: cleanQuery, mode: "insensitive" } },
+          { phone: { equals: rawQuery } }
+        ]
+      },
+      include: {
+        items: true
+      }
+    });
+
+    if (!realOrder) {
+      return NextResponse.json(
+        { error: `No package shipment record found matching "${rawQuery}". Please check your Order ID or AWB Consignment code.` },
+        { status: 404 }
+      );
     }
-  };
 
-  // Check matching query or generate realistic entry for Professional Couriers AWB
-  const result = trackingDatabase[cleanQuery] || trackingDatabase[`POL-${cleanQuery}`] || {
-    orderId: cleanQuery.startsWith("POL-") ? cleanQuery : `POL-${cleanQuery}`,
-    awbNumber: cleanQuery.length >= 6 ? cleanQuery : `TPC${Math.floor(100000000 + Math.random() * 900000000)}`,
-    carrier: "The Professional Couriers (TPC India)",
-    carrierWebsite: "https://www.tpcindia.com/",
-    carrierTrackingUrl: "https://www.tpcindia.com/tracking.aspx",
-    customerName: "Valued Collector",
-    destination: "Kerala & Pan-India Express Zone",
-    estimatedDelivery: "Within 2 - 4 Business Days",
-    currentStatus: "IN_TRANSIT",
-    statusLabel: "In Transit via Professional Couriers",
-    statusDescription: "Consignment booked at Polacraft Kochi Branch and in transit to delivery office.",
-    items: [
-      { title: "Polacraft Archival Cinema Print", size: "A4", frame: "Matte Black Frame", qty: 1, image: "/assets/custom_grid_poster.png" }
-    ],
-    paymentStatus: "PAID",
-    paymentMethod: "Prepaid",
-    subtotal: 499,
-    timeline: [
-      { title: "Consignment Booked & Picked Up", location: "TPC Kochi Branch", timestamp: "Recent", completed: true },
-      { title: "Dispatched to Regional Hub", location: "Ernakulam Hub, Kerala", timestamp: "Completed", completed: true },
-      { title: "In Transit to Destination Office", location: "TPC Line Route", timestamp: "In Transit", completed: true, active: true },
-      { title: "Out for Delivery with Courier Executive", location: "Destination Branch", timestamp: "Expected Soon", completed: false },
-      { title: "Delivered to Consignee Doorstep", location: "Destination Address", timestamp: "Pending", completed: false }
-    ]
-  };
+    // 2. Format Real Logistics Status & Milestone Timeline
+    const carrierName = realOrder.courierPartner || "The Professional Couriers (TPC India)";
+    const carrierUrl = carrierName.toLowerCase().includes("professional")
+      ? "https://www.tpcindia.com/tracking.aspx"
+      : "https://www.tpcindia.com/";
 
-  return NextResponse.json({ success: true, tracking: result });
+    const status = realOrder.shippingStatus;
+    let statusLabel = "Order Processing";
+    let statusDescription = "Your cinema art has been confirmed and queued for printing & inspection.";
+    let estDelivery = "2 - 4 Business Days";
+
+    if (status === "DELIVERED") {
+      statusLabel = "Delivered";
+      statusDescription = "Package delivered and signed by consignee.";
+      estDelivery = "Delivered";
+    } else if (status === "SHIPPED" || status === "OUT_FOR_DELIVERY") {
+      statusLabel = status === "OUT_FOR_DELIVERY" ? "Out for Delivery" : "In Transit via Professional Couriers";
+      statusDescription = status === "OUT_FOR_DELIVERY" ? "Executive is out for delivery." : "Package handed over to courier and in transit to local delivery hub.";
+      estDelivery = "1 - 2 Days";
+    } else if (status === "PRINTED" || status === "PACKED") {
+      statusLabel = "Printed & Inspected";
+      statusDescription = "300 GSM matte print completed, passed quality check, sealed in protective Kraft armor.";
+    }
+
+    const itemsFormatted = realOrder.items.map((item: any) => ({
+      title: item.title,
+      size: item.size || "A4",
+      frame: item.frame || "Matte Black Frame",
+      qty: item.quantity,
+      image: item.image || "/assets/custom_grid_poster.png"
+    }));
+
+    const isConfirmed = true;
+    const isPrinted = status === "PRINTED" || status === "PACKED" || status === "SHIPPED" || status === "OUT_FOR_DELIVERY" || status === "DELIVERED";
+    const isDispatched = status === "SHIPPED" || status === "OUT_FOR_DELIVERY" || status === "DELIVERED";
+    const isDelivered = status === "DELIVERED";
+
+    const formattedResult = {
+      orderId: `#${realOrder.orderNumber}`,
+      awbNumber: realOrder.awbNumber || `TPC-${realOrder.orderNumber}`,
+      carrier: carrierName,
+      carrierWebsite: "https://www.tpcindia.com/",
+      carrierTrackingUrl: carrierUrl,
+      customerName: realOrder.shippingName,
+      destination: `${realOrder.shippingCity}${realOrder.shippingState ? `, ${realOrder.shippingState}` : ""} - ${realOrder.shippingZip}`,
+      estimatedDelivery: estDelivery,
+      currentStatus: status,
+      statusLabel: statusLabel,
+      statusDescription: statusDescription,
+      items: itemsFormatted,
+      paymentStatus: realOrder.paymentStatus,
+      paymentMethod: realOrder.paymentMethod,
+      subtotal: realOrder.total,
+      timeline: [
+        { 
+          title: "Order Placed & Payment Verified", 
+          location: "Polacraft Studio, Kochi", 
+          timestamp: new Date(realOrder.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), 
+          completed: isConfirmed,
+          active: !isPrinted 
+        },
+        { 
+          title: "Printed, Quality Checked & Sealed", 
+          location: "Studio Quality Inspection", 
+          timestamp: isPrinted ? "Completed" : "In Queue", 
+          completed: isPrinted,
+          active: isPrinted && !isDispatched 
+        },
+        { 
+          title: "Dispatched via Professional Couriers", 
+          location: "TPC Branch, Kochi", 
+          timestamp: isDispatched ? "Handed over to Courier" : "Scheduled", 
+          completed: isDispatched,
+          active: isDispatched && !isDelivered 
+        },
+        { 
+          title: "Out for Delivery with Courier Executive", 
+          location: "Destination Branch", 
+          timestamp: isDelivered ? "Completed" : "Pending", 
+          completed: isDelivered 
+        },
+        { 
+          title: "Delivered to Consignee Doorstep", 
+          location: realOrder.shippingCity, 
+          timestamp: isDelivered ? "Delivered & Signed" : "Pending", 
+          completed: isDelivered,
+          active: isDelivered 
+        }
+      ]
+    };
+
+    return NextResponse.json({ success: true, tracking: formattedResult });
+  } catch (error: any) {
+    console.error("[Tracking API Error]:", error);
+    return NextResponse.json({ error: "Failed to fetch order status. Please try again." }, { status: 500 });
+  }
 }
