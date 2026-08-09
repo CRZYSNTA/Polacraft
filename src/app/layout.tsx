@@ -39,12 +39,11 @@ export const metadata = {
   metadataBase: new URL("https://polacraft-1.vercel.app"),
   icons: {
     icon: [
-      { url: "/favicon.png?v=10", type: "image/png" },
-      { url: "/assets/polacraft-logo-mark.png?v=10", type: "image/png" },
-      { url: "/favicon.ico?v=10" }
+      { url: "/assets/polacraft-logo-mark.png?v=99", type: "image/png" },
+      { url: "/icon.png?v=99", type: "image/png" }
     ],
-    shortcut: "/favicon.png?v=10",
-    apple: "/apple-icon.png?v=10",
+    shortcut: "/assets/polacraft-logo-mark.png?v=99",
+    apple: "/assets/polacraft-logo-mark.png?v=99",
   },
   openGraph: {
     title: "Premium Malayalam Movie Posters | Polacraft",
