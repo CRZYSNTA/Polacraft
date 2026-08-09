@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Heart, ArrowLeft, Loader2, ShoppingBag, Trash2 } from "lucide-react";
 import PosterRenderer from "@/components/PosterRenderer";
 import { AppContext } from "@/features/cart/AppContext";
-
 import { posters as cmsPosters } from "@/lib/cms/products";
 
 export default function AccountWishlistPage() {
@@ -16,6 +15,8 @@ export default function AccountWishlistPage() {
   const [savedProducts, setSavedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const wishlistKey = wishlistIds.join(",");
+
   useEffect(() => {
     async function loadWishlistProducts() {
       try {
@@ -23,10 +24,14 @@ export default function AccountWishlistPage() {
 
         // Fetch public products from search API
         let allProducts: any[] = [];
-        const res = await fetch("/api/search");
-        if (res.ok) {
-          const data = await res.json();
-          allProducts = data.products || [];
+        try {
+          const res = await fetch("/api/search");
+          if (res.ok) {
+            const data = await res.json();
+            allProducts = data.products || [];
+          }
+        } catch (e) {
+          console.warn("[Search API Fetch Warning]:", e);
         }
 
         // Fallback/merge with local CMS posters if DB is empty or missing items
@@ -41,11 +46,15 @@ export default function AccountWishlistPage() {
         });
 
         // Also check server user wishlist endpoint
-        const dbRes = await fetch("/api/auth/wishlist");
         let dbProductIds: string[] = [];
-        if (dbRes.ok) {
-          const dbData = await dbRes.json();
-          dbProductIds = (dbData.wishlists || []).map((w: any) => w.productId);
+        try {
+          const dbRes = await fetch("/api/auth/wishlist");
+          if (dbRes.ok) {
+            const dbData = await dbRes.json();
+            dbProductIds = (dbData.wishlists || []).map((w: any) => w.productId);
+          }
+        } catch (e) {
+          console.warn("[Wishlist DB Load Warning]:", e);
         }
 
         const combinedIds = Array.from(new Set([...wishlistIds, ...dbProductIds]));
@@ -54,8 +63,8 @@ export default function AccountWishlistPage() {
 
         combinedIds.forEach((id) => {
           const found = mergedCatalogMap.get(id);
-          if (found && !addedSet.has(found.id)) {
-            addedSet.add(found.id);
+          if (found && !addedSet.has(found.id || found.slug)) {
+            addedSet.add(found.id || found.slug);
             matched.push(found);
           }
         });
@@ -69,13 +78,13 @@ export default function AccountWishlistPage() {
     }
 
     loadWishlistProducts();
-  }, [wishlistIds]);
+  }, [wishlistKey]);
 
   const handleRemove = (productId: string) => {
     if (toggleWishlist) {
       toggleWishlist(productId);
     }
-    setSavedProducts((prev) => prev.filter((p) => p.id !== productId && p.slug !== productId));
+    setSavedProducts((prev) => prev.filter((p) => p && p.id !== productId && p.slug !== productId));
   };
 
   return (
@@ -122,9 +131,15 @@ export default function AccountWishlistPage() {
             {savedProducts.map((poster) => {
               if (!poster) return null;
 
+              const collectionName = poster.collection || poster.collectionName || poster.film || "Archival Collection";
+              const releaseYear = poster.year || poster.releaseYear || "2024";
+              const rawPrice = Number(poster.price ?? 499);
+              const formattedPrice = isNaN(rawPrice) ? "499" : rawPrice.toLocaleString("en-IN");
+              const posterKey = poster.id || poster.slug || Math.random().toString();
+
               return (
                 <div 
-                  key={poster.id} 
+                  key={posterKey} 
                   style={{ 
                     backgroundColor: "#FFFFFF", 
                     borderRadius: "20px", 
@@ -139,11 +154,11 @@ export default function AccountWishlistPage() {
                 >
                   <div>
                     <div style={{ position: "relative", backgroundColor: "#EFECE6", borderRadius: "14px", overflow: "hidden", padding: "1.25rem 0.85rem", marginBottom: "1rem" }}>
-                      <Link href={`/product/${poster.slug}`} style={{ display: "block" }}>
+                      <Link href={`/product/${poster.slug || poster.id}`} style={{ display: "block" }}>
                         <PosterRenderer poster={poster} frame="unframed" />
                       </Link>
                       <button
-                        onClick={() => handleRemove(poster.id)}
+                        onClick={() => handleRemove(poster.id || poster.slug)}
                         style={{
                           position: "absolute",
                           top: "8px",
@@ -167,19 +182,19 @@ export default function AccountWishlistPage() {
                     </div>
 
                     <h4 style={{ color: "#111111", fontSize: "0.95rem", fontWeight: 800, margin: "0 0 0.25rem 0", lineHeight: "1.3" }}>
-                      {poster.title}
+                      {poster.title || "Cinema Poster"}
                     </h4>
                     <p style={{ color: "#666666", fontSize: "0.78rem", margin: "0 0 0.85rem 0" }}>
-                      {poster.collection} • {poster.year}
+                      {collectionName} • {releaseYear}
                     </p>
                   </div>
 
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "0.85rem", borderTop: "1px solid #F3F4F6" }}>
                     <span style={{ fontSize: "1rem", fontWeight: "900", color: "#111111" }}>
-                      ₹{poster.price.toLocaleString("en-IN")}
+                      ₹{formattedPrice}
                     </span>
                     <Link 
-                      href={`/product/${poster.slug}`} 
+                      href={`/product/${poster.slug || poster.id}`} 
                       style={{ 
                         fontSize: "0.8rem", 
                         fontWeight: "800", 
