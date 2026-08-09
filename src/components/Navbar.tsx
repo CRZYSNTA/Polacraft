@@ -46,6 +46,66 @@ const LogoBrand = () => {
   );
 };
 
+const LogoVideoReveal = () => {
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          if (videoRef.current) {
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(() => setHasError(true));
+          }
+        });
+      }
+    }
+  }, []);
+
+  if (hasError) {
+    return <LogoBrand />;
+  }
+
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "44px",
+        maxHeight: "44px",
+        position: "relative",
+        overflow: "hidden",
+        borderRadius: "6px",
+      }}
+    >
+      <video
+        ref={videoRef}
+        src="/assets/logo-reveal.MP4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        onError={() => setHasError(true)}
+        style={{
+          height: "100%",
+          width: "auto",
+          maxHeight: "44px",
+          maxWidth: "240px",
+          objectFit: "contain",
+          display: "block",
+          mixBlendMode: "multiply",
+        }}
+      />
+    </div>
+  );
+};
+
 export const Navbar = () => {
   const context = useContext(AppContext);
   const cartItemCount = context?.cartItemCount || 0;
@@ -207,7 +267,7 @@ export const Navbar = () => {
                 cursor: "pointer"
               }}
             >
-              <LogoBrand />
+              <LogoVideoReveal />
             </Link>
           </div>
 
@@ -390,7 +450,7 @@ export const Navbar = () => {
                 textDecoration: "none",
               }}
             >
-              <LogoBrand />
+              <LogoVideoReveal />
             </Link>
           </div>
 
