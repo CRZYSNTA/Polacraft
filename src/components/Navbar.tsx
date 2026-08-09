@@ -59,16 +59,12 @@ const LogoVideoReveal = () => {
         playPromise.catch(() => {
           if (videoRef.current) {
             videoRef.current.muted = true;
-            videoRef.current.play().catch(() => setHasError(true));
+            videoRef.current.play().catch(() => {});
           }
         });
       }
     }
   }, []);
-
-  if (hasError) {
-    return <LogoBrand />;
-  }
 
   return (
     <div
@@ -83,25 +79,30 @@ const LogoVideoReveal = () => {
         borderRadius: "6px",
       }}
     >
-      <video
-        ref={videoRef}
-        src="/assets/logo-reveal.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        onError={() => setHasError(true)}
-        style={{
-          height: "100%",
-          width: "auto",
-          maxHeight: "44px",
-          maxWidth: "240px",
-          objectFit: "contain",
-          display: "block",
-          mixBlendMode: "multiply",
-        }}
-      />
+      {!hasError ? (
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          onError={() => setHasError(true)}
+          style={{
+            height: "100%",
+            width: "auto",
+            maxHeight: "44px",
+            maxWidth: "240px",
+            objectFit: "contain",
+            display: "block",
+            mixBlendMode: "multiply",
+          }}
+        >
+          <source src="/assets/logo-reveal.mp4" type="video/mp4" />
+        </video>
+      ) : (
+        <LogoBrand />
+      )}
     </div>
   );
 };
