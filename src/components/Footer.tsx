@@ -93,6 +93,11 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link href="/track" className="footer-link" style={{ color: "#E5A93C", fontWeight: "700" }}>
+                  Track Order 📦
+                </Link>
+              </li>
+              <li>
                 <Link href="/faq" className="footer-link" style={{ color: "rgba(250,250,248,0.7)" }}>
                   Help & FAQs
                 </Link>

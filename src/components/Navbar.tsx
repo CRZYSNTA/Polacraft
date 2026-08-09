@@ -257,6 +257,7 @@ export const Navbar = () => {
             {[
               { path: "/shop", label: "Shop Art" },
               { path: "/custom", label: "Custom Print" },
+              { path: "/track", label: "Track Order" },
               { path: "/about", label: "Our Story" },
               { path: "/journal", label: "Editorial Journal" },
               { path: "/contact", label: "Contact" },
@@ -483,6 +484,7 @@ export const Navbar = () => {
           {[
             { path: "/shop", label: "Shop All Posters" },
             { path: "/custom", label: "Upload Custom Print" },
+            { path: "/track", label: "Track Package & Order" },
             { path: "/about", label: "Our Craftsmanship" },
             { path: "/journal", label: "Editorial Journal" },
             { path: "/contact", label: "Contact Studio" },
