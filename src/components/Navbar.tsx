@@ -20,10 +20,10 @@ const LogoBrand = () => {
       />
       <span
         style={{
-          fontFamily: "var(--font-movault), 'Movault', var(--font-bebas-neue), 'Bebas Neue', sans-serif",
-          fontSize: "1.65rem",
+          fontFamily: "var(--font-serif), Georgia, serif",
+          fontSize: "1.75rem",
           fontWeight: "900",
-          letterSpacing: "0.03em",
+          letterSpacing: "-0.03em",
           display: "inline-flex",
           alignItems: "center",
           lineHeight: 1,
