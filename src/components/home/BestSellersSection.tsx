@@ -4,7 +4,7 @@ import React, { useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { Eye, Heart, ShoppingBag, ArrowLeft, ArrowRight } from "lucide-react";
+import { Eye, Heart, ShoppingBag } from "lucide-react";
 import PosterRenderer from "../PosterRenderer";
 import { Product } from "@/types";
 
@@ -27,18 +27,8 @@ export default function BestSellersSection({
   const carouselRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
 
-  const scrollCarousel = (direction: "left" | "right") => {
-    if (carouselRef.current) {
-      const scrollAmount = 300;
-      carouselRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth"
-      });
-    }
-  };
-
   return (
-    <section id="best-sellers" className="bestsellers-section" style={{ padding: "6rem 0", backgroundColor: "#FAFAFA", position: "relative" }}>
+    <section id="best-sellers" className="bestsellers-section" style={{ padding: "5rem 0", backgroundColor: "#FAFAFA", position: "relative" }}>
       <div className="container">
         {/* Section Header */}
         <motion.div
@@ -60,19 +50,8 @@ export default function BestSellersSection({
           </p>
         </motion.div>
 
-        {/* Carousel Viewport (2+ Visible Cards on Mobile View) */}
-        <div
-          ref={carouselRef}
-          style={{
-            display: "flex",
-            gap: "1.5rem",
-            overflowX: "auto",
-            scrollSnapType: "x mandatory",
-            paddingBottom: "1.5rem",
-            scrollbarWidth: "none"
-          }}
-          className="bestsellers-carousel"
-        >
+        {/* Carousel Viewport */}
+        <div ref={carouselRef} className="bestsellers-carousel">
           {bestSellers.map((poster, index) => {
             const isWish = wishlist.includes(poster.id);
             return (
@@ -83,27 +62,19 @@ export default function BestSellersSection({
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.08 }}
                 className="bestseller-item"
-                style={{
-                  flex: "0 0 260px",
-                  scrollSnapAlign: "start",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.75rem"
-                }}
               >
                 <motion.div
                   whileHover={{ y: -4, scale: 1.02 }}
                   transition={{ duration: 0.25 }}
+                  className="best-seller-art-wrapper"
                   style={{
                     position: "relative",
                     borderRadius: "16px",
                     overflow: "hidden",
                     backgroundColor: "#EFECE6",
                     border: "1px solid rgba(17, 17, 17, 0.08)",
-                    padding: "1.25rem 0.85rem",
                     cursor: "pointer"
                   }}
-                  className="best-seller-art-wrapper"
                 >
                   <Link href={`/product/${poster.slug}`} prefetch={true} style={{ display: "block", textDecoration: "none" }}>
                     <motion.div
@@ -115,71 +86,24 @@ export default function BestSellersSection({
                   </Link>
 
                   {/* Quick Actions overlay */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: "0.85rem",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      display: "flex",
-                      gap: "0.4rem",
-                      zIndex: 10
-                    }}
-                  >
+                  <div className="quick-actions-overlay">
                     <button
                       onClick={() => openQuickView(poster)}
-                      style={{
-                        backgroundColor: "#FAFAF8",
-                        color: "#111111",
-                        width: "34px",
-                        height: "34px",
-                        borderRadius: "50%",
-                        border: "none",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer"
-                      }}
+                      className="quick-action-btn"
                       title="Quick View"
                     >
                       <Eye size={14} />
                     </button>
                     <button
                       onClick={() => addToCart(poster, "A4", "unframed", 1)}
-                      style={{
-                        backgroundColor: "#111111",
-                        color: "#FAFAF8",
-                        width: "34px",
-                        height: "34px",
-                        borderRadius: "50%",
-                        border: "none",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        fontWeight: "700"
-                      }}
+                      className="quick-action-btn dark-btn"
                       title="Add to Cart"
                     >
                       <ShoppingBag size={14} />
                     </button>
                     <button
                       onClick={() => toggleWishlist(poster.id)}
-                      style={{
-                        backgroundColor: isWish ? "#FFF5F5" : "#FAFAF8",
-                        color: isWish ? "red" : "#111111",
-                        width: "34px",
-                        height: "34px",
-                        borderRadius: "50%",
-                        border: "none",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer"
-                      }}
+                      className={`quick-action-btn ${isWish ? "wish-active" : ""}`}
                       title="Add to Wishlist"
                     >
                       <Heart size={14} fill={isWish ? "red" : "none"} />
@@ -188,14 +112,14 @@ export default function BestSellersSection({
                 </motion.div>
 
                 {/* Metadata Title & Price */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 0.25rem" }}>
-                  <div style={{ minWidth: 0, flexGrow: 1, paddingRight: "0.5rem" }}>
-                    <h4 style={{ fontSize: "0.88rem", fontWeight: "700", color: "#111111", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 0.2rem", marginTop: "0.5rem" }}>
+                  <div style={{ minWidth: 0, flexGrow: 1, paddingRight: "0.4rem" }}>
+                    <h4 style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {poster.title}
                     </h4>
                     <p style={{ fontSize: "0.72rem", color: "#666666", margin: "2px 0 0 0" }}>{poster.collection}</p>
                   </div>
-                  <span style={{ fontSize: "0.92rem", fontWeight: "800", color: "#111111", flexShrink: 0 }}>
+                  <span style={{ fontSize: "0.9rem", fontWeight: "800", color: "#111111", flexShrink: 0 }}>
                     ₹{poster.price.toLocaleString("en-IN")}
                   </span>
                 </div>
@@ -206,20 +130,78 @@ export default function BestSellersSection({
       </div>
 
       <style jsx>{`
+        .bestsellers-carousel {
+          display: flex;
+          gap: 1.5rem;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          padding-bottom: 1.5rem;
+          scrollbar-width: none;
+        }
+        .bestsellers-carousel::-webkit-scrollbar {
+          display: none;
+        }
+        .bestseller-item {
+          flex: 0 0 250px;
+          scroll-snap-align: start;
+          display: flex;
+          flex-direction: column;
+        }
+        .best-seller-art-wrapper {
+          padding: 1.25rem 0.85rem;
+        }
+        .quick-actions-overlay {
+          position: absolute;
+          bottom: 0.85rem;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 0.4rem;
+          z-index: 10;
+        }
+        .quick-action-btn {
+          background-color: #FAFAF8;
+          color: #111111;
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          border: none;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+        .quick-action-btn.dark-btn {
+          background-color: #111111;
+          color: #FAFAF8;
+        }
+        .quick-action-btn.wish-active {
+          background-color: #FFF5F5;
+          color: red;
+        }
+
         @media (max-width: 640px) {
           .bestsellers-section {
-            padding: 4rem 0 !important;
+            padding: 3rem 0 !important;
           }
           .bestsellers-carousel {
-            gap: 0.75rem !important;
+            gap: 0.6rem !important;
+            padding: 0 0.5rem 1rem 0.5rem !important;
           }
           .bestseller-item {
-            flex: 0 0 calc(48% - 0.25rem) !important;
-            min-width: 150px !important;
+            flex: 0 0 calc(50% - 0.3rem) !important;
+            width: calc(50% - 0.3rem) !important;
+            min-width: 140px !important;
+            max-width: 190px !important;
           }
           .best-seller-art-wrapper {
-            padding: 0.75rem 0.5rem !important;
+            padding: 0.6rem 0.4rem !important;
             border-radius: 12px !important;
+          }
+          .quick-action-btn {
+            width: 28px !important;
+            height: 28px !important;
           }
         }
       `}</style>
