@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  --font-movault: 'Movault', var(--font-bebas-neue), var(--font-syne), 'Bebas Neue', sans-serif;
   --bg-warm: #FAFAF8;
   --text-dark: #111111;
   --text-muted: #666666;
@@ -19,8 +20,23 @@
   --transition-fast: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@font-face {
+  font-family: 'Movault';
+  src: local('Movault'), local('Movault-Bold'), local('Movault Bold');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-movault {
+  font-family: var(--font-movault) !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 @theme {
   /* Typography fonts */
+  --font-movault: 'Movault', var(--font-bebas-neue), var(--font-syne), 'Bebas Neue', sans-serif;
   --font-serif: var(--font-instrument-serif), Georgia, serif;
   --font-sans: var(--font-inter), sans-serif;
   

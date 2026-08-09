@@ -218,7 +218,7 @@ export default function HeroSection({
             }}
           >
             <Sparkles size={14} style={{ color: "#D4AF37" }} />
-            <span style={{ fontSize: "0.78rem", fontWeight: "800", letterSpacing: "0.1em", textTransform: "uppercase", color: "#111111" }}>
+            <span style={{ fontSize: "0.78rem", fontWeight: "800", letterSpacing: "0.12em", textTransform: "uppercase", color: "#111111", fontFamily: "var(--font-movault), 'Movault', var(--font-bebas-neue), 'Bebas Neue', sans-serif" }}>
               FINE ART MALAYALAM CINEMA PRINT STUDIO
             </span>
           </div>
@@ -227,12 +227,14 @@ export default function HeroSection({
           <h1
             className="hero-mobile-title"
             style={{
-              fontSize: "clamp(2.25rem, 5.5vw, 4rem)",
+              fontSize: "clamp(2.5rem, 7.5vw, 4.75rem)",
               fontWeight: "900",
               color: "#111111",
-              letterSpacing: "-0.03em",
+              fontFamily: "var(--font-movault), 'Movault', var(--font-bebas-neue), 'Bebas Neue', sans-serif",
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
               margin: 0,
-              lineHeight: 1.1,
+              lineHeight: 1.02,
               textShadow: isMobile ? "0 0 25px rgba(255,255,255,1), 0 0 12px rgba(255,255,255,1), 0 2px 6px rgba(255,255,255,0.95)" : "none"
             }}
           >
@@ -248,7 +250,7 @@ export default function HeroSection({
               marginTop: "0.85rem",
               maxWidth: "52ch",
               lineHeight: 1.5,
-              fontWeight: "800",
+              fontWeight: "700",
               textShadow: isMobile ? "0 0 20px rgba(255,255,255,1), 0 0 10px rgba(255,255,255,1), 0 1px 4px rgba(255,255,255,0.95)" : "none"
             }}
           >
