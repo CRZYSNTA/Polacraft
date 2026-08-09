@@ -7,6 +7,7 @@ import { Product } from "@/types";
 import HeroSection from "./HeroSection";
 import BestSellersSection from "./BestSellersSection";
 import DesignYourOwnSection from "./DesignYourOwnSection";
+import OriginkitCircleSection from "./OriginkitCircleSection";
 import WhyChooseUsSection from "./WhyChooseUsSection";
 import HomeFaqSection from "./HomeFaqSection";
 import PackagingSection from "./PackagingSection";
@@ -49,19 +50,22 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
       {/* 3. DESIGN YOUR OWN PRINTS */}
       <DesignYourOwnSection />
 
-      {/* 4. WHY CHOOSE US */}
+      {/* 4. ORIGINKIT 360 INTERACTIVE POSTER VAULT */}
+      <OriginkitCircleSection posters={initialPosters} />
+
+      {/* 5. WHY CHOOSE US */}
       <WhyChooseUsSection />
 
-      {/* 5. HOME FAQ SECTION */}
+      {/* 6. HOME FAQ SECTION */}
       <HomeFaqSection />
 
-      {/* 6. UNBOXING & PACKAGING EXPERIENCE */}
+      {/* 7. UNBOXING & PACKAGING EXPERIENCE */}
       <PackagingSection />
 
-      {/* 7. TESTIMONIALS & PRESS REVIEWS */}
+      {/* 8. TESTIMONIALS & PRESS REVIEWS */}
       <TestimonialsSection />
 
-      {/* 8. NEWSLETTER & VIP CLUB */}
+      {/* 9. NEWSLETTER & VIP CLUB */}
       <NewsletterSection />
 
     </main>
