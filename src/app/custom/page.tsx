@@ -29,7 +29,7 @@ export default function CustomPrintStudio() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Active Layout Selection
-  const [activeLayout, setActiveLayout] = useState<"single" | "split-3" | "split-2x2">("single");
+  const [activeLayout, setActiveLayout] = useState<"single" | "split-3" | "split-2x2" | "retro" | "pocket" | "photobooth">("single");
   const [isStudioOpen, setIsStudioOpen] = useState(false);
 
   // Customizer state
@@ -53,11 +53,14 @@ export default function CustomPrintStudio() {
     A3: 100
   };
 
-  // Multipliers for Split Formats
+  // Multipliers for Formats
   const MULTIPLIERS: Record<string, number> = {
     "single": 1,
     "split-3": 2.5,
-    "split-2x2": 3.2
+    "split-2x2": 3.2,
+    "retro": 1.5,
+    "pocket": 0.8,
+    "photobooth": 0.9
   };
 
   // Frame Rates by Size
@@ -76,7 +79,7 @@ export default function CustomPrintStudio() {
   const shippingCost = subtotal >= 800 ? 0 : 60;
   const grandTotal = subtotal + shippingCost;
 
-  const openStudio = (layout: "single" | "split-3" | "split-2x2") => {
+  const openStudio = (layout: "single" | "split-3" | "split-2x2" | "retro" | "pocket" | "photobooth") => {
     setActiveLayout(layout);
     setIsStudioOpen(true);
     setTimeout(() => {
@@ -136,7 +139,13 @@ export default function CustomPrintStudio() {
   };
 
   // Construct Synthetic Poster Object
-  const layoutLabel = activeLayout === "single" ? "Single Poster" : activeLayout === "split-3" ? "3-Panel Split Poster" : "2x2 Grid Split Poster";
+  const layoutLabel = 
+    activeLayout === "single" ? "Single Poster" :
+    activeLayout === "split-3" ? "3-Panel Split Poster" :
+    activeLayout === "split-2x2" ? "2x2 Grid Split Poster" :
+    activeLayout === "retro" ? "Retro Prints Grid" :
+    activeLayout === "pocket" ? "Mini Pocket Photo" :
+    "Photobooth Strip";
 
   const customPoster: Product = React.useMemo(() => ({
     id: `custom-print-${activeLayout}`,
@@ -389,11 +398,14 @@ export default function CustomPrintStudio() {
               </div>
 
               {/* Layout Switcher Tabs */}
-              <div style={{ display: "flex", backgroundColor: "#EFECE6", borderRadius: "100px", padding: "4px" }}>
+              <div style={{ display: "flex", backgroundColor: "#EFECE6", borderRadius: "100px", padding: "4px", flexWrap: "wrap", gap: "2px" }}>
                 {[
                   { id: "single", label: "Single Poster" },
                   { id: "split-3", label: "3-Panel Split" },
-                  { id: "split-2x2", label: "2x2 Grid Split" }
+                  { id: "split-2x2", label: "2x2 Grid Split" },
+                  { id: "retro", label: "Retro Prints" },
+                  { id: "pocket", label: "Mini Pocket" },
+                  { id: "photobooth", label: "Photobooth" }
                 ].map((tab) => (
                   <button
                     key={tab.id}
