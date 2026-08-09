@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useMemo, type CSSProperties } from "react";
+import Link from "next/link";
 
 interface Img {
   src?: string;
@@ -14,12 +15,14 @@ type Fit = "cover" | "contain";
 interface PhotoItem {
   image?: Img | string;
   focusY?: number;
+  slug?: string;
 }
 
 interface Photo {
   src?: string;
   srcSet?: string;
   alt?: string;
+  slug?: string;
   focusY: number;
 }
 
@@ -40,31 +43,16 @@ interface ImageGroupProps {
 }
 
 const FALLBACK: Photo[] = [
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/f8b3688c-11d0-425c-0b6f-66f133322c00/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/75367195-8fa6-4ff1-d0ce-68df4694a700/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/b14ae2a2-1116-4a7f-0a18-1d74c4a46f00/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/babdb603-8b5b-4520-58d6-240a34463c00/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/e5213ea9-fdf1-4b3b-7d6b-331203912500/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/e4476503-c1e3-4358-3ff6-539deda1f800/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/4271959a-5964-4541-4809-a68cb90cde00/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/eaafe6e8-cf8c-45c0-5a18-f468059e5800/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/12e8b0be-f114-4134-1ab7-53116bfc2800/w=800",
-].map((src) => ({ src, focusY: 50 }));
+  { src: "/assets/custom_grid_poster.png", focusY: 50, slug: "messi" },
+  { src: "/assets/custom_grid_split_3.png", focusY: 50, slug: "aavesham" },
+  { src: "/assets/custom_grid_split_2x2.png", focusY: 50, slug: "manichitrathazhu" },
+  { src: "/assets/custom_grid_retro.png", focusY: 50, slug: "lucifer" },
+  { src: "/assets/custom_grid_pocket.png", focusY: 50, slug: "premam" },
+  { src: "/assets/custom_grid_photobooth.png", focusY: 50, slug: "kumbalangi-nights" },
+];
 
 const DEFAULTS = {
-  images: {
-    items: [
-      { image: { src: "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/f8b3688c-11d0-425c-0b6f-66f133322c00/w=800" }, focusY: 50 },
-      { image: { src: "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/75367195-8fa6-4ff1-d0ce-68df4694a700/w=800" }, focusY: 50 },
-      { image: { src: "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/b14ae2a2-1116-4a7f-0a18-1d74c4a46f00/w=800" }, focusY: 50 },
-      { image: { src: "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/babdb603-8b5b-4520-58d6-240a34463c00/w=800" }, focusY: 50 },
-      { image: { src: "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/e5213ea9-fdf1-4b3b-7d6b-331203912500/w=800" }, focusY: 50 },
-      { image: { src: "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/e4476503-c1e3-4358-3ff6-539deda1f800/w=800" }, focusY: 50 },
-      { image: { src: "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/4271959a-5964-4541-4809-a68cb90cde00/w=800" }, focusY: 50 },
-      { image: { src: "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/eaafe6e8-cf8c-45c0-5a18-f468059e5800/w=800" }, focusY: 50 },
-      { image: { src: "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/12e8b0be-f114-4134-1ab7-53116bfc2800/w=800" }, focusY: 50 },
-    ] as PhotoItem[],
-  },
+  images: { items: [] as PhotoItem[] },
   count: 63,
   rings: 4,
   innerRadius: 126,
@@ -143,6 +131,7 @@ export default function ImageGroup(props: ImageGroupProps) {
         src: resolveSrc(it?.image),
         srcSet: typeof it?.image === "object" ? it.image?.srcSet : undefined,
         alt: typeof it?.image === "object" ? it.image?.alt : undefined,
+        slug: it?.slug,
         focusY: typeof it?.focusY === "number" ? it.focusY : DEFAULTS.focusY,
       }))
       .filter((it) => it.src);
@@ -218,28 +207,8 @@ export default function ImageGroup(props: ImageGroupProps) {
         ...style,
       }}
     >
-      {cards.map((c, i) => (
-        <div
-          key={i}
-          ref={(el) => {
-            refs.current[i] = el;
-          }}
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            width: c.w,
-            height: c.h,
-            marginLeft: -c.w / 2,
-            marginTop: -c.h / 2,
-            borderRadius: radiusPx,
-            overflow: "hidden",
-            boxShadow: "0 18px 40px rgba(0,0,0,0.16)",
-            transform: transformFor(c, c.angle),
-            willChange: "transform",
-            pointerEvents: "none",
-          }}
-        >
+      {cards.map((c, i) => {
+        const content = (
           <img
             src={c.img.src}
             srcSet={c.img.srcSet}
@@ -253,8 +222,41 @@ export default function ImageGroup(props: ImageGroupProps) {
               display: "block",
             }}
           />
-        </div>
-      ))}
+        );
+
+        return (
+          <div
+            key={i}
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: c.w,
+              height: c.h,
+              marginLeft: -c.w / 2,
+              marginTop: -c.h / 2,
+              borderRadius: radiusPx,
+              overflow: "hidden",
+              boxShadow: "0 14px 30px rgba(0,0,0,0.14)",
+              transform: transformFor(c, c.angle),
+              willChange: "transform",
+              pointerEvents: "auto",
+              cursor: c.img.slug ? "pointer" : "default"
+            }}
+          >
+            {c.img.slug ? (
+              <Link href={`/product/${c.img.slug}`} prefetch={true} style={{ display: "block", width: "100%", height: "100%" }}>
+                {content}
+              </Link>
+            ) : (
+              content
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

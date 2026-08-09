@@ -28,11 +28,12 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
 
   return (
     <main style={{ backgroundColor: "#FFFFFF", color: "#111111", minHeight: "100vh", overflowX: "hidden" }}>
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION (WITH MOBILE EXCLUSIVE ORIGINKIT CIRCLE FEATURING REAL POSTERS) */}
       <HeroSection
         heroTitle={activeSettings?.heroTitle || siteSettings?.heroTitle || "Bring Cinema Home."}
         heroSubtitle={activeSettings?.heroSubtitle || siteSettings?.heroSubtitle || "Museum-Quality Malayalam Cinema Posters Crafted For Collectors."}
         heroFanCards={heroFanCards}
+        allPosters={initialPosters}
         isLoading={false}
       />
 

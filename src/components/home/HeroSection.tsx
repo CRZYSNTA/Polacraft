@@ -12,6 +12,7 @@ interface HeroSectionProps {
   heroTitle: string;
   heroSubtitle: string;
   heroFanCards: Product[];
+  allPosters?: Product[];
   isLoading: boolean;
 }
 
@@ -19,6 +20,7 @@ export default function HeroSection({
   heroTitle,
   heroSubtitle,
   heroFanCards = [],
+  allPosters = [],
   isLoading,
 }: HeroSectionProps) {
   const shouldReduceMotion = useReducedMotion();
@@ -35,23 +37,30 @@ export default function HeroSection({
   }, []);
 
   const safeCards = Array.isArray(heroFanCards) ? heroFanCards : [];
+  const catalogPosters = Array.isArray(allPosters) && allPosters.length > 0 ? allPosters : safeCards;
+
   const fanRotations = [-15, -8, -2, 6, 12, 18];
   const fanYPositions = [40, 15, 0, 10, 30, 50];
   const fanXPositions = [-160, -80, 0, 80, 160, 240];
 
   const cardsToRender = safeCards.slice(0, 6);
 
-  // Formatted image items for mobile Originkit circle animation
+  // Formatted real cinema posters for mobile Originkit circle animation
   const mobileCircleImages = useMemo(() => {
-    const items = safeCards.map((p) => ({
-      image: {
-        src: p.heroImage || p.galleryImages?.[0] || "/assets/custom_grid_poster.png",
-        alt: p.title
-      },
-      focusY: 50
-    }));
+    const items = catalogPosters.map((p) => {
+      const rawImg = p.heroImage || p.galleryImages?.[0] || (p as any).images?.[0]?.url;
+      const validSrc = (rawImg && typeof rawImg === "string" && rawImg.trim() !== "") ? rawImg : "/assets/custom_grid_poster.png";
+      return {
+        image: {
+          src: validSrc,
+          alt: p.title
+        },
+        slug: p.slug,
+        focusY: 50
+      };
+    });
     return { items };
-  }, [safeCards]);
+  }, [catalogPosters]);
 
   return (
     <section
@@ -169,18 +178,18 @@ export default function HeroSection({
         </motion.div>
       </div>
 
-      {/* MOBILE EXCLUSIVE: ORIGINKIT CIRCULAR ROTATING DECK */}
+      {/* MOBILE EXCLUSIVE: ORIGINKIT CIRCULAR ROTATING DECK WITH REAL POSTERS */}
       {isMobile ? (
-        <div style={{ position: "relative", width: "100%", height: "260px", marginTop: "1.75rem" }}>
+        <div style={{ position: "relative", width: "100%", height: "270px", marginTop: "1.75rem" }}>
           <ImageGroup 
             images={mobileCircleImages}
-            count={24}
+            count={32}
             rings={2}
             innerRadius={65}
             ringGap={85}
-            cardWidth={70}
-            cardHeight={92}
-            speed={5}
+            cardWidth={72}
+            cardHeight={95}
+            speed={4.5}
             direction="alternate"
             rounded={6}
           />
