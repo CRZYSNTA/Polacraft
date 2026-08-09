@@ -354,25 +354,50 @@ export default function TrackOrderPage() {
                   </a>
                 </div>
 
-                {/* ITEMS IN PACKAGE */}
-                <div style={{ backgroundColor: "#FFFFFF", border: "1px solid rgba(17,17,17,0.08)", borderRadius: "20px", padding: "1.5rem" }}>
-                  <h4 style={{ fontSize: "0.95rem", fontWeight: "800", color: "#111111", margin: "0 0 1rem 0" }}>
-                    Items in Package ({trackingData.items.length})
+                {/* ITEMS IN PACKAGE (MOBILE & DESKTOP ADJUSTED VIEW) */}
+                <div 
+                  className="package-items-card"
+                  style={{ 
+                    backgroundColor: "#FFFFFF", 
+                    border: "1px solid rgba(17,17,17,0.08)", 
+                    borderRadius: "20px", 
+                    padding: "1.25rem" 
+                  }}
+                >
+                  <h4 style={{ fontSize: "0.95rem", fontWeight: "800", color: "#111111", margin: "0 0 1rem 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span>What's Inside Your Package</span>
+                    <span style={{ fontSize: "0.75rem", backgroundColor: "#F3F4F6", color: "#4B5563", padding: "0.2rem 0.6rem", borderRadius: "100px", fontWeight: "700" }}>
+                      {trackingData.items.length} {trackingData.items.length === 1 ? "Item" : "Items"}
+                    </span>
                   </h4>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
                     {trackingData.items.map((item: any, idx: number) => (
-                      <div key={idx} style={{ display: "flex", gap: "0.85rem", alignItems: "center" }}>
-                        <div style={{ width: "50px", height: "68px", borderRadius: "6px", overflow: "hidden", position: "relative", backgroundColor: "#F4F3EF", flexShrink: 0, border: "1px solid rgba(17,17,17,0.08)" }}>
+                      <div 
+                        key={idx} 
+                        style={{ 
+                          display: "flex", 
+                          gap: "0.85rem", 
+                          alignItems: "center", 
+                          backgroundColor: "#FAFAF8",
+                          padding: "0.75rem",
+                          borderRadius: "14px",
+                          border: "1px solid #F3F4F6"
+                        }}
+                      >
+                        <div style={{ width: "52px", height: "70px", borderRadius: "8px", overflow: "hidden", position: "relative", backgroundColor: "#F4F3EF", flexShrink: 0, border: "1px solid rgba(17,17,17,0.08)" }}>
                           <Image src={item.image || "/assets/custom_grid_poster.png"} alt={item.title} fill style={{ objectFit: "cover" }} />
                         </div>
-                        <div>
-                          <h5 style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111", margin: 0, lineHeight: "1.3" }}>
+                        <div style={{ flexGrow: 1, minWidth: 0 }}>
+                          <h5 style={{ fontSize: "0.85rem", fontWeight: "700", color: "#111111", margin: 0, lineHeight: "1.3", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
                             {item.title}
                           </h5>
-                          <p style={{ fontSize: "0.75rem", color: "#666666", margin: "0.2rem 0 0 0" }}>
-                            Size: {item.size} • {item.frame} • Qty: {item.qty}
+                          <p style={{ fontSize: "0.75rem", color: "#666666", margin: "0.25rem 0 0 0" }}>
+                            Size: <strong>{item.size}</strong> • <strong>{item.frame}</strong>
                           </p>
+                          <span style={{ fontSize: "0.7rem", fontWeight: "700", color: "#111111", display: "inline-block", marginTop: "2px" }}>
+                            Qty: {item.qty}
+                          </span>
                         </div>
                       </div>
                     ))}
