@@ -331,14 +331,14 @@ export default function TrackOrderPage() {
                   </div>
 
                   <a
-                    href={`https://shiprocket.co/tracking/${trackingData.awbNumber}`}
+                    href={trackingData.carrierTrackingUrl || "https://www.tpcindia.com/"}
                     target="_blank"
                     rel="noreferrer"
                     style={{
                       width: "100%",
                       padding: "0.75rem",
                       borderRadius: "12px",
-                      backgroundColor: "#111111",
+                      backgroundColor: "#C4161C",
                       color: "#FFFFFF",
                       fontSize: "0.85rem",
                       fontWeight: "700",
@@ -350,7 +350,7 @@ export default function TrackOrderPage() {
                       textDecoration: "none"
                     }}
                   >
-                    Open Live Courier Portal <ExternalLink size={14} />
+                    Open Official Portal on TPC India <ExternalLink size={14} />
                   </a>
                 </div>
 
