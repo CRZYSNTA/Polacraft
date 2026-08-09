@@ -9,6 +9,8 @@ export interface StorePromotionSettings {
   rewardsEnabled: boolean;
   limitedEditionsEnabled: boolean;
   heroSelectedPosterIds?: string[];
+  heroSelectedPosterIdsMobile?: string[];
+  heroSelectedPosterIdsDesktop?: string[];
   heroSpeedMobile?: number;
   heroSpeedDesktop?: number;
 }
@@ -24,6 +26,8 @@ export const DEFAULT_STORE_SETTINGS: StorePromotionSettings = {
   rewardsEnabled: true,
   limitedEditionsEnabled: true,
   heroSelectedPosterIds: [],
+  heroSelectedPosterIdsMobile: [],
+  heroSelectedPosterIdsDesktop: [],
   heroSpeedMobile: 4.0,
   heroSpeedDesktop: 2.7
 };

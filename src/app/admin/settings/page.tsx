@@ -46,7 +46,8 @@ export default function AdminSettingsPage() {
   const [customFrameAddonA3, setCustomFrameAddonA3] = useState<number>(200);
 
   // Originkit Hero Section Manual Controls
-  const [heroSelectedPosterIds, setHeroSelectedPosterIds] = useState<string[]>([]);
+  const [heroSelectedPosterIdsMobile, setHeroSelectedPosterIdsMobile] = useState<string[]>([]);
+  const [heroSelectedPosterIdsDesktop, setHeroSelectedPosterIdsDesktop] = useState<string[]>([]);
   const [heroSpeedMobile, setHeroSpeedMobile] = useState<number>(4.0);
   const [heroSpeedDesktop, setHeroSpeedDesktop] = useState<number>(2.7);
   const [availableProducts, setAvailableProducts] = useState<any[]>([]);
@@ -123,7 +124,8 @@ export default function AdminSettingsPage() {
             setCustomFrameAddonA3(data.settings.customFrameAddonA3 ?? 200);
 
             // Hero Section Controls
-            setHeroSelectedPosterIds(data.settings.heroSelectedPosterIds || []);
+            setHeroSelectedPosterIdsMobile(data.settings.heroSelectedPosterIdsMobile || []);
+            setHeroSelectedPosterIdsDesktop(data.settings.heroSelectedPosterIdsDesktop || []);
             setHeroSpeedMobile(data.settings.heroSpeedMobile ?? 4.0);
             setHeroSpeedDesktop(data.settings.heroSpeedDesktop ?? 2.7);
 
@@ -196,7 +198,8 @@ export default function AdminSettingsPage() {
           customFrameAddonA3: Number(customFrameAddonA3),
 
           // Originkit Hero Controls Payload
-          heroSelectedPosterIds,
+          heroSelectedPosterIdsMobile,
+          heroSelectedPosterIdsDesktop,
           heroSpeedMobile: Number(heroSpeedMobile),
           heroSpeedDesktop: Number(heroSpeedDesktop),
 
@@ -316,68 +319,96 @@ export default function AdminSettingsPage() {
               </div>
             </div>
 
-            {/* Poster Picker List */}
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                <label style={{ fontSize: "0.92rem", fontWeight: "800", color: "#111111" }}>🖼 Select Featured Hero Posters ({heroSelectedPosterIds.length} Selected)</label>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button 
-                    type="button" 
-                    onClick={() => setHeroSelectedPosterIds(availableProducts.map(p => p.id))}
-                    style={{ fontSize: "0.78rem", fontWeight: "700", color: "#111111", background: "#EFECE6", border: "none", padding: "0.3rem 0.75rem", borderRadius: "6px", cursor: "pointer" }}
-                  >
-                    Select All
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setHeroSelectedPosterIds([])}
-                    style={{ fontSize: "0.78rem", fontWeight: "700", color: "#D97706", background: "#FEF3C7", border: "none", padding: "0.3rem 0.75rem", borderRadius: "6px", cursor: "pointer" }}
-                  >
-                    Clear Selection
-                  </button>
+            {/* ─────────── TWO-COLUMN POSTER PICKERS ─────────── */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
+
+              {/* 📱 MOBILE POSTER PICKER */}
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
+                  <label style={{ fontSize: "0.9rem", fontWeight: "800", color: "#111111" }}>
+                    📱 Mobile Posters
+                    <span style={{ marginLeft: "0.5rem", fontSize: "0.75rem", fontWeight: "700", backgroundColor: "#111111", color: "#FFF", padding: "0.15rem 0.5rem", borderRadius: "100px" }}>
+                      {heroSelectedPosterIdsMobile.length} selected
+                    </span>
+                  </label>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    <button type="button" onClick={() => setHeroSelectedPosterIdsMobile(availableProducts.map(p => p.id))}
+                      style={{ fontSize: "0.72rem", fontWeight: "700", color: "#111111", background: "#EFECE6", border: "none", padding: "0.25rem 0.6rem", borderRadius: "5px", cursor: "pointer" }}>
+                      All
+                    </button>
+                    <button type="button" onClick={() => setHeroSelectedPosterIdsMobile([])}
+                      style={{ fontSize: "0.72rem", fontWeight: "700", color: "#D97706", background: "#FEF3C7", border: "none", padding: "0.25rem 0.6rem", borderRadius: "5px", cursor: "pointer" }}>
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                <p style={{ fontSize: "0.76rem", color: "#888", marginBottom: "0.75rem" }}>
+                  Shown in the rotating Image Group Circle on mobile. Leave empty to show all.
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "320px", overflowY: "auto", padding: "0.6rem", border: "1px solid rgba(17,17,17,0.08)", borderRadius: "10px", backgroundColor: "#FAF9F6" }}>
+                  {availableProducts.map((poster) => {
+                    const isSel = heroSelectedPosterIdsMobile.includes(poster.id);
+                    const img = poster.heroImage || poster.galleryImages?.[0] || poster.images?.[0]?.url || "/assets/custom_grid_poster.png";
+                    return (
+                      <div key={poster.id} onClick={() => isSel ? setHeroSelectedPosterIdsMobile(heroSelectedPosterIdsMobile.filter(id => id !== poster.id)) : setHeroSelectedPosterIdsMobile([...heroSelectedPosterIdsMobile, poster.id])}
+                        style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.45rem 0.5rem", borderRadius: "7px", border: isSel ? "2px solid #111111" : "1px solid rgba(17,17,17,0.08)", backgroundColor: isSel ? "#FFFFFF" : "rgba(255,255,255,0.5)", cursor: "pointer", boxShadow: isSel ? "0 2px 8px rgba(0,0,0,0.06)" : "none", transition: "all 0.12s ease" }}>
+                        <img src={img} alt={poster.title} style={{ width: "36px", height: "48px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#111111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{poster.title}</div>
+                          <div style={{ fontSize: "0.7rem", color: "#888" }}>{poster.film || poster.collectionName}</div>
+                        </div>
+                        <input type="checkbox" checked={isSel} readOnly style={{ accentColor: "#111111", flexShrink: 0 }} />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-              <p style={{ fontSize: "0.8rem", color: "#666666", marginBottom: "1rem" }}>Toggle posters to feature in the Hero Carousel. (If none selected, all store posters are shown automatically).</p>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.85rem", maxHeight: "360px", overflowY: "auto", padding: "0.75rem", border: "1px solid rgba(17,17,17,0.08)", borderRadius: "12px", backgroundColor: "#FAF9F6" }}>
-                {availableProducts.map((poster) => {
-                  const isSelected = heroSelectedPosterIds.includes(poster.id);
-                  const posterImg = poster.heroImage || poster.galleryImages?.[0] || poster.images?.[0]?.url || "/assets/custom_grid_poster.png";
-                  return (
-                    <div 
-                      key={poster.id}
-                      onClick={() => {
-                        if (isSelected) {
-                          setHeroSelectedPosterIds(heroSelectedPosterIds.filter(id => id !== poster.id));
-                        } else {
-                          setHeroSelectedPosterIds([...heroSelectedPosterIds, poster.id]);
-                        }
-                      }}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.6rem",
-                        padding: "0.5rem",
-                        borderRadius: "8px",
-                        border: isSelected ? "2px solid #111111" : "1px solid rgba(17,17,17,0.1)",
-                        backgroundColor: isSelected ? "#FFFFFF" : "rgba(255,255,255,0.6)",
-                        cursor: "pointer",
-                        boxShadow: isSelected ? "0 4px 12px rgba(0,0,0,0.08)" : "none",
-                        transition: "all 0.15s ease"
-                      }}
-                    >
-                      <img src={posterImg} alt={poster.title} style={{ width: "40px", height: "52px", objectFit: "cover", borderRadius: "4px" }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#111111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{poster.title}</div>
-                        <div style={{ fontSize: "0.72rem", color: "#666666" }}>{poster.film || poster.collectionName}</div>
+              {/* 💻 DESKTOP POSTER PICKER */}
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
+                  <label style={{ fontSize: "0.9rem", fontWeight: "800", color: "#111111" }}>
+                    💻 Desktop Posters
+                    <span style={{ marginLeft: "0.5rem", fontSize: "0.75rem", fontWeight: "700", backgroundColor: "#1E1E1E", color: "#FFF", padding: "0.15rem 0.5rem", borderRadius: "100px" }}>
+                      {heroSelectedPosterIdsDesktop.length} selected
+                    </span>
+                  </label>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    <button type="button" onClick={() => setHeroSelectedPosterIdsDesktop(availableProducts.map(p => p.id))}
+                      style={{ fontSize: "0.72rem", fontWeight: "700", color: "#111111", background: "#EFECE6", border: "none", padding: "0.25rem 0.6rem", borderRadius: "5px", cursor: "pointer" }}>
+                      All
+                    </button>
+                    <button type="button" onClick={() => setHeroSelectedPosterIdsDesktop([])}
+                      style={{ fontSize: "0.72rem", fontWeight: "700", color: "#D97706", background: "#FEF3C7", border: "none", padding: "0.25rem 0.6rem", borderRadius: "5px", cursor: "pointer" }}>
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                <p style={{ fontSize: "0.76rem", color: "#888", marginBottom: "0.75rem" }}>
+                  Shown in the 3D Round Carousel on desktop. Leave empty to show all.
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "320px", overflowY: "auto", padding: "0.6rem", border: "1px solid rgba(17,17,17,0.08)", borderRadius: "10px", backgroundColor: "#FAF9F6" }}>
+                  {availableProducts.map((poster) => {
+                    const isSel = heroSelectedPosterIdsDesktop.includes(poster.id);
+                    const img = poster.heroImage || poster.galleryImages?.[0] || poster.images?.[0]?.url || "/assets/custom_grid_poster.png";
+                    return (
+                      <div key={poster.id} onClick={() => isSel ? setHeroSelectedPosterIdsDesktop(heroSelectedPosterIdsDesktop.filter(id => id !== poster.id)) : setHeroSelectedPosterIdsDesktop([...heroSelectedPosterIdsDesktop, poster.id])}
+                        style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.45rem 0.5rem", borderRadius: "7px", border: isSel ? "2px solid #1E1E1E" : "1px solid rgba(17,17,17,0.08)", backgroundColor: isSel ? "#FFFFFF" : "rgba(255,255,255,0.5)", cursor: "pointer", boxShadow: isSel ? "0 2px 8px rgba(0,0,0,0.06)" : "none", transition: "all 0.12s ease" }}>
+                        <img src={img} alt={poster.title} style={{ width: "36px", height: "48px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#111111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{poster.title}</div>
+                          <div style={{ fontSize: "0.7rem", color: "#888" }}>{poster.film || poster.collectionName}</div>
+                        </div>
+                        <input type="checkbox" checked={isSel} readOnly style={{ accentColor: "#1E1E1E", flexShrink: 0 }} />
                       </div>
-                      <input type="checkbox" checked={isSelected} readOnly style={{ accentColor: "#111111", cursor: "pointer" }} />
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
+
             </div>
           </div>
+
 
           {/* 🖼 CUSTOM PRINT STUDIO LIVE PRICING CONTROLS */}
           <div style={{ backgroundColor: "#FFFFFF", borderRadius: "16px", padding: "1.75rem", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>

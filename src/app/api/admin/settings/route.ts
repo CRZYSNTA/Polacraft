@@ -92,6 +92,8 @@ export async function PUT(req: Request) {
 
       // Originkit Hero Carousel Controls
       heroSelectedPosterIds: Array.isArray(body.heroSelectedPosterIds) ? body.heroSelectedPosterIds : [],
+      heroSelectedPosterIdsMobile: Array.isArray(body.heroSelectedPosterIdsMobile) ? body.heroSelectedPosterIdsMobile : [],
+      heroSelectedPosterIdsDesktop: Array.isArray(body.heroSelectedPosterIdsDesktop) ? body.heroSelectedPosterIdsDesktop : [],
       heroSpeedMobile: body.heroSpeedMobile !== undefined ? parseFloat(body.heroSpeedMobile) : 4.0,
       heroSpeedDesktop: body.heroSpeedDesktop !== undefined ? parseFloat(body.heroSpeedDesktop) : 2.7,
     };

@@ -642,10 +642,13 @@ model SiteSettings {
   customFrameAddonA4       Float    @default(180.0)
   customFrameAddonA3       Float    @default(200.0)
 
-  // Originkit Hero Carousel Controls
-  heroSelectedPosterIds    String[] @default([])
-  heroSpeedMobile          Float    @default(4.0)
-  heroSpeedDesktop         Float    @default(2.7)
+  // Originkit Hero Carousel Controls (shared fallback)
+  heroSelectedPosterIds        String[] @default([])
+  heroSpeedMobile              Float    @default(4.0)
+  heroSpeedDesktop             Float    @default(2.7)
+  // Per-view poster selections (override heroSelectedPosterIds when non-empty)
+  heroSelectedPosterIdsMobile  String[] @default([])
+  heroSelectedPosterIdsDesktop String[] @default([])
 
   updatedAt                DateTime @updatedAt
 

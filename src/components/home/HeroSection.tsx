@@ -14,7 +14,9 @@ interface HeroSectionProps {
   heroSubtitle: string;
   heroFanCards: Product[];
   allPosters?: Product[];
-  heroSelectedPosterIds?: string[];
+  // Separate per-view admin-selected poster IDs
+  heroSelectedPosterIdsMobile?: string[];
+  heroSelectedPosterIdsDesktop?: string[];
   heroSpeedMobile?: number;
   heroSpeedDesktop?: number;
   isLoading: boolean;
@@ -25,7 +27,8 @@ export default function HeroSection({
   heroSubtitle,
   heroFanCards = [],
   allPosters = [],
-  heroSelectedPosterIds = [],
+  heroSelectedPosterIdsMobile = [],
+  heroSelectedPosterIdsDesktop = [],
   heroSpeedMobile = 4.0,
   heroSpeedDesktop = 2.7,
   isLoading,
@@ -46,40 +49,46 @@ export default function HeroSection({
   const safeCards = Array.isArray(heroFanCards) ? heroFanCards : [];
   const rawPosters = Array.isArray(allPosters) && allPosters.length > 0 ? allPosters : safeCards;
 
-  // Filter posters based on Admin selected poster IDs
-  const catalogPosters = useMemo(() => {
-    if (Array.isArray(heroSelectedPosterIds) && heroSelectedPosterIds.length > 0) {
-      const selected = rawPosters.filter((p) => heroSelectedPosterIds.includes(p.id));
+  // Mobile poster list — uses heroSelectedPosterIdsMobile if set, else full catalog
+  const mobileCatalogPosters = useMemo(() => {
+    if (Array.isArray(heroSelectedPosterIdsMobile) && heroSelectedPosterIdsMobile.length > 0) {
+      const selected = rawPosters.filter((p) => heroSelectedPosterIdsMobile.includes(p.id));
       return selected.length > 0 ? selected : rawPosters;
     }
     return rawPosters;
-  }, [rawPosters, heroSelectedPosterIds]);
+  }, [rawPosters, heroSelectedPosterIdsMobile]);
+
+  // Desktop poster list — uses heroSelectedPosterIdsDesktop if set, else full catalog
+  const desktopCatalogPosters = useMemo(() => {
+    if (Array.isArray(heroSelectedPosterIdsDesktop) && heroSelectedPosterIdsDesktop.length > 0) {
+      const selected = rawPosters.filter((p) => heroSelectedPosterIdsDesktop.includes(p.id));
+      return selected.length > 0 ? selected : rawPosters;
+    }
+    return rawPosters;
+  }, [rawPosters, heroSelectedPosterIdsDesktop]);
 
   // Formatted real cinema posters for mobile Originkit circle animation
   const mobileCircleImages = useMemo(() => {
-    const items = catalogPosters.map((p) => {
+    const items = mobileCatalogPosters.map((p) => {
       const rawImg = p.heroImage || p.galleryImages?.[0] || (p as any).images?.[0]?.url;
       const validSrc = (rawImg && typeof rawImg === "string" && rawImg.trim() !== "") ? rawImg : "/assets/custom_grid_poster.png";
       return {
-        image: {
-          src: validSrc,
-          alt: p.title
-        },
+        image: { src: validSrc, alt: p.title },
         slug: p.slug,
         focusY: 50
       };
     });
     return { items };
-  }, [catalogPosters]);
+  }, [mobileCatalogPosters]);
 
   // Formatted real cinema posters for Desktop Originkit 3D RoundCarousel
   const desktopCarouselImages = useMemo(() => {
-    return catalogPosters.map((p) => {
+    return desktopCatalogPosters.map((p) => {
       const rawImg = p.heroImage || p.galleryImages?.[0] || (p as any).images?.[0]?.url;
       const validSrc = (rawImg && typeof rawImg === "string" && rawImg.trim() !== "") ? rawImg : "/assets/custom_grid_poster.png";
       return { src: validSrc };
     });
-  }, [catalogPosters]);
+  }, [desktopCatalogPosters]);
 
   return (
     <section
