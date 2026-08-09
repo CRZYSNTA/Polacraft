@@ -4,7 +4,7 @@ import React, { useContext, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { AppContext } from "../features/cart/AppContext";
 import { Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 
@@ -13,7 +13,6 @@ const LogoVideoReveal = () => {
   const [videoSrc, setVideoSrc] = useState("/assets/logo-reveal.mp4");
 
   useEffect(() => {
-    // Generate fresh timestamp on mount to force browser to drop disk cache
     setVideoSrc(`/assets/logo-reveal.mp4?t=${Date.now()}`);
   }, []);
 
@@ -35,7 +34,7 @@ const LogoVideoReveal = () => {
   }, [videoSrc]);
 
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
       <video
         key={videoSrc}
         ref={videoRef}
@@ -51,11 +50,11 @@ const LogoVideoReveal = () => {
           maxWidth: "260px",
           objectFit: "contain",
           display: "block",
-          borderRadius: "6px"
+          borderRadius: "6px",
+          pointerEvents: "none"
         }}
       >
         <source src={videoSrc} type="video/mp4" />
-        {/* Native Fallback for unsupported browsers */}
         <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
           <Image
             src="/assets/polacraft-logo-mark.png"
@@ -94,7 +93,12 @@ const LogoVideoReveal = () => {
 };
 
 export const Navbar = () => {
-  const { cartItemCount, wishlist, setCartOpen, siteSettings } = useContext(AppContext);
+  const context = useContext(AppContext);
+  const cartItemCount = context?.cartItemCount || 0;
+  const wishlist = context?.wishlist || [];
+  const setCartOpen = context?.setCartOpen || (() => {});
+  const siteSettings = context?.siteSettings;
+
   const { data: session } = useSession();
   const pathname = usePathname();
 
@@ -104,7 +108,6 @@ export const Navbar = () => {
 
   const freeShip = siteSettings?.freeShippingThreshold || 499;
   const rewardThresh = siteSettings?.collectorRewardThreshold || 899;
-  const premiumThresh = siteSettings?.premiumRewardThreshold || 1499;
 
   const tickerMessages = [
     `COMPLIMENTARY SHIPPING ON ORDERS ₹${freeShip}+`,
@@ -125,7 +128,6 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Auto rotate announcement ticker on mobile every 3.5s
   useEffect(() => {
     const timer = setInterval(() => {
       setTickerIndex((prev) => (prev + 1) % tickerMessages.length);
@@ -137,7 +139,7 @@ export const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
-  // Hide Storefront Navbar completely on Admin Portal routes (/admin/*)
+  // Hide Storefront Navbar on Admin routes (/admin/*)
   if (pathname?.startsWith("/admin")) {
     return null;
   }
@@ -149,7 +151,7 @@ export const Navbar = () => {
         top: 0,
         left: 0,
         width: "100%",
-        zIndex: 1000,
+        zIndex: 9999,
         backgroundColor: "#FAFAF8",
         boxShadow: isScrolled ? "0 10px 30px rgba(0,0,0,0.06)" : "none",
         transition: "all 0.3s ease",
@@ -173,7 +175,7 @@ export const Navbar = () => {
           overflow: "hidden",
         }}
       >
-        {/* Desktop Multi-perk Row */}
+        {/* Desktop Row */}
         <div
           className="desktop-only"
           style={{
@@ -193,7 +195,7 @@ export const Navbar = () => {
           <span style={{ color: "#D4AF37" }}>Museum-Quality Archival Cotton Prints</span>
         </div>
 
-        {/* Mobile Rotating Single Line Ticker */}
+        {/* Mobile Ticker */}
         <div
           className="mobile-only"
           style={{
@@ -220,13 +222,15 @@ export const Navbar = () => {
           alignItems: "center",
           padding: "0 1.25rem",
           borderBottom: "1px solid rgba(17, 17, 17, 0.08)",
-          backgroundColor: isScrolled ? "rgba(250, 250, 248, 0.95)" : "#FAFAF8",
+          backgroundColor: isScrolled ? "rgba(250, 250, 248, 0.98)" : "#FAFAF8",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           transition: "height 0.3s ease, background-color 0.3s ease",
+          position: "relative",
+          zIndex: 9999
         }}
       >
-        {/* DESKTOP NAVBAR ROW (DESKTOP ONLY) */}
+        {/* DESKTOP NAVBAR ROW */}
         <div
           className="container desktop-only"
           style={{
@@ -237,7 +241,7 @@ export const Navbar = () => {
             gap: "2.5rem"
           }}
         >
-          {/* LEFT: DESKTOP BRAND LOGO */}
+          {/* LEFT: BRAND LOGO */}
           <div style={{ display: "flex", alignItems: "center" }}>
             <Link
               href="/"
@@ -246,6 +250,7 @@ export const Navbar = () => {
                 display: "inline-flex",
                 alignItems: "center",
                 textDecoration: "none",
+                cursor: "pointer"
               }}
             >
               <LogoVideoReveal />
@@ -267,6 +272,7 @@ export const Navbar = () => {
                 <Link
                   key={item.path}
                   href={item.path}
+                  onClick={handleLinkClick}
                   style={{
                     fontWeight: isActive ? "800" : "600",
                     color: isActive ? "#111111" : "#555555",
@@ -275,6 +281,8 @@ export const Navbar = () => {
                     borderBottom: isActive ? "2px solid #D4AF37" : "2px solid transparent",
                     paddingBottom: "4px",
                     transition: "color 0.2s ease",
+                    cursor: "pointer",
+                    pointerEvents: "auto"
                   }}
                 >
                   {item.label}
@@ -295,6 +303,7 @@ export const Navbar = () => {
             {/* Wishlist Link */}
             <Link
               href="/account/wishlist"
+              onClick={handleLinkClick}
               style={{ cursor: "pointer", color: "#111111", padding: "4px", position: "relative" }}
               aria-label="View Wishlist"
             >
@@ -326,6 +335,7 @@ export const Navbar = () => {
             {session?.user ? (
               <Link
                 href="/account"
+                onClick={handleLinkClick}
                 style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", textDecoration: "none" }}
                 aria-label="User Account"
               >
@@ -345,6 +355,7 @@ export const Navbar = () => {
             ) : (
               <Link
                 href="/login"
+                onClick={handleLinkClick}
                 style={{
                   fontSize: "0.8rem",
                   fontWeight: "800",
@@ -393,7 +404,7 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* MOBILE NAVBAR ROW (MOBILE ONLY) */}
+        {/* MOBILE NAVBAR ROW */}
         <div
           className="container mobile-only"
           style={{
@@ -414,7 +425,7 @@ export const Navbar = () => {
             </button>
           </div>
 
-          {/* CENTER: CENTERED LOGO */}
+          {/* CENTER: LOGO */}
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Link
               href="/"
@@ -463,86 +474,98 @@ export const Navbar = () => {
         </div>
       </nav>
 
-      {/* SLEEK MOBILE DRAWER MENU */}
+      {/* SLEEK MOBILE DRAWER MENU (Z-INDEX 10000) */}
       {isMobileMenuOpen && (
-        <div
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            width: "100%",
-            backgroundColor: "#FAFAF8",
-            borderBottom: "1px solid rgba(17, 17, 17, 0.1)",
-            padding: "1.75rem 1.5rem",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1.25rem",
-            zIndex: 999,
-            boxShadow: "0 15px 30px rgba(0,0,0,0.1)",
-          }}
-        >
-          {[
-            { path: "/shop", label: "Shop All Posters" },
-            { path: "/custom", label: "Upload Custom Print" },
-            { path: "/track", label: "Track Package & Order" },
-            { path: "/about", label: "Our Craftsmanship" },
-            { path: "/journal", label: "Editorial Journal" },
-            { path: "/contact", label: "Contact Studio" },
-          ].map((item) => (
+        <>
+          <div
+            onClick={() => setIsMobileMenuOpen(false)}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "rgba(0,0,0,0.4)",
+              zIndex: 99998,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              width: "100%",
+              backgroundColor: "#FAFAF8",
+              borderBottom: "1px solid rgba(17, 17, 17, 0.1)",
+              padding: "1.75rem 1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.25rem",
+              zIndex: 99999,
+              boxShadow: "0 15px 30px rgba(0,0,0,0.15)",
+            }}
+          >
+            {[
+              { path: "/shop", label: "Shop All Posters" },
+              { path: "/custom", label: "Upload Custom Print" },
+              { path: "/track", label: "Track Package & Order" },
+              { path: "/about", label: "Our Craftsmanship" },
+              { path: "/journal", label: "Editorial Journal" },
+              { path: "/contact", label: "Contact Studio" },
+            ].map((item) => (
+              <Link
+                key={item.path}
+                href={item.path}
+                onClick={handleLinkClick}
+                style={{
+                  textAlign: "left",
+                  fontSize: "1.15rem",
+                  fontWeight: pathname === item.path ? "800" : "500",
+                  color: pathname === item.path ? "#111111" : "#555555",
+                  textDecoration: "none",
+                }}
+              >
+                {item.label}
+              </Link>
+            ))}
+
+            <div style={{ height: "1px", backgroundColor: "rgba(17,17,17,0.1)", margin: "0.5rem 0" }} />
+
             <Link
-              key={item.path}
-              href={item.path}
+              href="/account/wishlist"
               onClick={handleLinkClick}
               style={{
-                textAlign: "left",
-                fontSize: "1.15rem",
-                fontWeight: pathname === item.path ? "800" : "500",
-                color: pathname === item.path ? "#111111" : "#555555",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.6rem",
+                fontSize: "1.1rem",
+                fontWeight: "700",
+                color: "#111111",
                 textDecoration: "none",
               }}
             >
-              {item.label}
+              <Heart size={18} fill={wishlist.length > 0 ? "#111111" : "none"} />
+              My Wishlist ({wishlist.length})
             </Link>
-          ))}
 
-          <div style={{ height: "1px", backgroundColor: "rgba(17,17,17,0.1)", margin: "0.5rem 0" }} />
-
-          {/* Wishlist in Mobile Drawer */}
-          <Link
-            href="/account/wishlist"
-            onClick={handleLinkClick}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.6rem",
-              fontSize: "1.1rem",
-              fontWeight: "700",
-              color: "#111111",
-              textDecoration: "none",
-            }}
-          >
-            <Heart size={18} fill={wishlist.length > 0 ? "#111111" : "none"} />
-            My Wishlist ({wishlist.length})
-          </Link>
-
-          {/* Account / Sign In in Mobile Drawer */}
-          <Link
-            href={session?.user ? "/account" : "/login"}
-            onClick={handleLinkClick}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.6rem",
-              fontSize: "1.1rem",
-              fontWeight: "700",
-              color: "#111111",
-              textDecoration: "none",
-            }}
-          >
-            <User size={18} />
-            {session?.user ? `Account (${session.user.name || "Collector"})` : "Sign In / Register"}
-          </Link>
-        </div>
+            <Link
+              href={session?.user ? "/account" : "/login"}
+              onClick={handleLinkClick}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.6rem",
+                fontSize: "1.1rem",
+                fontWeight: "700",
+                color: "#111111",
+                textDecoration: "none",
+              }}
+            >
+              <User size={18} />
+              {session?.user ? `Account (${session.user.name || "Collector"})` : "Sign In / Register"}
+            </Link>
+          </div>
+        </>
       )}
 
       {/* CSS Media Queries */}
