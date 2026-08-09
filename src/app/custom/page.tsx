@@ -234,152 +234,48 @@ export default function CustomPrintStudio() {
           </div>
         </div>
 
-        {/* 2. 3-COLUMN SELECTION GRID (MATCHING POSTERIZED.IN) */}
+        {/* 2. 6-CARD SELECTION GRID (MATCHING POSTERIZED.IN) */}
         <div 
           style={{ 
             display: "grid", 
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", 
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", 
             gap: "2rem", 
             marginBottom: "5rem" 
           }}
         >
-          
-          {/* CARD 1: SINGLE POSTER */}
-          <div 
-            style={{ 
-              backgroundColor: "#FAFAF8", 
-              borderRadius: "20px", 
-              border: activeLayout === "single" && isStudioOpen ? "2px solid #111111" : "1px solid rgba(17,17,17,0.08)", 
-              overflow: "hidden", 
-              boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
-              transition: "all 0.3s ease"
-            }}
-          >
-            <div style={{ textAlign: "center", padding: "1.75rem 1rem 1.25rem 1rem", backgroundColor: "#F4F3EF" }}>
-              <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.25rem", color: "#555555", display: "block" }}>
-                Custom
-              </span>
-              <h2 style={{ fontSize: "1.85rem", fontWeight: "900", color: "#111111", margin: "0 0 1rem 0", letterSpacing: "0.04em" }}>
-                POSTER
-              </h2>
-              <button 
-                onClick={() => openStudio("single")} 
-                style={{ 
-                  padding: "0.6rem 1.4rem", 
-                  borderRadius: "100px", 
-                  backgroundColor: "#2C2C2A", 
-                  color: "#FFFFFF", 
-                  border: "none", 
-                  fontWeight: "700", 
-                  fontSize: "0.85rem", 
-                  cursor: "pointer", 
-                  display: "inline-flex", 
-                  alignItems: "center", 
-                  gap: "0.4rem" 
-                }}
-              >
-                Get Yours ➔
-              </button>
-            </div>
+          {[
+            { id: "single", title: "Custom Single Poster", image: "/assets/custom_grid_poster.png" },
+            { id: "split-3", title: "Custom 3-Panel Split Poster", image: "/assets/custom_grid_split_3.png" },
+            { id: "split-2x2", title: "Custom 2x2 Grid Split Poster", image: "/assets/custom_grid_split_2x2.png" },
+            { id: "retro", title: "Custom Retro Prints", image: "/assets/custom_grid_retro.png" },
+            { id: "pocket", title: "Custom Mini Pocket Photo", image: "/assets/custom_grid_pocket.png" },
+            { id: "photobooth", title: "Custom Photobooth Strip", image: "/assets/custom_grid_photobooth.png" },
+          ].map((card) => (
             <div 
-              style={{ position: "relative", width: "100%", height: "420px", cursor: "pointer" }} 
-              onClick={() => openStudio("single")}
+              key={card.id}
+              onClick={() => openStudio(card.id as any)}
+              style={{ 
+                backgroundColor: "#FAFAF8", 
+                borderRadius: "20px", 
+                border: activeLayout === card.id && isStudioOpen ? "2px solid #111111" : "1px solid rgba(17,17,17,0.08)", 
+                overflow: "hidden", 
+                boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
+                cursor: "pointer",
+                position: "relative",
+                aspectRatio: "3 / 4",
+                transition: "transform 0.25s ease, border-color 0.25s ease"
+              }}
+              className="hover-card"
             >
-              <Image src="/assets/custom_grid_poster.png" alt="Custom Single Poster" fill style={{ objectFit: "cover" }} />
+              <Image 
+                src={card.image} 
+                alt={card.title} 
+                fill 
+                sizes="(max-width: 768px) 100vw, 400px"
+                style={{ objectFit: "cover" }} 
+              />
             </div>
-          </div>
-
-          {/* CARD 2: 3-PANEL SPLIT POSTER */}
-          <div 
-            style={{ 
-              backgroundColor: "#FAFAF8", 
-              borderRadius: "20px", 
-              border: activeLayout === "split-3" && isStudioOpen ? "2px solid #111111" : "1px solid rgba(17,17,17,0.08)", 
-              overflow: "hidden", 
-              boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
-              transition: "all 0.3s ease"
-            }}
-          >
-            <div style={{ textAlign: "center", padding: "1.75rem 1rem 1.25rem 1rem", backgroundColor: "#F4F3EF" }}>
-              <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.25rem", color: "#555555", display: "block" }}>
-                Custom
-              </span>
-              <h2 style={{ fontSize: "1.85rem", fontWeight: "900", color: "#111111", margin: "0 0 1rem 0", letterSpacing: "0.04em" }}>
-                SPLIT POSTER
-              </h2>
-              <button 
-                onClick={() => openStudio("split-3")} 
-                style={{ 
-                  padding: "0.6rem 1.4rem", 
-                  borderRadius: "100px", 
-                  backgroundColor: "#2C2C2A", 
-                  color: "#FFFFFF", 
-                  border: "none", 
-                  fontWeight: "700", 
-                  fontSize: "0.85rem", 
-                  cursor: "pointer", 
-                  display: "inline-flex", 
-                  alignItems: "center", 
-                  gap: "0.4rem" 
-                }}
-              >
-                Get Yours ➔
-              </button>
-            </div>
-            <div 
-              style={{ position: "relative", width: "100%", height: "420px", cursor: "pointer" }} 
-              onClick={() => openStudio("split-3")}
-            >
-              <Image src="/assets/custom_grid_split_3.png" alt="Custom Split Poster" fill style={{ objectFit: "cover" }} />
-            </div>
-          </div>
-
-          {/* CARD 3: 2X2 GRID SPLIT POSTER */}
-          <div 
-            style={{ 
-              backgroundColor: "#FAFAF8", 
-              borderRadius: "20px", 
-              border: activeLayout === "split-2x2" && isStudioOpen ? "2px solid #111111" : "1px solid rgba(17,17,17,0.08)", 
-              overflow: "hidden", 
-              boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
-              transition: "all 0.3s ease"
-            }}
-          >
-            <div style={{ textAlign: "center", padding: "1.75rem 1rem 1.25rem 1rem", backgroundColor: "#F4F3EF" }}>
-              <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "1.25rem", color: "#555555", display: "block" }}>
-                Custom
-              </span>
-              <h2 style={{ fontSize: "1.85rem", fontWeight: "900", color: "#111111", margin: "0 0 0.2rem 0", letterSpacing: "0.04em" }}>
-                SPLIT POSTER
-              </h2>
-              <div style={{ fontSize: "0.95rem", fontWeight: "900", color: "#111111", marginBottom: "0.8rem" }}>2X2</div>
-              <button 
-                onClick={() => openStudio("split-2x2")} 
-                style={{ 
-                  padding: "0.6rem 1.4rem", 
-                  borderRadius: "100px", 
-                  backgroundColor: "#2C2C2A", 
-                  color: "#FFFFFF", 
-                  border: "none", 
-                  fontWeight: "700", 
-                  fontSize: "0.85rem", 
-                  cursor: "pointer", 
-                  display: "inline-flex", 
-                  alignItems: "center", 
-                  gap: "0.4rem" 
-                }}
-              >
-                Get Yours ➔
-              </button>
-            </div>
-            <div 
-              style={{ position: "relative", width: "100%", height: "420px", cursor: "pointer" }} 
-              onClick={() => openStudio("split-2x2")}
-            >
-              <Image src="/assets/custom_grid_split_2x2.png" alt="Custom 2x2 Split Poster" fill style={{ objectFit: "cover" }} />
-            </div>
-          </div>
-
+          ))}
         </div>
 
         {/* 3. INTERACTIVE CUSTOM STUDIO SECTION */}
