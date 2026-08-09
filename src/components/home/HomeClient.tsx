@@ -7,10 +7,8 @@ import { Product } from "@/types";
 import HeroSection from "./HeroSection";
 import BestSellersSection from "./BestSellersSection";
 import DesignYourOwnSection from "./DesignYourOwnSection";
-import CollectorWallsSection from "./CollectorWallsSection";
 import WhyChooseUsSection from "./WhyChooseUsSection";
 import HomeFaqSection from "./HomeFaqSection";
-import CollectorRewardsSection from "./CollectorRewardsSection";
 import PackagingSection from "./PackagingSection";
 import LimitedEditionsSection from "./LimitedEditionsSection";
 import TestimonialsSection from "./TestimonialsSection";
@@ -51,25 +49,22 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
       {/* 3. DESIGN YOUR OWN PRINTS */}
       <DesignYourOwnSection />
 
-      {/* 4. WALL SETUP PACKS */}
-      <CollectorWallsSection />
-
-      {/* 5. WHY CHOOSE US */}
+      {/* 4. WHY CHOOSE US */}
       <WhyChooseUsSection />
 
-      {/* 6. HOME FAQ SECTION */}
+      {/* 5. HOME FAQ SECTION */}
       <HomeFaqSection />
 
-      {/* 8. UNBOXING & PACKAGING EXPERIENCE */}
+      {/* 6. UNBOXING & PACKAGING EXPERIENCE */}
       <PackagingSection />
 
-      {/* 9. LIMITED EDITIONS VAULT */}
+      {/* 7. LIMITED EDITIONS VAULT */}
       <LimitedEditionsSection posters={initialPosters} />
 
-      {/* 10. TESTIMONIALS & PRESS REVIEWS */}
+      {/* 8. TESTIMONIALS & PRESS REVIEWS */}
       <TestimonialsSection />
 
-      {/* 11. NEWSLETTER & VIP CLUB */}
+      {/* 9. NEWSLETTER & VIP CLUB */}
       <NewsletterSection />
 
     </main>
