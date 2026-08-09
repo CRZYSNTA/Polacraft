@@ -9,16 +9,16 @@ import PosterRenderer from "../PosterRenderer";
 import { Product } from "@/types";
 
 interface BestSellersSectionProps {
-  bestSellers: Product[];
-  wishlist: string[];
-  toggleWishlist: (id: string) => void;
-  openQuickView: (product: Product) => void;
-  addToCart: (product: Product, size: string, frame: string, quantity: number) => void;
+  bestSellers?: Product[];
+  wishlist?: string[];
+  toggleWishlist?: (id: string) => void;
+  openQuickView?: (product: Product) => void;
+  addToCart?: (product: Product, size: string, frame: string, quantity: number) => void;
 }
 
 export default function BestSellersSection({
-  bestSellers,
-  wishlist,
+  bestSellers = [],
+  wishlist = [],
   toggleWishlist,
   openQuickView,
   addToCart
@@ -27,6 +27,9 @@ export default function BestSellersSection({
   const carouselRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
   const [activeSlide, setActiveSlide] = useState(1);
+
+  const safeBestSellers = Array.isArray(bestSellers) ? bestSellers : [];
+  const safeWishlist = Array.isArray(wishlist) ? wishlist : [];
 
   const scroll = (direction: "left" | "right") => {
     if (carouselRef.current) {
@@ -38,10 +41,12 @@ export default function BestSellersSection({
       });
       setActiveSlide((prev) => {
         if (direction === "left") return Math.max(1, prev - 1);
-        return Math.min(bestSellers.length, prev + 1);
+        return Math.min(safeBestSellers.length, prev + 1);
       });
     }
   };
+
+  if (safeBestSellers.length === 0) return null;
 
   return (
     <section id="best-sellers" className="bestsellers-section" style={{ padding: "4rem 0 5rem 0", backgroundColor: "#FFFFFF", position: "relative" }}>
@@ -56,7 +61,7 @@ export default function BestSellersSection({
           >
             <ChevronLeft size={18} />
           </button>
-          <span>{activeSlide}/{bestSellers.length || 8}</span>
+          <span>{activeSlide}/{safeBestSellers.length}</span>
           <button 
             onClick={() => scroll("right")}
             style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
@@ -88,9 +93,12 @@ export default function BestSellersSection({
 
         {/* CAROUSEL VIEWPORT (MATCHING POSTERIZED.IN EXACT MOBILE CARD RATIO & PEEK) */}
         <div ref={carouselRef} className="posterized-carousel-viewport">
-          {bestSellers.map((poster, index) => {
-            const isWish = wishlist.includes(poster.id);
-            const originalPrice = Math.round(poster.price * 1.25);
+          {safeBestSellers.map((poster) => {
+            if (!poster || !poster.id) return null;
+
+            const isWish = safeWishlist.includes(poster.id) || safeWishlist.includes(poster.slug);
+            const priceVal = poster.price ? Number(poster.price) : 349;
+            const originalPrice = Math.round(priceVal * 1.25);
 
             return (
               <div key={poster.id} className="posterized-card-item">
@@ -108,17 +116,17 @@ export default function BestSellersSection({
 
                   {/* QUICK HOVER BUTTONS */}
                   <div className="quick-hover-actions">
-                    <button onClick={() => openQuickView(poster)} title="Quick View">
+                    <button onClick={() => openQuickView && openQuickView(poster)} title="Quick View">
                       <Eye size={14} />
                     </button>
-                    <button onClick={() => addToCart(poster, "A4", "unframed", 1)} title="Add to Cart">
+                    <button onClick={() => addToCart && addToCart(poster, "A4", "unframed", 1)} title="Add to Cart">
                       <ShoppingBag size={14} />
                     </button>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        toggleWishlist(poster.id);
+                        if (toggleWishlist) toggleWishlist(poster.id);
                       }} 
                       title="Wishlist"
                     >
@@ -137,7 +145,7 @@ export default function BestSellersSection({
                 {/* ORIGINAL & SALE PRICE (CENTERED LIKE POSTERIZED.IN) */}
                 <div className="posterized-card-price">
                   <span className="original-price">Rs. {originalPrice}.00</span>
-                  <span className="sale-price">From Rs. {poster.price}.00</span>
+                  <span className="sale-price">From Rs. {priceVal}.00</span>
                 </div>
               </div>
             );
@@ -155,7 +163,7 @@ export default function BestSellersSection({
             >
               <ChevronLeft size={16} />
             </button>
-            <span>{activeSlide}/24</span>
+            <span>{activeSlide}/{safeBestSellers.length}</span>
             <button 
               onClick={() => scroll("right")}
               style={{ background: "none", border: "none", cursor: "pointer", color: "#111111", padding: "4px" }}
