@@ -39,11 +39,11 @@ export const metadata = {
   metadataBase: new URL("https://polacraft-1.vercel.app"),
   icons: {
     icon: [
-      { url: "/assets/polacraft-logo-mark.png", type: "image/png" },
-      { url: "/icon.png", type: "image/png" }
+      { url: "/assets/polacraft-logo-mark.png?v=5", type: "image/png" },
+      { url: "/favicon.ico?v=5" }
     ],
-    shortcut: "/assets/polacraft-logo-mark.png",
-    apple: "/assets/polacraft-logo-mark.png",
+    shortcut: "/assets/polacraft-logo-mark.png?v=5",
+    apple: "/assets/polacraft-logo-mark.png?v=5",
   },
   openGraph: {
     title: "Premium Malayalam Movie Posters | Polacraft",
@@ -57,12 +57,6 @@ import AuthSessionProvider from "../components/SessionProvider";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${bebasNeue.variable} ${syne.variable}`} suppressHydrationWarning>
-      <head>
-        <link rel="icon" type="image/png" sizes="32x32" href="/assets/polacraft-logo-mark.png?v=2" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/assets/polacraft-logo-mark.png?v=2" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/assets/polacraft-logo-mark.png?v=2" />
-        <link rel="shortcut icon" href="/assets/polacraft-logo-mark.png?v=2" />
-      </head>
       <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh", position: "relative" }} suppressHydrationWarning>
         <AuthSessionProvider>
           <AuthProvider>
