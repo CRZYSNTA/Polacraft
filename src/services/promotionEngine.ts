@@ -24,7 +24,7 @@ export const DEFAULT_STORE_SETTINGS: StorePromotionSettings = {
   premiumRewardThreshold: 1499.0,
   loyaltyPointsRatio: 100.0,
   heroTitle: "Bring Cinema Home.",
-  heroSubtitle: "Premium Malayalam Cinema Posters Crafted For Collectors.",
+  heroSubtitle: "The films you love. The art you keep.",
   rewardsEnabled: true,
   limitedEditionsEnabled: true,
   heroSelectedPosterIds: [],
@@ -32,8 +32,8 @@ export const DEFAULT_STORE_SETTINGS: StorePromotionSettings = {
   heroSelectedPosterIdsDesktop: [],
   heroSpeedMobile: 4.0,
   heroSpeedDesktop: 2.7,
-  heroCircleInnerRadius: 25.0,
-  heroCircleRingGap: 95.0
+  heroCircleInnerRadius: 110.0,
+  heroCircleRingGap: 105.0
 };
 
 export interface RewardTierStatus {

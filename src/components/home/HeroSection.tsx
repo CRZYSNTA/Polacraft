@@ -163,9 +163,9 @@ export default function HeroSection({
         >
           <ImageGroup 
             images={mobileCircleImages}
-            count={56}
-            rings={4}
-            innerRadius={heroCircleInnerRadius}
+            count={16}
+            rings={3}
+            innerRadius={Math.max(105, heroCircleInnerRadius)}
             ringGap={heroCircleRingGap}
             cardWidth={78}
             cardHeight={102}
@@ -195,7 +195,7 @@ export default function HeroSection({
           className="hero-mobile-blended-banner"
           style={{ 
             textAlign: "center", 
-            maxWidth: "800px", 
+            maxWidth: "740px", 
             display: "flex", 
             flexDirection: "column", 
             alignItems: "center",
@@ -212,14 +212,14 @@ export default function HeroSection({
               backgroundColor: "#FFFFFF",
               border: "1px solid rgba(17,17,17,0.12)",
               boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
-              padding: "0.4rem 1rem",
+              padding: "0.35rem 0.9rem",
               borderRadius: "100px",
-              marginBottom: "1.25rem"
+              marginBottom: "1.1rem"
             }}
           >
-            <Sparkles size={14} style={{ color: "#D4AF37" }} />
-            <span style={{ fontSize: "0.78rem", fontWeight: "800", letterSpacing: "0.12em", textTransform: "uppercase", color: "#111111", fontFamily: "var(--font-movault), 'Movault', var(--font-bebas-neue), 'Bebas Neue', sans-serif" }}>
-              FINE ART MALAYALAM CINEMA PRINT STUDIO
+            <Sparkles size={13} style={{ color: "#D4AF37" }} />
+            <span style={{ fontSize: "0.75rem", fontWeight: "800", letterSpacing: "0.1em", textTransform: "uppercase", color: "#111111", fontFamily: "var(--font-movault), 'Movault', var(--font-bebas-neue), 'Bebas Neue', sans-serif" }}>
+              MALAYALAM CINEMA • FINE ART PRINTS
             </span>
           </div>
 
@@ -247,60 +247,65 @@ export default function HeroSection({
             style={{
               fontSize: "clamp(0.95rem, 2vw, 1.15rem)",
               color: "#111111",
-              marginTop: "0.85rem",
-              maxWidth: "52ch",
-              lineHeight: 1.5,
+              marginTop: "0.75rem",
+              maxWidth: "44ch",
+              lineHeight: 1.45,
               fontWeight: "700",
               textShadow: isMobile ? "0 0 20px rgba(255,255,255,1), 0 0 10px rgba(255,255,255,1), 0 1px 4px rgba(255,255,255,0.95)" : "none"
             }}
           >
-            {heroSubtitle}
+            {heroSubtitle === "Premium Malayalam Cinema Posters Crafted For Collectors." ? "The films you love. The art you keep." : heroSubtitle}
           </p>
 
-          {/* CTA BUTTONS */}
-          <div style={{ display: "flex", gap: "1rem", marginTop: "1.75rem", flexWrap: "wrap", justifyContent: "center" }}>
+          {/* CTA BUTTONS (REDUCED 15% SIZE + CLEAR PRIMARY/SECONDARY HIERARCHY) */}
+          <div style={{ display: "flex", gap: "0.85rem", marginTop: "1.5rem", flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
             <Link href="/shop" style={{ textDecoration: "none" }}>
               <button
                 style={{
                   backgroundColor: "#111111",
                   color: "#FFFFFF",
-                  padding: "0.9rem 2.25rem",
+                  padding: "0.78rem 1.85rem",
                   borderRadius: "100px",
-                  fontSize: "0.95rem",
+                  fontSize: "0.88rem",
                   fontWeight: "800",
                   border: "none",
                   cursor: "pointer",
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "0.6rem",
-                  boxShadow: "0 8px 25px rgba(0,0,0,0.22)",
+                  gap: "0.5rem",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.18)",
                   transition: "transform 0.2s ease"
                 }}
               >
-                Explore Gallery <ArrowRight size={16} />
+                Explore Gallery <ArrowRight size={15} />
               </button>
             </Link>
             <Link href="/custom" style={{ textDecoration: "none" }}>
               <button
                 className="hero-mobile-secondary-btn"
                 style={{
-                  backgroundColor: "#FFFFFF",
+                  backgroundColor: "#FAFAF8",
                   color: "#111111",
-                  padding: "0.9rem 2rem",
+                  padding: "0.78rem 1.65rem",
                   borderRadius: "100px",
-                  fontSize: "0.95rem",
-                  fontWeight: "800",
-                  border: "1.5px solid rgba(17,17,17,0.2)",
+                  fontSize: "0.88rem",
+                  fontWeight: "700",
+                  border: "1.5px solid rgba(17,17,17,0.18)",
                   cursor: "pointer",
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "0.5rem",
-                  boxShadow: "0 4px 15px rgba(0,0,0,0.06)"
+                  gap: "0.45rem",
+                  boxShadow: "0 2px 10px rgba(0,0,0,0.03)"
                 }}
               >
                 Custom Studio
               </button>
             </Link>
+          </div>
+
+          {/* STOREFRONT MICRO-CUE */}
+          <div style={{ fontSize: "0.74rem", fontWeight: "700", color: "#666666", marginTop: "1rem", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+            Shop the Collection • Museum Prints From ₹499
           </div>
         </motion.div>
       </div>

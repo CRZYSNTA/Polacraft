@@ -8,86 +8,40 @@ import { useSession } from "next-auth/react";
 import { AppContext } from "../features/cart/AppContext";
 import { Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 
-const LogoVideoReveal = () => {
-  const videoRef = React.useRef<HTMLVideoElement>(null);
-  const [videoSrc, setVideoSrc] = useState("/assets/logo-reveal.mp4");
-
-  useEffect(() => {
-    setVideoSrc(`/assets/logo-reveal.mp4?t=${Date.now()}`);
-  }, []);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.defaultMuted = true;
-      videoRef.current.muted = true;
-      videoRef.current.load();
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          if (videoRef.current) {
-            videoRef.current.muted = true;
-            videoRef.current.play().catch(() => {});
-          }
-        });
-      }
-    }
-  }, [videoSrc]);
-
+const LogoBrand = () => {
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-      <video
-        key={videoSrc}
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
+    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
+      <Image
+        src="/assets/polacraft-logo-mark.png"
+        alt="Polacraft Logo Mark"
+        width={30}
+        height={30}
+        style={{ width: "30px", height: "30px", objectFit: "contain", borderRadius: "4px" }}
+      />
+      <span
         style={{
-          height: "56px",
-          width: "auto",
-          maxHeight: "60px",
-          maxWidth: "260px",
-          objectFit: "contain",
-          display: "block",
-          borderRadius: "6px",
-          pointerEvents: "none"
+          fontFamily: "var(--font-movault), 'Movault', var(--font-bebas-neue), 'Bebas Neue', sans-serif",
+          fontSize: "1.65rem",
+          fontWeight: "900",
+          letterSpacing: "0.03em",
+          display: "inline-flex",
+          alignItems: "center",
+          lineHeight: 1,
         }}
       >
-        <source src={videoSrc} type="video/mp4" />
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-          <Image
-            src="/assets/polacraft-logo-mark.png"
-            alt="Polacraft Logo Mark"
-            width={32}
-            height={32}
-            style={{ objectFit: "contain", borderRadius: "5px" }}
-          />
-          <span
-            style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "1.8rem",
-              fontWeight: "900",
-              letterSpacing: "-0.04em",
-              display: "inline-flex",
-              alignItems: "center",
-            }}
-          >
-            <span style={{ color: "#111111" }}>POLA</span>
-            <span style={{ color: "#666666", fontWeight: "300" }}>CRAFT</span>
-            <span
-              style={{
-                width: "5px",
-                height: "5px",
-                backgroundColor: "#D4AF37",
-                borderRadius: "50%",
-                marginLeft: "2px",
-                display: "inline-block",
-              }}
-            />
-          </span>
-        </div>
-      </video>
+        <span style={{ color: "#111111" }}>POLA</span>
+        <span style={{ color: "#666666", fontWeight: "300" }}>CRAFT</span>
+        <span
+          style={{
+            width: "5px",
+            height: "5px",
+            backgroundColor: "#D4AF37",
+            borderRadius: "50%",
+            marginLeft: "3px",
+            display: "inline-block",
+          }}
+        />
+      </span>
     </div>
   );
 };
@@ -253,7 +207,7 @@ export const Navbar = () => {
                 cursor: "pointer"
               }}
             >
-              <LogoVideoReveal />
+              <LogoBrand />
             </Link>
           </div>
 
@@ -436,7 +390,7 @@ export const Navbar = () => {
                 textDecoration: "none",
               }}
             >
-              <LogoVideoReveal />
+              <LogoBrand />
             </Link>
           </div>
 
