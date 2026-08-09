@@ -114,7 +114,14 @@ export default function BestSellersSection({
                     <button onClick={() => addToCart(poster, "A4", "unframed", 1)} title="Add to Cart">
                       <ShoppingBag size={14} />
                     </button>
-                    <button onClick={() => toggleWishlist(poster.id)} title="Wishlist">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        toggleWishlist(poster.id);
+                      }} 
+                      title="Wishlist"
+                    >
                       <Heart size={14} fill={isWish ? "red" : "none"} color={isWish ? "red" : "#111"} />
                     </button>
                   </div>

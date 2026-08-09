@@ -179,14 +179,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCart([]);
   };
 
-  // Wishlist operations
+  // Wishlist operations with server sync & local state
   const toggleWishlist = (posterId: string) => {
+    if (!posterId) return;
+
     setWishlist((prevWish) => {
-      if (prevWish.includes(posterId)) {
-        return prevWish.filter((id) => id !== posterId);
-      } else {
-        return [...prevWish, posterId];
-      }
+      const isWish = prevWish.includes(posterId);
+      const updated = isWish
+        ? prevWish.filter((id) => id !== posterId)
+        : [...prevWish, posterId];
+
+      // Sync with server API in background
+      fetch("/api/auth/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: posterId })
+      }).catch((e) => console.warn("Wishlist sync error:", e));
+
+      return updated;
     });
   };
 

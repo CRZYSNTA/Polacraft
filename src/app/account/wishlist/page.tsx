@@ -1,33 +1,56 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Heart, ArrowLeft, Loader2, ShoppingBag, Trash2 } from "lucide-react";
 import PosterRenderer from "@/components/PosterRenderer";
+import { AppContext } from "@/features/cart/AppContext";
 
 export default function AccountWishlistPage() {
-  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+  const context = useContext(AppContext);
+  const wishlistIds = context?.wishlist || [];
+  const toggleWishlist = context?.toggleWishlist;
+
+  const [savedProducts, setSavedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchWishlist() {
+    async function loadWishlistProducts() {
       try {
-        const res = await fetch("/api/auth/me?t=" + Date.now(), { cache: "no-store" });
+        setLoading(true);
+        const res = await fetch("/api/admin/products");
         if (res.ok) {
           const data = await res.json();
-          if (data.user?.wishlists) {
-            setWishlistItems(data.user.wishlists);
+          const allProducts = data.products || [];
+          
+          // Also check server wishlist endpoint
+          const dbRes = await fetch("/api/auth/wishlist");
+          let dbProductIds: string[] = [];
+          if (dbRes.ok) {
+            const dbData = await dbRes.json();
+            dbProductIds = (dbData.wishlists || []).map((w: any) => w.productId);
           }
+
+          const combinedIds = Array.from(new Set([...wishlistIds, ...dbProductIds]));
+          const matched = allProducts.filter((p: any) => combinedIds.includes(p.id) || combinedIds.includes(p.slug));
+          setSavedProducts(matched);
         }
       } catch (e) {
-        console.warn("[Wishlist Fetch Error]:", e);
+        console.warn("[Wishlist Load Error]:", e);
       } finally {
         setLoading(false);
       }
     }
-    fetchWishlist();
-  }, []);
+
+    loadWishlistProducts();
+  }, [wishlistIds.length]);
+
+  const handleRemove = (productId: string) => {
+    if (toggleWishlist) {
+      toggleWishlist(productId);
+    }
+    setSavedProducts((prev) => prev.filter((p) => p.id !== productId && p.slug !== productId));
+  };
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#FAFAF8", color: "#111111", paddingTop: "110px", paddingBottom: "100px" }}>
@@ -47,7 +70,7 @@ export default function AccountWishlistPage() {
             </p>
           </div>
           <span style={{ fontSize: "0.85rem", fontWeight: "700", backgroundColor: "#FFFFFF", color: "#111111", border: "1px solid rgba(17,17,17,0.1)", padding: "0.35rem 0.85rem", borderRadius: "100px" }}>
-            {wishlistItems.length} {wishlistItems.length === 1 ? "Saved Item" : "Saved Items"}
+            {savedProducts.length} {savedProducts.length === 1 ? "Saved Item" : "Saved Items"}
           </span>
         </div>
 
@@ -55,7 +78,7 @@ export default function AccountWishlistPage() {
           <div style={{ display: "flex", justifyContent: "center", padding: "5rem 0" }}>
             <Loader2 size={32} className="animate-spin" style={{ color: "#111111" }} />
           </div>
-        ) : wishlistItems.length === 0 ? (
+        ) : savedProducts.length === 0 ? (
           <div style={{ backgroundColor: "#FFFFFF", borderRadius: "24px", padding: "5rem 2rem", textAlign: "center", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
             <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "#FFF5F5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem auto" }}>
               <Heart size={28} style={{ color: "#EF4444" }} />
@@ -70,13 +93,12 @@ export default function AccountWishlistPage() {
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.5rem" }}>
-            {wishlistItems.map((item) => {
-              const poster = item.product;
+            {savedProducts.map((poster) => {
               if (!poster) return null;
 
               return (
                 <div 
-                  key={item.id} 
+                  key={poster.id} 
                   style={{ 
                     backgroundColor: "#FFFFFF", 
                     borderRadius: "20px", 
@@ -85,7 +107,8 @@ export default function AccountWishlistPage() {
                     boxShadow: "0 4px 18px rgba(0,0,0,0.03)",
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "space-between"
+                    justifyContent: "space-between",
+                    position: "relative"
                   }}
                 >
                   <div>
@@ -93,6 +116,28 @@ export default function AccountWishlistPage() {
                       <Link href={`/product/${poster.slug}`} style={{ display: "block" }}>
                         <PosterRenderer poster={poster} frame="unframed" />
                       </Link>
+                      <button
+                        onClick={() => handleRemove(poster.id)}
+                        style={{
+                          position: "absolute",
+                          top: "8px",
+                          right: "8px",
+                          width: "30px",
+                          height: "30px",
+                          borderRadius: "50%",
+                          backgroundColor: "#FFFFFF",
+                          border: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                          color: "#EF4444"
+                        }}
+                        title="Remove from Wishlist"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
 
                     <h4 style={{ color: "#111111", fontSize: "0.95rem", fontWeight: 800, margin: "0 0 0.25rem 0", lineHeight: "1.3" }}>
@@ -115,7 +160,7 @@ export default function AccountWishlistPage() {
                         backgroundColor: "#111111", 
                         color: "#FFFFFF", 
                         padding: "0.5rem 0.95rem", 
-                        borderRadius: "10px", 
+                        borderRadius: "100px", 
                         textDecoration: "none",
                         display: "inline-flex",
                         alignItems: "center",
