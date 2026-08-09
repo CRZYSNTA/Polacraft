@@ -10,7 +10,6 @@ import DesignYourOwnSection from "./DesignYourOwnSection";
 import WhyChooseUsSection from "./WhyChooseUsSection";
 import HomeFaqSection from "./HomeFaqSection";
 import PackagingSection from "./PackagingSection";
-import LimitedEditionsSection from "./LimitedEditionsSection";
 import TestimonialsSection from "./TestimonialsSection";
 import NewsletterSection from "./NewsletterSection";
 
@@ -58,13 +57,10 @@ export default function HomeClient({ initialPosters, heroPosters, serverSiteSett
       {/* 6. UNBOXING & PACKAGING EXPERIENCE */}
       <PackagingSection />
 
-      {/* 7. LIMITED EDITIONS VAULT */}
-      <LimitedEditionsSection posters={initialPosters} />
-
-      {/* 8. TESTIMONIALS & PRESS REVIEWS */}
+      {/* 7. TESTIMONIALS & PRESS REVIEWS */}
       <TestimonialsSection />
 
-      {/* 9. NEWSLETTER & VIP CLUB */}
+      {/* 8. NEWSLETTER & VIP CLUB */}
       <NewsletterSection />
 
     </main>
