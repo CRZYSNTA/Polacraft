@@ -47,7 +47,16 @@ export async function POST(req: Request) {
       ? body.shippingCountry.trim()
       : "India";
 
-    const resolvedItems = [] as Array<{ productId: string; quantity: number; price: number; size: string; frame: string; title: string; description: string }>;
+    const resolvedItems = [] as Array<{
+      productId: string | null;
+      isCustomItem: boolean;
+      quantity: number;
+      price: number;
+      size: string;
+      frame: string;
+      title: string;
+      description: string;
+    }>;
 
     for (const item of items) {
       const productId = asRequiredText(item.productId, "Product");
@@ -62,23 +71,39 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "An unsupported product option was selected." }, { status: 400 });
       }
 
+      // Try database lookup first by id or slug
       const product = await prisma.product.findFirst({
         where: { OR: [{ id: productId }, { slug: productId.toLowerCase() }] },
       });
-      if (!product || product.isSoldOut || (!product.isPreorder && product.inventory < quantity)) {
-        return NextResponse.json({ error: `"${productId}" is unavailable in the requested quantity.` }, { status: 409 });
-      }
 
-      const price = calculateProductPrice(product.price, size, frame);
-      resolvedItems.push({
-        productId: product.id,
-        quantity,
-        price,
-        size,
-        frame,
-        title: product.title,
-        description: product.tagline || product.story || `${product.film} (${product.year})`,
-      });
+      if (product) {
+        const price = calculateProductPrice(product.price, size, frame);
+        resolvedItems.push({
+          productId: product.id,
+          isCustomItem: false,
+          quantity,
+          price,
+          size,
+          frame,
+          title: product.title,
+          description: product.tagline || product.story || `${product.film} (${product.year})`,
+        });
+      } else {
+        // Fallback resolution for Custom Print Studio & static CMS catalog items
+        const customTitle = (item as any).productTitle || (item as any).title || productId || "Custom Cinema Poster Print";
+        const itemPrice = Number((item as any).price) || calculateProductPrice(499, size, frame);
+
+        resolvedItems.push({
+          productId: null,
+          isCustomItem: true,
+          quantity,
+          price: itemPrice,
+          size,
+          frame,
+          title: customTitle,
+          description: "Archival Fine Art Cinema Print",
+        });
+      }
     }
 
     const subtotal = resolvedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -148,7 +173,18 @@ export async function POST(req: Request) {
         discount,
         total,
         notes: couponCode ? `Coupon applied: ${couponCode}` : undefined,
-        items: { create: resolvedItems.map(({ title: _title, description: _description, ...item }) => item) },
+        items: {
+          create: resolvedItems.map((item) => ({
+            productId: item.productId,
+            isCustomItem: item.isCustomItem,
+            title: item.title,
+            description: item.description,
+            size: item.size,
+            frame: item.frame,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
         rewards: { create: orderRewardsToCreate },
         statusHistory: { create: { status: "WHATSAPP_PENDING", comment: "Order created via WhatsApp checkout. Payment is pending verification." } },
       },
