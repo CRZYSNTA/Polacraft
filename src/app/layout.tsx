@@ -7,6 +7,7 @@ import Footer from "../components/Footer";
 import CartDrawer from "../components/CartDrawer";
 import QuickViewModal from "../components/QuickViewModal";
 import CustomCursor from "../components/CustomCursor";
+import BrandedPreloader from "../components/BrandedPreloader";
 import AnalyticsTracker from "../components/AnalyticsTracker";
 import { OrganizationSchema, WebSiteSearchSchema } from "../components/JsonLd";
 
@@ -74,6 +75,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             {/* Analytics Script Loaders & Page trackers */}
             <AnalyticsTracker />
+
+            {/* Desktop Branded Preloader with Originkit Cursor Image Trail */}
+            <BrandedPreloader />
 
             {/* Global Ambient Paper grain filter */}
             <div className="paper-texture" />
