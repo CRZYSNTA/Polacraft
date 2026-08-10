@@ -146,7 +146,33 @@ export default function HeroSection({
         }
       `}</style>
 
-      {/* MOBILE EXCLUSIVE CLEAN BACKGROUND (ZERO POSTER INTERFERENCE) */}
+      {/* MOBILE EXCLUSIVE FULL-BACKGROUND ROTATING CIRCULAR CANVASES */}
+      {isMobile && (
+        <div 
+          style={{ 
+            position: "absolute", 
+            inset: 0, 
+            width: "100%", 
+            height: "100%", 
+            zIndex: 1, 
+            opacity: 0.95,
+            pointerEvents: "auto"
+          }}
+        >
+          <ImageGroup 
+            images={mobileCircleImages}
+            count={Math.min(18, Math.max(mobileCircleImages.items.length, 12))}
+            rings={2}
+            innerRadius={Math.max(210, heroCircleInnerRadius)}
+            ringGap={heroCircleRingGap || 110}
+            cardWidth={74}
+            cardHeight={98}
+            speed={heroSpeedMobile || 3.5}
+            direction="alternate"
+            rounded={8}
+          />
+        </div>
+      )}
 
       {/* HERO CONTENT CARD (SEAMLESSLY BLENDED VIGNETTED RADIAL GLOW BANNER ON MOBILE) */}
       <div 
