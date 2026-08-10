@@ -394,6 +394,7 @@ export default function AdminSettingsPage() {
                     return (
                       <div key={poster.id} onClick={() => isSel ? setHeroSelectedPosterIdsMobile(heroSelectedPosterIdsMobile.filter(id => id !== poster.id)) : setHeroSelectedPosterIdsMobile([...heroSelectedPosterIdsMobile, poster.id])}
                         style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.45rem 0.5rem", borderRadius: "7px", border: isSel ? "2px solid #111111" : "1px solid rgba(17,17,17,0.08)", backgroundColor: isSel ? "#FFFFFF" : "rgba(255,255,255,0.5)", cursor: "pointer", boxShadow: isSel ? "0 2px 8px rgba(0,0,0,0.06)" : "none", transition: "all 0.12s ease" }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img} alt={poster.title} style={{ width: "36px", height: "48px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#111111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{poster.title}</div>
@@ -436,6 +437,7 @@ export default function AdminSettingsPage() {
                     return (
                       <div key={poster.id} onClick={() => isSel ? setHeroSelectedPosterIdsDesktop(heroSelectedPosterIdsDesktop.filter(id => id !== poster.id)) : setHeroSelectedPosterIdsDesktop([...heroSelectedPosterIdsDesktop, poster.id])}
                         style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.45rem 0.5rem", borderRadius: "7px", border: isSel ? "2px solid #1E1E1E" : "1px solid rgba(17,17,17,0.08)", backgroundColor: isSel ? "#FFFFFF" : "rgba(255,255,255,0.5)", cursor: "pointer", boxShadow: isSel ? "0 2px 8px rgba(0,0,0,0.06)" : "none", transition: "all 0.12s ease" }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img} alt={poster.title} style={{ width: "36px", height: "48px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#111111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{poster.title}</div>

@@ -209,6 +209,7 @@ export default function ImageGroup(props: ImageGroupProps) {
     >
       {cards.map((c, i) => {
         const content = (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={c.img.src}
             srcSet={c.img.srcSet}

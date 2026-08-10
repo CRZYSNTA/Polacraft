@@ -78,7 +78,7 @@ export default function AccountWishlistPage() {
     }
 
     loadWishlistProducts();
-  }, [wishlistKey]);
+  }, [wishlistKey, wishlistIds]);
 
   const handleRemove = (productId: string) => {
     if (toggleWishlist) {
@@ -110,13 +110,13 @@ export default function AccountWishlistPage() {
         </div>
 
         {loading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: "5rem 0" }}>
-            <Loader2 size={32} className="animate-spin" style={{ color: "#111111" }} />
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "300px" }}>
+            <Loader2 className="animate-spin" size={32} style={{ color: "#111111" }} />
           </div>
         ) : savedProducts.length === 0 ? (
-          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "24px", padding: "5rem 2rem", textAlign: "center", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-            <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "#FFF5F5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem auto" }}>
-              <Heart size={28} style={{ color: "#EF4444" }} />
+          <div style={{ textAlign: "center", padding: "4rem 2rem", backgroundColor: "#FFFFFF", borderRadius: "24px", border: "1px solid rgba(17,17,17,0.08)", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+            <div style={{ width: "56px", height: "56px", borderRadius: "50%", backgroundColor: "#F5F5F0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem auto" }}>
+              <Heart size={24} style={{ color: "#888888" }} />
             </div>
             <h3 style={{ fontSize: "1.25rem", color: "#111111", fontWeight: 800, margin: "0 0 0.5rem 0" }}>Your Wishlist is Empty</h3>
             <p style={{ color: "#666666", fontSize: "0.9rem", marginBottom: "1.75rem", maxWidth: "42ch", margin: "0 auto 1.75rem auto" }}>
@@ -128,14 +128,14 @@ export default function AccountWishlistPage() {
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.5rem" }}>
-            {savedProducts.map((poster) => {
+            {savedProducts.map((poster, idx) => {
               if (!poster) return null;
 
               const collectionName = poster.collection || poster.collectionName || poster.film || "Archival Collection";
               const releaseYear = poster.year || poster.releaseYear || "2024";
               const rawPrice = Number(poster.price ?? 499);
               const formattedPrice = isNaN(rawPrice) ? "499" : rawPrice.toLocaleString("en-IN");
-              const posterKey = poster.id || poster.slug || Math.random().toString();
+              const posterKey = poster.id || poster.slug || `wishlist-item-${idx}`;
 
               return (
                 <div 

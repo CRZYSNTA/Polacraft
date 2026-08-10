@@ -109,7 +109,7 @@ function transformFor(c: Card, angle: number) {
   return `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${c.tilt.toFixed(2)}deg)`;
 }
 
-function __OriginkitBase_ImageGroup(props: ImageGroupProps) {
+function OriginkitBaseImageGroup(props: ImageGroupProps) {
   const {
     images = DEFAULTS.images,
     count = DEFAULTS.count,
@@ -210,6 +210,7 @@ function __OriginkitBase_ImageGroup(props: ImageGroupProps) {
     >
       {cards.map((c, i) => {
         const content = (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={c.img.src}
             srcSet={c.img.srcSet}
@@ -277,5 +278,5 @@ const __originkitPresetProps = {
 };
 
 export default function ImageGroup(props: Record<string, unknown>) {
-  return <__OriginkitBase_ImageGroup {...(__originkitPresetProps as Record<string, unknown>)} {...props} />;
+  return <OriginkitBaseImageGroup {...(__originkitPresetProps as Record<string, unknown>)} {...props} />;
 }

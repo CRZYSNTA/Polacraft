@@ -11,10 +11,9 @@ interface OriginkitCircleSectionProps {
 }
 
 export default function OriginkitCircleSection({ posters = [] }: OriginkitCircleSectionProps) {
-  const safePosters = Array.isArray(posters) ? posters : [];
-
   // Format real catalog posters for the Originkit custom-styled circular deck
   const circleItems = useMemo(() => {
+    const safePosters = Array.isArray(posters) ? posters : [];
     const items = safePosters.map((p) => {
       const rawImg = p.heroImage || p.galleryImages?.[0] || (p as any).images?.[0]?.url;
       const validSrc = (rawImg && typeof rawImg === "string" && rawImg.trim() !== "") ? rawImg : "/assets/custom_grid_poster.png";
@@ -28,9 +27,9 @@ export default function OriginkitCircleSection({ posters = [] }: OriginkitCircle
       };
     });
     return { items };
-  }, [safePosters]);
+  }, [posters]);
 
-  if (safePosters.length === 0) return null;
+  if (!Array.isArray(posters) || posters.length === 0) return null;
 
   return (
     <section 
