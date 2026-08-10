@@ -68,10 +68,17 @@ export default function BrandedPreloader() {
   };
 
   // Format real store posters for the cursor trail (optimized to w_320 thumbnails)
-  const trailImages = (storePosters.length > 0 ? storePosters : cmsPosters).map((p) => {
-    const rawImg = p.heroImage || p.galleryImages?.[0] || p.images?.[0]?.url || "/assets/custom_grid_poster.png";
+  const trailImages = (storePosters.length > 0 ? storePosters : []).map((p) => {
+    const rawImg = typeof p === "string" ? p : (p.heroImage || p.galleryImages?.[0] || p.images?.[0]?.url || "/assets/custom_grid_poster.png");
     return getCloudinaryResponsiveUrl(rawImg, { width: 320, quality: "auto" });
-  });
+  }).filter((url) => typeof url === "string" && url.trim() !== "");
+
+  const finalTrailImages = trailImages.length > 0 ? trailImages : [
+    "/assets/custom_grid_poster.png",
+    "/assets/custom_single_poster.png",
+    "/assets/custom_split_3panel.png",
+    "/assets/custom_split_2x2.png"
+  ];
 
   if (!isVisible) return null;
 
@@ -108,7 +115,7 @@ export default function BrandedPreloader() {
           {/* CURSOR IMAGE TRAIL DECK LAYER */}
           <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
             <CursorImageTrail
-              images={trailImages}
+              images={finalTrailImages}
               imageWidth={160}
               imageHeight={220}
               radius={8}

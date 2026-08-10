@@ -6,11 +6,10 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { motion } from "framer-motion";
 
 const DEFAULT_URLS = [
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/8e0d22a8-ac82-4893-90d8-3403f80ec600/w=800",
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/d6af07a0-4dc5-4de4-07b1-9d2ad6100000/w=800",
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/c083d83a-f5a4-4434-989f-4eaa9bbe7500/w=800",
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/93bad0e0-e2ab-4e21-de9c-4cb54b028f00/w=800",
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/09a59a65-3c07-4500-f72c-68c824168c00/w=800",
+    "/assets/custom_grid_poster.png",
+    "/assets/custom_single_poster.png",
+    "/assets/custom_split_3panel.png",
+    "/assets/custom_split_2x2.png"
 ];
 
 const TRANSITION = { type: "spring", stiffness: 300, damping: 30 } as const;
@@ -192,12 +191,10 @@ function OriginkitBaseCursorImageTrail(props: Partial<Props> & { [k: string]: an
 
 const __originkitPresetProps = {
   "images": [
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/f8b3688c-11d0-425c-0b6f-66f133322c00/w=800",
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/b14ae2a2-1116-4a7f-0a18-1d74c4a46f00/w=800",
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/e5213ea9-fdf1-4b3b-7d6b-331203912500/w=800",
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/e4476503-c1e3-4358-3ff6-539deda1f800/w=800",
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/4271959a-5964-4541-4809-a68cb90cde00/w=800",
-    "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/eaafe6e8-cf8c-45c0-5a18-f468059e5800/w=800"
+    "/assets/custom_grid_poster.png",
+    "/assets/custom_single_poster.png",
+    "/assets/custom_split_3panel.png",
+    "/assets/custom_split_2x2.png"
   ],
   "imageWidth": 150,
   "imageHeight": 200,
