@@ -79,13 +79,17 @@ function OriginkitBaseCursorImageTrail(props: Partial<Props> & { [k: string]: an
     const handleMouseEnter = () => setIsHovering(true);
     const handleMouseLeave = () => setIsHovering(false);
 
+    const lastPosRef = React.useRef<{ x: number; y: number } | null>(null);
+
     useEffect(() => {
         if (!isHovering || urls.length === 0) return;
-        const lastImage = activeImages[activeImages.length - 1];
-        const distance = lastImage
-            ? Math.hypot(mousePos.x - lastImage.x, mousePos.y - lastImage.y)
+        const lastPos = lastPosRef.current;
+        const distance = lastPos
+            ? Math.hypot(mousePos.x - lastPos.x, mousePos.y - lastPos.y)
             : Infinity;
         if (distance <= threshold) return;
+
+        lastPosRef.current = { x: mousePos.x, y: mousePos.y };
 
         const newImage = {
             id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

@@ -9,7 +9,7 @@ import { posters as cmsPosters } from "@/lib/cms/products";
 
 export default function AccountWishlistPage() {
   const context = useContext(AppContext);
-  const wishlistIds = context?.wishlist || [];
+  const wishlistIds = React.useMemo(() => context?.wishlist || [], [context?.wishlist]);
   const toggleWishlist = context?.toggleWishlist;
 
   const [savedProducts, setSavedProducts] = useState<any[]>([]);

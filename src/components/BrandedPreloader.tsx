@@ -12,6 +12,16 @@ export default function BrandedPreloader() {
   const [progress, setProgress] = useState(0);
   const [storePosters, setStorePosters] = useState<any[]>(cmsPosters);
 
+  const handleDismiss = React.useCallback(() => {
+    setIsVisible(false);
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = "";
+    }
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem("polacraft_preloader_seen", "true");
+    }
+  }, []);
+
   useEffect(() => {
     // Fetch live catalog products from database
     fetch("/api/search")
@@ -59,13 +69,7 @@ export default function BrandedPreloader() {
       clearInterval(interval);
       clearTimeout(autoTimer);
     };
-  }, [isVisible]);
-
-  const handleDismiss = () => {
-    setIsVisible(false);
-    document.body.style.overflow = "";
-    sessionStorage.setItem("polacraft_preloader_seen", "true");
-  };
+  }, [isVisible, handleDismiss]);
 
   // Format real store posters for the cursor trail (optimized to w_320 thumbnails)
   const trailImages = (storePosters.length > 0 ? storePosters : []).map((p) => {
