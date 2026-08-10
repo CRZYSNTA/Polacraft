@@ -136,11 +136,15 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (res.ok && data.order && data.whatsappUrl) {
-        setCompletedOrder(data.order);
+        setCompletedOrder({ ...data.order, whatsappUrl: data.whatsappUrl });
         clearCart();
 
-        // Redirect immediately to WhatsApp with pre-filled order message
-        window.location.href = data.whatsappUrl;
+        // Attempt redirect to WhatsApp with fallback
+        try {
+          window.location.href = data.whatsappUrl;
+        } catch {
+          // Fallback if blocked
+        }
       } else {
         alert("Checkout Error: " + (data.error || "Failed to place order"));
       }
@@ -159,9 +163,9 @@ export default function CheckoutPage() {
           <CheckCircle2 size={36} />
         </div>
 
-        <h1 style={{ fontSize: "2rem", fontWeight: "900", margin: "0 0 0.5rem 0" }}>Order Received!</h1>
+        <h1 style={{ fontSize: "2rem", fontWeight: "900", margin: "0 0 0.5rem 0" }}>Order Saved Successfully!</h1>
         <p style={{ color: "#64748B", fontSize: "0.95rem", marginBottom: "1.5rem" }}>
-          Your order <strong>#{completedOrder.orderNumber}</strong> has been saved. WhatsApp has opened to confirm details and complete payment via UPI.
+          Your order <strong>#{completedOrder.orderNumber}</strong> has been created. Click below to open WhatsApp and complete payment via UPI.
         </p>
 
         <div style={{ padding: "1.25rem", backgroundColor: "#F8FAFC", borderRadius: "16px", border: "1px solid #E2E8F0", textAlign: "left", fontSize: "0.85rem", marginBottom: "2rem" }}>
@@ -184,6 +188,34 @@ export default function CheckoutPage() {
             </span>
           </div>
         </div>
+
+        {completedOrder.whatsappUrl && (
+          <div style={{ marginBottom: "1.5rem" }}>
+            <a
+              href={completedOrder.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.6rem",
+                padding: "1rem 2rem",
+                borderRadius: "14px",
+                backgroundColor: "#25D366",
+                color: "#FFF",
+                fontWeight: 800,
+                fontSize: "1.05rem",
+                textDecoration: "none",
+                boxShadow: "0 6px 20px rgba(37, 211, 102, 0.35)",
+                width: "100%",
+                maxWidth: "400px"
+              }}
+            >
+              <MessageSquare size={22} /> Open WhatsApp Order Message (₹{completedOrder.total})
+            </a>
+          </div>
+        )}
 
         <Link href="/shop" style={{ display: "inline-block", padding: "0.85rem 2rem", borderRadius: "12px", backgroundColor: "#1E1E1E", color: "#FFF", textDecoration: "none", fontWeight: 800, fontSize: "0.9rem" }}>
           Back to Storefront
