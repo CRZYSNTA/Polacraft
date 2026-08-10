@@ -39,12 +39,12 @@ export const metadata = {
   metadataBase: new URL("https://polacraft-1.vercel.app"),
   icons: {
     icon: [
-      { url: "/favicon.png?v=100", type: "image/png" },
-      { url: "/assets/polacraft-white-logo-mark.png?v=100", type: "image/png" },
-      { url: "/favicon.ico?v=100" }
+      { url: "/favicon.png?v=200", type: "image/png" },
+      { url: "/assets/polacraft-white-logo-mark.png?v=200", type: "image/png" },
+      { url: "/favicon.ico?v=200" }
     ],
-    shortcut: "/favicon.png?v=100",
-    apple: "/apple-icon.png?v=100",
+    shortcut: "/favicon.png?v=200",
+    apple: "/apple-icon.png?v=200",
   },
   openGraph: {
     title: "Premium Malayalam Movie Posters | Polacraft",
@@ -59,10 +59,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${bebasNeue.variable} ${syne.variable}`} suppressHydrationWarning>
       <head>
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=100" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/assets/polacraft-white-logo-mark.png?v=100" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png?v=100" />
-        <link rel="shortcut icon" href="/favicon.ico?v=100" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=200" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/assets/polacraft-white-logo-mark.png?v=200" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png?v=200" />
+        <link rel="shortcut icon" href="/favicon.ico?v=200" />
       </head>
       <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh", position: "relative" }} suppressHydrationWarning>
         <AuthSessionProvider>
