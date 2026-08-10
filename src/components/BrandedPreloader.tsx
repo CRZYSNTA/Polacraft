@@ -12,7 +12,7 @@ export default function BrandedPreloader() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Desktop only check + Session storage check
+    // Desktop only check
     if (typeof window === "undefined") return;
 
     // Check if user is on mobile (<768px)
@@ -20,12 +20,9 @@ export default function BrandedPreloader() {
       return;
     }
 
-    // Check if preloader has already been displayed during this browser session
-    const hasSeen = sessionStorage.getItem("polacraft_preloader_seen");
-    if (!hasSeen) {
-      setIsVisible(true);
-      document.body.style.overflow = "hidden";
-    }
+    // Always show preloader on desktop view
+    setIsVisible(true);
+    document.body.style.overflow = "hidden";
   }, []);
 
   useEffect(() => {
