@@ -10,6 +10,19 @@ import { Sparkles, ArrowRight } from "lucide-react";
 export default function BrandedPreloader() {
   const [isVisible, setIsVisible] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [storePosters, setStorePosters] = useState<any[]>(cmsPosters);
+
+  useEffect(() => {
+    // Fetch live catalog products from database
+    fetch("/api/search")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && Array.isArray(data.products) && data.products.length > 0) {
+          setStorePosters(data.products);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     // Desktop only check
@@ -54,13 +67,13 @@ export default function BrandedPreloader() {
     sessionStorage.setItem("polacraft_preloader_seen", "true");
   };
 
-  if (!isVisible) return null;
-
-  // Format top 10 catalog posters for the cursor trail (optimized to w_300 thumbnails)
-  const trailImages = cmsPosters.slice(0, 10).map((p) => {
-    const rawImg = p.heroImage || p.galleryImages?.[0] || "/assets/custom_grid_poster.png";
-    return getCloudinaryResponsiveUrl(rawImg, { width: 300, quality: "auto" });
+  // Format real store posters for the cursor trail (optimized to w_320 thumbnails)
+  const trailImages = (storePosters.length > 0 ? storePosters : cmsPosters).map((p) => {
+    const rawImg = p.heroImage || p.galleryImages?.[0] || p.images?.[0]?.url || "/assets/custom_grid_poster.png";
+    return getCloudinaryResponsiveUrl(rawImg, { width: 320, quality: "auto" });
   });
+
+  if (!isVisible) return null;
 
   return (
     <AnimatePresence>
