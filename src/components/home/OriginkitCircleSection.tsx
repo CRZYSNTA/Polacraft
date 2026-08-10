@@ -57,16 +57,16 @@ export default function OriginkitCircleSection({ posters = [] }: OriginkitCircle
       </div>
 
       {/* 360 CIRCULAR DECK CANVAS */}
-      <div style={{ position: "relative", width: "100%", height: "420px", margin: "0 auto" }}>
+      <div style={{ position: "relative", width: "100%", height: "500px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", overflow: "hidden" }}>
         <ImageGroupCustomStyle 
           images={circleItems}
-          count={24}
-          rings={3}
-          innerRadius={90}
-          ringGap={130}
-          cardWidth={85}
-          cardHeight={115}
-          speed={4}
+          count={16}
+          rings={2}
+          innerRadius={75}
+          ringGap={90}
+          cardWidth={76}
+          cardHeight={102}
+          speed={3.5}
           direction="alternate"
           rounded={8}
         />
