@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Sparkles, ArrowRight } from "lucide-react";
 import ImageGroupCustomStyle from "../originkit/ui/image-group-circle-custom-style";
 import { Product } from "@/types";
+import { getCloudinaryResponsiveUrl } from "@/lib/cloudinary-client";
 
 interface OriginkitCircleSectionProps {
   posters: Product[];
@@ -17,9 +18,10 @@ export default function OriginkitCircleSection({ posters = [] }: OriginkitCircle
     const items = safePosters.map((p) => {
       const rawImg = p.heroImage || p.galleryImages?.[0] || (p as any).images?.[0]?.url;
       const validSrc = (rawImg && typeof rawImg === "string" && rawImg.trim() !== "") ? rawImg : "/assets/custom_grid_poster.png";
+      const optimizedSrc = getCloudinaryResponsiveUrl(validSrc, { width: 300, quality: "auto" });
       return {
         image: {
-          src: validSrc,
+          src: optimizedSrc,
           alt: p.title
         },
         slug: p.slug,
@@ -58,13 +60,13 @@ export default function OriginkitCircleSection({ posters = [] }: OriginkitCircle
       <div style={{ position: "relative", width: "100%", height: "420px", margin: "0 auto" }}>
         <ImageGroupCustomStyle 
           images={circleItems}
-          count={55}
-          rings={4}
+          count={24}
+          rings={3}
           innerRadius={90}
           ringGap={130}
           cardWidth={85}
           cardHeight={115}
-          speed={6}
+          speed={4}
           direction="alternate"
           rounded={8}
         />

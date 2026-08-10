@@ -122,26 +122,4 @@ export async function deleteCloudinaryAsset(publicId: string): Promise<boolean> 
   }
 }
 
-/**
- * Responsive Cloudinary Delivery Helper
- * Transforms Cloudinary URLs on demand with custom width, quality, and formatting options for optimal srcset.
- */
-export function getCloudinaryResponsiveUrl(
-  url: string,
-  options: { width?: number; height?: number; quality?: string | number; crop?: string } = {}
-): string {
-  if (!url || !url.includes("res.cloudinary.com")) {
-    return url;
-  }
-
-  const { width, height, quality = "auto", crop = "limit" } = options;
-
-  const transformations: string[] = ["f_auto", `q_${quality}`];
-  if (width) transformations.push(`w_${width}`);
-  if (height) transformations.push(`h_${height}`);
-  if (crop) transformations.push(`c_${crop}`);
-
-  const transformString = transformations.join(",");
-
-  return url.replace("/upload/", `/upload/${transformString}/`);
-}
+export { getCloudinaryResponsiveUrl } from "./cloudinary-client";

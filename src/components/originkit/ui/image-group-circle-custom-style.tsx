@@ -216,6 +216,8 @@ function OriginkitBaseImageGroup(props: ImageGroupProps) {
             srcSet={c.img.srcSet}
             alt={c.img.alt ?? ""}
             draggable={false}
+            loading="lazy"
+            decoding="async"
             style={{
               width: "100%",
               height: "100%",
@@ -244,13 +246,12 @@ function OriginkitBaseImageGroup(props: ImageGroupProps) {
               overflow: "hidden",
               boxShadow: "0 18px 40px rgba(0,0,0,0.16)",
               transform: transformFor(c, c.angle),
-              willChange: "transform",
               pointerEvents: "auto",
               cursor: c.img.slug ? "pointer" : "default"
             }}
           >
             {c.img.slug ? (
-              <Link href={`/product/${c.img.slug}`} prefetch={true} style={{ display: "block", width: "100%", height: "100%" }}>
+              <Link href={`/product/${c.img.slug}`} prefetch={false} style={{ display: "block", width: "100%", height: "100%" }}>
                 {content}
               </Link>
             ) : (

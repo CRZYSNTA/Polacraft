@@ -8,6 +8,7 @@ import PosterRenderer from "../PosterRenderer";
 import ImageGroup from "../originkit/ui/image-group-circle-custom-style";
 import RoundCarousel from "../originkit/ui/roundcarousel";
 import { Product } from "@/types";
+import { getCloudinaryResponsiveUrl } from "@/lib/cloudinary-client";
 
 interface HeroSectionProps {
   heroTitle: string;
@@ -81,8 +82,9 @@ export default function HeroSection({
     const items = mobileCatalogPosters.map((p) => {
       const rawImg = p.heroImage || p.galleryImages?.[0] || (p as any).images?.[0]?.url;
       const validSrc = (rawImg && typeof rawImg === "string" && rawImg.trim() !== "") ? rawImg : "/assets/custom_grid_poster.png";
+      const optimizedSrc = getCloudinaryResponsiveUrl(validSrc, { width: 300, quality: "auto" });
       return {
-        image: { src: validSrc, alt: p.title },
+        image: { src: optimizedSrc, alt: p.title },
         slug: p.slug,
         focusY: 50
       };
@@ -95,7 +97,8 @@ export default function HeroSection({
     return desktopCatalogPosters.map((p) => {
       const rawImg = p.heroImage || p.galleryImages?.[0] || (p as any).images?.[0]?.url;
       const validSrc = (rawImg && typeof rawImg === "string" && rawImg.trim() !== "") ? rawImg : "/assets/custom_grid_poster.png";
-      return { src: validSrc };
+      const optimizedSrc = getCloudinaryResponsiveUrl(validSrc, { width: 400, quality: "auto" });
+      return { src: optimizedSrc };
     });
   }, [desktopCatalogPosters]);
 
@@ -118,16 +121,14 @@ export default function HeroSection({
       <style jsx>{`
         @media (max-width: 767px) {
           .hero-mobile-blended-banner {
-            background-color: rgba(250, 250, 248, 0.96) !important;
-            backdrop-filter: blur(24px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+            background-color: #FAFAF8 !important;
             border: 1px solid rgba(17, 17, 17, 0.08) !important;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06) !important;
             border-radius: 36px !important;
             padding: 2.25rem 1.25rem !important;
           }
           .hero-mobile-badge {
-            background-color: rgba(255, 255, 255, 0.92) !important;
+            background-color: #FFFFFF !important;
             border: 1px solid rgba(17, 17, 17, 0.12) !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
           }
