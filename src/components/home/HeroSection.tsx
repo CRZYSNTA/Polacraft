@@ -160,8 +160,8 @@ export default function HeroSection({
         >
           <ImageGroup 
             images={mobileCircleImages}
-            count={12}
-            rings={2}
+            count={Math.max(mobileCircleImages.items.length, 12)}
+            rings={mobileCircleImages.items.length > 16 ? 3 : 2}
             innerRadius={heroCircleInnerRadius}
             ringGap={heroCircleRingGap}
             cardWidth={78}
