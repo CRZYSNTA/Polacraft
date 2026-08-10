@@ -57,7 +57,9 @@ export default function HeroSection({
   // Mobile poster list — uses heroSelectedPosterIdsMobile if set, else full catalog
   const mobileCatalogPosters = useMemo(() => {
     if (Array.isArray(heroSelectedPosterIdsMobile) && heroSelectedPosterIdsMobile.length > 0) {
-      const selected = rawPosters.filter((p) => heroSelectedPosterIdsMobile.includes(p.id));
+      const selected = rawPosters.filter(
+        (p) => heroSelectedPosterIdsMobile.includes(p.id) || heroSelectedPosterIdsMobile.includes(p.slug)
+      );
       return selected.length > 0 ? selected : rawPosters;
     }
     return rawPosters;
@@ -66,7 +68,9 @@ export default function HeroSection({
   // Desktop poster list — uses heroSelectedPosterIdsDesktop if set, else full catalog
   const desktopCatalogPosters = useMemo(() => {
     if (Array.isArray(heroSelectedPosterIdsDesktop) && heroSelectedPosterIdsDesktop.length > 0) {
-      const selected = rawPosters.filter((p) => heroSelectedPosterIdsDesktop.includes(p.id));
+      const selected = rawPosters.filter(
+        (p) => heroSelectedPosterIdsDesktop.includes(p.id) || heroSelectedPosterIdsDesktop.includes(p.slug)
+      );
       return selected.length > 0 ? selected : rawPosters;
     }
     return rawPosters;
@@ -158,8 +162,8 @@ export default function HeroSection({
             images={mobileCircleImages}
             count={12}
             rings={2}
-            innerRadius={Math.max(220, heroCircleInnerRadius)}
-            ringGap={120}
+            innerRadius={heroCircleInnerRadius}
+            ringGap={heroCircleRingGap}
             cardWidth={78}
             cardHeight={102}
             speed={heroSpeedMobile}

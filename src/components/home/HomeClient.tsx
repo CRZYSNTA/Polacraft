@@ -23,7 +23,7 @@ interface HomeClientProps {
 export default function HomeClient({ initialPosters, heroPosters, serverSiteSettings }: HomeClientProps) {
   const { addToCart, wishlist, toggleWishlist, openQuickView, siteSettings } = useContext(AppContext);
 
-  const activeSettings = serverSiteSettings || siteSettings;
+  const activeSettings = { ...serverSiteSettings, ...siteSettings };
   const heroFanCards = heroPosters && heroPosters.length > 0 ? heroPosters : initialPosters.slice(0, 6);
   const bestSellers = initialPosters.slice(0, 6);
 
