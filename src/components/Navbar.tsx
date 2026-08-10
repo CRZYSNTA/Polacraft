@@ -48,22 +48,16 @@ const LogoBrand = () => {
 
 const LogoVideoReveal = () => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.defaultMuted = true;
-      videoRef.current.muted = true;
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          if (videoRef.current) {
-            videoRef.current.muted = true;
-            videoRef.current.play().catch(() => {});
-          }
-        });
+    const playVideo = () => {
+      if (videoRef.current) {
+        videoRef.current.defaultMuted = true;
+        videoRef.current.muted = true;
+        videoRef.current.play().catch(() => {});
       }
-    }
+    };
+    playVideo();
   }, []);
 
   return (
@@ -79,30 +73,24 @@ const LogoVideoReveal = () => {
         borderRadius: "6px",
       }}
     >
-      {!hasError ? (
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          onError={() => setHasError(true)}
-          style={{
-            height: "100%",
-            width: "auto",
-            maxHeight: "44px",
-            maxWidth: "240px",
-            objectFit: "contain",
-            display: "block",
-            mixBlendMode: "multiply",
-          }}
-        >
-          <source src="/assets/logo-reveal.mp4" type="video/mp4" />
-        </video>
-      ) : (
-        <LogoBrand />
-      )}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        style={{
+          height: "100%",
+          width: "auto",
+          maxHeight: "44px",
+          maxWidth: "240px",
+          objectFit: "contain",
+          display: "block",
+        }}
+      >
+        <source src="/assets/logo-reveal.mp4" type="video/mp4" />
+      </video>
     </div>
   );
 };
