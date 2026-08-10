@@ -1,9 +1,8 @@
 import { getPosters, getHeroPosters, getSiteSettings } from "@/lib/cms";
 import HomeClient from "@/components/home/HomeClient";
 
-// Force dynamic rendering to prevent browser/CDN caching of stale homepage HTML
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Enable Incremental Static Regeneration (ISR) for instant 0ms homepage delivery
+export const revalidate = 60;
 
 export default async function Home() {
   const [posters, heroPosters, siteSettings] = await Promise.all([
