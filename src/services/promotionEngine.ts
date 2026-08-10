@@ -32,8 +32,8 @@ export const DEFAULT_STORE_SETTINGS: StorePromotionSettings = {
   heroSelectedPosterIdsDesktop: [],
   heroSpeedMobile: 4.0,
   heroSpeedDesktop: 2.7,
-  heroCircleInnerRadius: 110.0,
-  heroCircleRingGap: 105.0
+  heroCircleInnerRadius: 250.0,
+  heroCircleRingGap: 110.0
 };
 
 export interface RewardTierStatus {

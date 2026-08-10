@@ -162,7 +162,7 @@ export default function HeroSection({
             images={mobileCircleImages}
             count={Math.max(mobileCircleImages.items.length, 12)}
             rings={mobileCircleImages.items.length > 16 ? 3 : 2}
-            innerRadius={heroCircleInnerRadius}
+            innerRadius={Math.max(250, heroCircleInnerRadius)}
             ringGap={heroCircleRingGap}
             cardWidth={78}
             cardHeight={102}
