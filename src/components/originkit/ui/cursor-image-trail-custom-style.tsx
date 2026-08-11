@@ -6,10 +6,16 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { motion } from "framer-motion";
 
 const DEFAULT_URLS = [
-    "/assets/custom_grid_poster.png",
-    "/assets/custom_single_poster.png",
-    "/assets/custom_split_3panel.png",
-    "/assets/custom_split_2x2.png"
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749553/polacraft/products/gallery/ylrnc645hbsdz0qtzbso.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749525/polacraft/products/gallery/zvowpdluf7wwvni0mbsk.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749422/polacraft/products/gallery/rjszdp0hyjynj6mftfxl.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749368/polacraft/products/gallery/mgm8rfvwo5cdcao5gk7g.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749285/polacraft/products/gallery/jsvcud6oaxqmk3ciihiy.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749266/polacraft/products/gallery/ojpytfw4bn0abvn9mrye.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749228/polacraft/products/gallery/khtsmcgfwsg62mhatcrd.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749191/polacraft/products/gallery/mxtml0xdyif5auglh2nc.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749149/polacraft/products/gallery/pp8b5f2rvsiuyhcgxsej.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749103/polacraft/products/gallery/esjf6auafqj2wu1wiodk.jpg"
 ];
 
 const TRANSITION = { type: "spring", stiffness: 300, damping: 30 } as const;
@@ -195,10 +201,16 @@ function OriginkitBaseCursorImageTrail(props: Partial<Props> & { [k: string]: an
 
 const __originkitPresetProps = {
   "images": [
-    "/assets/custom_grid_poster.png",
-    "/assets/custom_single_poster.png",
-    "/assets/custom_split_3panel.png",
-    "/assets/custom_split_2x2.png"
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749553/polacraft/products/gallery/ylrnc645hbsdz0qtzbso.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749525/polacraft/products/gallery/zvowpdluf7wwvni0mbsk.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749422/polacraft/products/gallery/rjszdp0hyjynj6mftfxl.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749368/polacraft/products/gallery/mgm8rfvwo5cdcao5gk7g.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749285/polacraft/products/gallery/jsvcud6oaxqmk3ciihiy.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749266/polacraft/products/gallery/ojpytfw4bn0abvn9mrye.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749228/polacraft/products/gallery/khtsmcgfwsg62mhatcrd.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749191/polacraft/products/gallery/mxtml0xdyif5auglh2nc.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749149/polacraft/products/gallery/pp8b5f2rvsiuyhcgxsej.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749103/polacraft/products/gallery/esjf6auafqj2wu1wiodk.jpg"
   ],
   "imageWidth": 150,
   "imageHeight": 200,

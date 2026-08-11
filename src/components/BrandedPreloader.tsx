@@ -73,15 +73,22 @@ export default function BrandedPreloader() {
 
   // Format real store posters for the cursor trail (optimized to w_320 thumbnails)
   const trailImages = (storePosters.length > 0 ? storePosters : []).map((p) => {
-    const rawImg = typeof p === "string" ? p : (p.heroImage || p.galleryImages?.[0] || p.images?.[0]?.url || "/assets/custom_grid_poster.png");
+    const rawImg = typeof p === "string" ? p : (p.heroImage || p.galleryImages?.[0] || p.images?.[0]?.url);
+    if (!rawImg || rawImg.includes("custom_grid_poster") || rawImg.includes("custom_single_poster")) return "";
     return getCloudinaryResponsiveUrl(rawImg, { width: 320, quality: "auto" });
   }).filter((url) => typeof url === "string" && url.trim() !== "");
 
   const finalTrailImages = trailImages.length > 0 ? trailImages : [
-    "/assets/custom_grid_poster.png",
-    "/assets/custom_single_poster.png",
-    "/assets/custom_split_3panel.png",
-    "/assets/custom_split_2x2.png"
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749553/polacraft/products/gallery/ylrnc645hbsdz0qtzbso.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749525/polacraft/products/gallery/zvowpdluf7wwvni0mbsk.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749422/polacraft/products/gallery/rjszdp0hyjynj6mftfxl.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749368/polacraft/products/gallery/mgm8rfvwo5cdcao5gk7g.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749285/polacraft/products/gallery/jsvcud6oaxqmk3ciihiy.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749266/polacraft/products/gallery/ojpytfw4bn0abvn9mrye.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749228/polacraft/products/gallery/khtsmcgfwsg62mhatcrd.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749191/polacraft/products/gallery/mxtml0xdyif5auglh2nc.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749149/polacraft/products/gallery/pp8b5f2rvsiuyhcgxsej.jpg",
+    "https://res.cloudinary.com/virvu4jm/image/upload/f_auto,q_auto,w_320/v1785749103/polacraft/products/gallery/esjf6auafqj2wu1wiodk.jpg"
   ];
 
   if (!isVisible) return null;
