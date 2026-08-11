@@ -169,25 +169,7 @@ export default function BrandedPreloader() {
               />
             </motion.div>
 
-            {/* BADGE */}
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                backgroundColor: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                backdropFilter: "blur(12px)",
-                padding: "0.35rem 0.9rem",
-                borderRadius: "100px",
-                marginBottom: "1.25rem"
-              }}
-            >
-              <Sparkles size={13} style={{ color: "#D4AF37" }} />
-              <span style={{ fontSize: "0.75rem", fontWeight: "800", letterSpacing: "0.15em", textTransform: "uppercase", color: "#EFECE6" }}>
-                MALAYALAM CINEMA ARCHIVE
-              </span>
-            </div>
+
 
             {/* BRAND TITLE */}
             <h1
