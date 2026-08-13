@@ -2,12 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Users, Mail, Phone, MapPin, Award, Search, MessageSquare, ShieldCheck, Loader2 } from "lucide-react";
+import { Users, Mail, Phone, MapPin, Award, Search, MessageSquare, ShieldCheck, Loader2, Plus, ShoppingBag } from "lucide-react";
+import OrderWizardModal from "@/components/admin/Orders/OrderWizardModal";
 
 export default function AdminCustomersPage() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [selectedCustomerForOrder, setSelectedCustomerForOrder] = useState<any | null>(null);
 
   const fetchCustomers = async (q = "") => {
     try {
@@ -34,6 +37,11 @@ export default function AdminCustomersPage() {
     const value = e.target.value;
     setSearchQuery(value);
     fetchCustomers(value);
+  };
+
+  const handleStartOrderForCustomer = (cust: any) => {
+    setSelectedCustomerForOrder(cust);
+    setIsWizardOpen(true);
   };
 
   return (
@@ -111,6 +119,7 @@ export default function AdminCustomersPage() {
                   <th style={{ padding: "1rem" }}>Orders / Spend</th>
                   <th style={{ padding: "1rem" }}>Loyalty Points</th>
                   <th style={{ padding: "1rem" }}>Role / Auth</th>
+                  <th style={{ padding: "1rem", textAlign: "right" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -220,6 +229,30 @@ export default function AdminCustomersPage() {
                         </div>
                       </td>
 
+                      {/* ACTIONS: CREATE ORDER */}
+                      <td style={{ padding: "1rem", textAlign: "right" }}>
+                        <button
+                          onClick={() => handleStartOrderForCustomer(c)}
+                          style={{
+                            backgroundColor: "#0F172A",
+                            color: "#FFFFFF",
+                            padding: "0.45rem 0.85rem",
+                            borderRadius: "10px",
+                            fontSize: "0.8rem",
+                            fontWeight: "800",
+                            border: "none",
+                            cursor: "pointer",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.35rem",
+                            boxShadow: "0 2px 6px rgba(15,23,42,0.15)"
+                          }}
+                          title={`Create new order for ${c.name || c.phone}`}
+                        >
+                          <Plus size={14} style={{ color: "#10B981" }} /> Create Order
+                        </button>
+                      </td>
+
                     </tr>
                   );
                 })}
@@ -228,6 +261,19 @@ export default function AdminCustomersPage() {
           </div>
         )}
       </div>
+
+      {/* ORDER WIZARD MODAL PRE-FILLED WITH CUSTOMER */}
+      <OrderWizardModal
+        isOpen={isWizardOpen}
+        initialCustomer={selectedCustomerForOrder}
+        onClose={() => {
+          setIsWizardOpen(false);
+          setSelectedCustomerForOrder(null);
+        }}
+        onSuccess={() => {
+          fetchCustomers(searchQuery);
+        }}
+      />
 
     </div>
   );

@@ -47,6 +47,7 @@ export default function AdminOrdersPage() {
 
   // Modals state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [selectedCustomerForWizard, setSelectedCustomerForWizard] = useState<any | null>(null);
   const [paymentLedgerOrder, setPaymentLedgerOrder] = useState<any | null>(null);
   const [invoiceOrder, setInvoiceOrder] = useState<any | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
@@ -549,6 +550,36 @@ export default function AdminOrdersPage() {
                           <Printer size={14} /> Invoice
                         </button>
                         <button
+                          onClick={() => {
+                            setSelectedCustomerForWizard({
+                              name: order.shippingName,
+                              phone: order.phone,
+                              email: order.email,
+                              street: order.shippingStreet,
+                              city: order.shippingCity,
+                              state: order.shippingState,
+                              zip: order.shippingZip,
+                            });
+                            setIsWizardOpen(true);
+                          }}
+                          style={{
+                            border: "1px solid #CBD5E1",
+                            background: "#F8FAFC",
+                            color: "#0F172A",
+                            borderRadius: "8px",
+                            padding: "0.4rem 0.6rem",
+                            cursor: "pointer",
+                            fontSize: "0.75rem",
+                            fontWeight: "800",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                          title="Re-order for this customer"
+                        >
+                          <Plus size={14} style={{ color: "#10B981" }} /> Re-Order
+                        </button>
+                        <button
                           onClick={() => handleDeleteOrder(order.id, order.orderNumber)}
                           disabled={isPending}
                           style={{
@@ -892,7 +923,11 @@ export default function AdminOrdersPage() {
       {/* NEW ORDER / QUOTE WIZARD MODAL */}
       <OrderWizardModal
         isOpen={isWizardOpen}
-        onClose={() => setIsWizardOpen(false)}
+        initialCustomer={selectedCustomerForWizard}
+        onClose={() => {
+          setIsWizardOpen(false);
+          setSelectedCustomerForWizard(null);
+        }}
         onSuccess={() => fetchOrders()}
       />
 

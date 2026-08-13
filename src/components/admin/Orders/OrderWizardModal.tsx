@@ -33,9 +33,10 @@ interface OrderWizardModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  initialCustomer?: any | null;
 }
 
-export default function OrderWizardModal({ isOpen, onClose, onSuccess }: OrderWizardModalProps) {
+export default function OrderWizardModal({ isOpen, onClose, onSuccess, initialCustomer }: OrderWizardModalProps) {
   const [activeTab, setActiveTab] = useState<"AI_PARSER" | "CUSTOMER" | "ITEMS" | "PAYMENT" | "REVIEW">("CUSTOMER");
   const [isPending, startTransition] = useTransition();
 
@@ -53,6 +54,7 @@ export default function OrderWizardModal({ isOpen, onClose, onSuccess }: OrderWi
   const [zip, setZip] = useState("");
   const [isSearchingCustomer, setIsSearchingCustomer] = useState(false);
   const [customerInfoBadge, setCustomerInfoBadge] = useState<string | null>(null);
+  const [customerList, setCustomerList] = useState<any[]>([]);
 
   // 3. Product Search & Selected Items State
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,6 +83,43 @@ export default function OrderWizardModal({ isOpen, onClose, onSuccess }: OrderWi
   // 6. AI WhatsApp Parser Input State
   const [rawChatText, setRawChatText] = useState("");
   const [isParsingChat, setIsParsingChat] = useState(false);
+
+  // Fetch Customer Directory for Quick Select
+  useEffect(() => {
+    if (isOpen) {
+      fetch("/api/admin/customers")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && Array.isArray(data.customers)) {
+            setCustomerList(data.customers);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isOpen]);
+
+  // Handle Initial Customer Autofill
+  useEffect(() => {
+    if (isOpen && initialCustomer) {
+      const name = initialCustomer.name || initialCustomer.shippingName || "";
+      const ph = initialCustomer.phone || "";
+      const em = initialCustomer.email || "";
+      const st = initialCustomer.street || initialCustomer.shippingStreet || initialCustomer.defaultAddress || "";
+      const ct = initialCustomer.city || initialCustomer.shippingCity || "";
+      const sta = initialCustomer.state || initialCustomer.shippingState || "";
+      const zp = initialCustomer.zip || initialCustomer.shippingZip || "";
+
+      setCustomerName(name);
+      setPhone(ph);
+      setEmail(em);
+      setStreet(st);
+      setCity(ct);
+      setState(sta);
+      setZip(zp);
+      setCustomerInfoBadge(`Autofilled customer details for ${name || ph}`);
+      setActiveTab("CUSTOMER");
+    }
+  }, [isOpen, initialCustomer]);
 
   // Product Search Trigger
   const handleProductSearch = React.useCallback(async (query: string) => {
@@ -471,6 +510,53 @@ Deliver to: Gowtham, MG Road, Kochi 682001. Phone: 9895012345"`}
           {/* TAB: CUSTOMER */}
           {activeTab === "CUSTOMER" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              
+              {/* QUICK CUSTOMER SELECTOR */}
+              {customerList.length > 0 && (
+                <div style={{ backgroundColor: "#F1F5F9", padding: "1rem", borderRadius: "14px", border: "1px solid #CBD5E1" }}>
+                  <label style={{ fontSize: "0.85rem", fontWeight: 800, color: "#0F172A", display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.5rem" }}>
+                    <User size={16} style={{ color: "#10B981" }} /> Quick Select Previous Customer (Autofill Details)
+                  </label>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+                      if (!selectedId) return;
+                      const cust = customerList.find((c) => c.id === selectedId);
+                      if (cust) {
+                        setCustomerName(cust.name || "");
+                        setPhone(cust.phone || "");
+                        setEmail(cust.email || "");
+                        if (cust.defaultAddress && cust.defaultAddress !== "No address saved") {
+                          const parts = cust.defaultAddress.split(",");
+                          setStreet(parts[0]?.trim() || cust.defaultAddress);
+                          setCity(parts[1]?.trim() || "Kochi");
+                          setState(parts[2]?.trim() || "Kerala");
+                        }
+                        setCustomerInfoBadge(`Loaded existing customer: ${cust.name || cust.phone} (${cust.ordersCount} previous orders)`);
+                      }
+                    }}
+                    style={{
+                      width: "100%",
+                      padding: "0.75rem",
+                      borderRadius: "10px",
+                      border: "1.5px solid #10B981",
+                      fontSize: "0.9rem",
+                      fontWeight: "700",
+                      backgroundColor: "#FFFFFF",
+                      color: "#0F172A"
+                    }}
+                  >
+                    <option value="">-- Choose Existing Customer to Re-Order --</option>
+                    {customerList.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name || "Customer"} ({c.phone || c.email}) — {c.ordersCount} orders ({c.formattedSpent})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div>
                   <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155" }}>Order Source *</label>
