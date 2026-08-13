@@ -15,14 +15,18 @@ export async function GET(request: Request) {
   const cleanQuery = rawQuery.toUpperCase().replace("#", "").trim();
 
   try {
-    // 1. Query Real Database for Order matching orderNumber, AWB number, or Phone number
+    // 1. Query Real Database for Order matching orderNumber, trackingNumber, awbNumber, or Phone number
     const realOrder = await prisma.order.findFirst({
       where: {
         OR: [
           { orderNumber: { equals: cleanQuery, mode: "insensitive" } },
           { orderNumber: { equals: `POL-${cleanQuery}`, mode: "insensitive" } },
+          { orderNumber: { contains: cleanQuery, mode: "insensitive" } },
+          { trackingNumber: { equals: cleanQuery, mode: "insensitive" } },
+          { trackingNumber: { contains: cleanQuery, mode: "insensitive" } },
           { awbNumber: { equals: cleanQuery, mode: "insensitive" } },
-          { phone: { equals: rawQuery } }
+          { awbNumber: { contains: cleanQuery, mode: "insensitive" } },
+          { phone: { contains: rawQuery } }
         ]
       },
       include: {
@@ -76,7 +80,7 @@ export async function GET(request: Request) {
 
     const formattedResult = {
       orderId: `#${realOrder.orderNumber}`,
-      awbNumber: realOrder.awbNumber || `TPC-${realOrder.orderNumber}`,
+      awbNumber: realOrder.trackingNumber || realOrder.awbNumber || `TPC-${realOrder.orderNumber}`,
       carrier: carrierName,
       carrierWebsite: "https://www.tpcindia.com/",
       carrierTrackingUrl: carrierUrl,
