@@ -139,11 +139,14 @@ export default function CheckoutPage() {
         setCompletedOrder({ ...data.order, whatsappUrl: data.whatsappUrl });
         clearCart();
 
-        // Attempt redirect to WhatsApp with fallback
+        // Attempt window.open first, fallback to location.href
         try {
-          window.location.href = data.whatsappUrl;
+          const win = window.open(data.whatsappUrl, "_blank");
+          if (!win || win.closed || typeof win.closed === "undefined") {
+            window.location.href = data.whatsappUrl;
+          }
         } catch {
-          // Fallback if blocked
+          window.location.href = data.whatsappUrl;
         }
       } else {
         alert("Checkout Error: " + (data.error || "Failed to place order"));
@@ -241,12 +244,12 @@ export default function CheckoutPage() {
             <h3 style={{ margin: "0 0 1.25rem 0", fontSize: "1.1rem", fontWeight: "800" }}>1. Customer & Contact Info</h3>
             <div className="checkout-inputs-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Full Name *</label>
-                <input type="text" required value={shippingName} onChange={(e) => setShippingName(e.target.value)} placeholder="Enter Full Name" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Full Name</label>
+                <input type="text" value={shippingName} onChange={(e) => setShippingName(e.target.value)} placeholder="Enter Full Name" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
               </div>
               <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>WhatsApp Phone # *</label>
-                <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit Phone Number" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>WhatsApp Phone #</label>
+                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit Phone Number" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
               </div>
             </div>
             <div style={{ marginTop: "1rem" }}>
@@ -259,22 +262,22 @@ export default function CheckoutPage() {
             <h3 style={{ margin: "0 0 1.25rem 0", fontSize: "1.1rem", fontWeight: "800" }}>2. Delivery Address</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Street / Building Address *</label>
-                <input type="text" required value={shippingStreet} onChange={(e) => setShippingStreet(e.target.value)} placeholder="House No., Street Name, Area" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Street / Building Address</label>
+                <input type="text" value={shippingStreet} onChange={(e) => setShippingStreet(e.target.value)} placeholder="House No., Street Name, Area" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
               </div>
 
               <div className="checkout-inputs-3col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
                 <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>City *</label>
-                  <input type="text" required value={shippingCity} onChange={(e) => setShippingCity(e.target.value)} placeholder="City" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>City</label>
+                  <input type="text" value={shippingCity} onChange={(e) => setShippingCity(e.target.value)} placeholder="City" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>State *</label>
-                  <input type="text" required value={shippingState} onChange={(e) => setShippingState(e.target.value)} placeholder="State" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>State</label>
+                  <input type="text" value={shippingState} onChange={(e) => setShippingState(e.target.value)} placeholder="State" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Pincode *</label>
-                  <input type="text" required value={shippingZip} onChange={(e) => setShippingZip(e.target.value)} placeholder="Pincode" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
+                  <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#333" }}>Pincode</label>
+                  <input type="text" value={shippingZip} onChange={(e) => setShippingZip(e.target.value)} placeholder="Pincode" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "1px solid #E2E8F0", fontSize: "0.9rem" }} />
                 </div>
               </div>
             </div>
