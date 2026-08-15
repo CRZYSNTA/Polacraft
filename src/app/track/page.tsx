@@ -81,9 +81,6 @@ export default function TrackOrderPage() {
         
         {/* 1. TOP HEADER & TITLE */}
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#F4F3EF", padding: "0.4rem 1rem", borderRadius: "100px", fontSize: "0.8rem", fontWeight: "700", color: "#111111", marginBottom: "1rem" }}>
-            <Truck size={15} style={{ color: "#111111" }} /> LIVE SHIPMENT TRACKING
-          </div>
           <h1 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: "900", color: "#111111", margin: 0, letterSpacing: "-0.02em" }}>
             Track Your Package
           </h1>

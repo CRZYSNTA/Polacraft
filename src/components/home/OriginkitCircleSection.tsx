@@ -45,9 +45,6 @@ export default function OriginkitCircleSection({ posters = [] }: OriginkitCircle
       }}
     >
       <div className="container" style={{ textAlign: "center", marginBottom: "3rem", position: "relative", zIndex: 10 }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#FFFFFF", padding: "0.4rem 1rem", borderRadius: "100px", fontSize: "0.78rem", fontWeight: "800", color: "#111111", border: "1px solid rgba(17,17,17,0.08)", marginBottom: "1rem" }}>
-          <Sparkles size={14} style={{ color: "#D4AF37" }} /> ARCHIVAL CINEMA ART DECK
-        </div>
         <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: "900", color: "#111111", margin: 0, letterSpacing: "-0.02em" }}>
           360° Interactive Poster Vault
         </h2>

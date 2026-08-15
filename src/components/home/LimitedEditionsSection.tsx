@@ -63,7 +63,7 @@ export default function LimitedEditionsSection({ posters }: LimitedEditionsProps
                   boxShadow: "0 15px 35px rgba(0,0,0,0.04)"
                 }}
               >
-                <div style={{ position: "absolute", top: "1.25rem", right: "1.25rem", zIndex: 10, backgroundColor: "#D97706", color: "#FFFFFF", fontSize: "0.7rem", fontWeight: "800", padding: "0.3rem 0.75rem", borderRadius: "100px" }}>
+                <div style={{ position: "absolute", top: "1.25rem", right: "1.25rem", zIndex: 10, backgroundColor: "#D97706", color: "#FFFFFF", fontSize: "0.7rem", fontWeight: "800", padding: "0.3rem 0.75rem", borderRadius: "8px" }}>
                   PRINT NO. {editionSold} / {editionTotal}
                 </div>
 

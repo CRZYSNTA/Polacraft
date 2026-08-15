@@ -205,21 +205,6 @@ export default function PosterPlaceHero() {
             flexGrow: 1
           }}
         >
-          {/* Top Announcement Badges */}
-          <motion.div 
-            variants={badgeVariants}
-            initial="hidden"
-            animate="visible"
-            style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.75rem" }}
-          >
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", backgroundColor: "rgba(79, 125, 255, 0.08)", color: "#4F7DFF", padding: "0.45rem 1rem", borderRadius: "100px", fontSize: "0.78rem", fontWeight: "600", boxShadow: "0 2px 10px rgba(79, 125, 255, 0.05)" }}>
-              <Sparkles size={11} /> Introducing AI Discovery
-            </div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", backgroundColor: "rgba(67, 201, 123, 0.08)", color: "#43C97B", padding: "0.45rem 0.8rem", borderRadius: "100px", fontSize: "0.75rem", fontWeight: "600", boxShadow: "0 2px 10px rgba(67, 201, 123, 0.05)" }}>
-              <span style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: "#43C97B", display: "inline-block" }} /> New
-            </div>
-          </motion.div>
-
           {/* Main Editorial Headline */}
           <motion.h1 
             variants={headlineVariants}
