@@ -230,7 +230,7 @@ export default function HeroSection({
           >
             <Sparkles size={13} style={{ color: "#D4AF37" }} />
             <span style={{ fontSize: "0.75rem", fontWeight: "800", letterSpacing: "0.1em", textTransform: "uppercase", color: "#111111", fontFamily: "var(--font-movault), 'Movault', var(--font-bebas-neue), 'Bebas Neue', sans-serif" }}>
-              MALAYALAM CINEMA • FINE ART PRINTS
+              FINE ART PRINTS
             </span>
           </div>
 

@@ -52,7 +52,7 @@ export default function OriginkitCircleSection({ posters = [] }: OriginkitCircle
           360° Interactive Poster Vault
         </h2>
         <p style={{ fontSize: "0.95rem", color: "#666666", marginTop: "0.5rem", maxWidth: "54ch", margin: "0.5rem auto 0 auto" }}>
-          Spin through our museum-quality 300 GSM Malayalam cinema prints rotating live. Tap any poster to view details.
+          Spin through our museum-quality 300 GSM cinema prints rotating live. Tap any poster to view details.
         </p>
       </div>
 
