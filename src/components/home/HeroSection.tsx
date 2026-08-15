@@ -213,26 +213,7 @@ export default function HeroSection({
             pointerEvents: "auto"
           }}
         >
-          {/* BADGE */}
-          <div
-            className="hero-mobile-badge"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              backgroundColor: "#FFFFFF",
-              border: "1px solid rgba(17,17,17,0.12)",
-              boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
-              padding: "0.35rem 0.9rem",
-              borderRadius: "100px",
-              marginBottom: "1.1rem"
-            }}
-          >
-            <Sparkles size={13} style={{ color: "#D4AF37" }} />
-            <span style={{ fontSize: "0.75rem", fontWeight: "800", letterSpacing: "0.1em", textTransform: "uppercase", color: "#111111", fontFamily: "var(--font-movault), 'Movault', var(--font-bebas-neue), 'Bebas Neue', sans-serif" }}>
-              FINE ART PRINTS
-            </span>
-          </div>
+
 
           {/* TITLE */}
           <h1
